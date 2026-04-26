@@ -3,6 +3,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
+import { Providers } from './providers';
+
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
@@ -22,8 +24,10 @@ const RootLayout = ({
 }>) => {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className={`${inter.className} flex min-h-full flex-col`}>
-        {children}
+      <body
+        className={`${inter.className} bg-primary-50 flex min-h-full flex-col`}
+      >
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

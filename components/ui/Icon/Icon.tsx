@@ -1,0 +1,34 @@
+import type { ComponentType } from 'react';
+import React from 'react';
+import * as FcIcons from 'react-icons/fc';
+import * as TbIcons from 'react-icons/tb';
+
+type TbIconName = keyof typeof TbIcons;
+type FcIconName = keyof typeof FcIcons;
+
+export type IconName = TbIconName | FcIconName;
+
+const icons = {
+  ...TbIcons,
+  ...FcIcons,
+};
+
+type IconComponentType = ComponentType<{
+  size?: number;
+  color?: string;
+  [key: string]: unknown;
+}>;
+
+export interface IconProps extends React.SVGProps<SVGSVGElement> {
+  icon: IconName;
+  size?: number;
+  color?: string;
+}
+
+const Icon = ({ icon, size = 24, color, ...props }: IconProps) => {
+  const IconComponent = icons[icon] as IconComponentType;
+  if (!IconComponent) return null;
+  return <IconComponent size={size} color={color} {...props} />;
+};
+
+export default Icon;
