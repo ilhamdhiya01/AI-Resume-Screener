@@ -3,7 +3,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
-import { Providers } from './providers';
+import { SessionProviderClient } from './providers';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -27,7 +27,7 @@ const RootLayout = ({
       <body
         className={`${inter.className} bg-primary-50 flex min-h-full flex-col`}
       >
-        <Providers>{children}</Providers>
+        <SessionProviderClient>{children}</SessionProviderClient>
       </body>
     </html>
   );

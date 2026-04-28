@@ -10,7 +10,7 @@ import Input from '@/components/ui/Input';
 
 import { AuthLayout } from './AuthLayout';
 
-const LoginForm = () => {
+const RegisterForm = () => {
   const [hide, setHide] = useState<{
     icon: IconProps['icon'];
     type: 'text' | 'password';
@@ -31,12 +31,19 @@ const LoginForm = () => {
       callbackUrl: '/',
     });
   };
-
   return (
     <AuthLayout
-      title="Welcome back"
-      subtitle="Sign in to your account to continue"
+      title="Create an account"
+      subtitle="Start analyzing resumes with AI precision."
     >
+      <Input
+        prefix={{
+          icon: 'TbUser',
+        }}
+        fullWidth
+        label="Full Name"
+        placeholder="Enter your full name"
+      />
       <Input
         prefix={{
           icon: 'TbMail',
@@ -73,12 +80,9 @@ const LoginForm = () => {
       />
       <div className="mt-4 text-center">
         <p className="text-neutral-700">
-          Don&apos;t have an account?{' '}
-          <Link
-            className="text-primary-700 font-semibold"
-            href="/auth/register"
-          >
-            Sign up
+          Already have an account?{' '}
+          <Link className="text-primary-700 font-semibold" href="/auth/login">
+            Sign in
           </Link>
         </p>
       </div>
@@ -86,4 +90,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

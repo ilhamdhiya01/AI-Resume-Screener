@@ -21,7 +21,7 @@ export const THEME_VARIANT = [
 export type ThemeVariant = (typeof THEME_VARIANT)[number];
 
 interface ButtonProps extends React.ComponentPropsWithRef<'button'> {
-  label: string;
+  label?: string;
   size?: ButtonSize;
   variant?: ButtonVariant;
   type?: ButtonType;
@@ -79,7 +79,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               true: 'w-full',
             },
             iconButton: {
-              true: 'aspect-square min-h-[25px] min-w-[25px] rounded-md p-[6px] md:min-h-[28px] md:min-w-[28px] md:rounded-lg md:p-2',
+              true: '!min-w-0 aspect-square h-10 w-10 rounded-md p-2 md:h-11 md:w-11 md:p-2.5',
             },
             isLoading: {
               true: 'pointer-events-none opacity-50',
@@ -197,39 +197,56 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button ref={ref} type={type} className={buttonClasses} {...props}>
         {iconButton ? (
-          <Icon
-            icon={iconButton}
-            className={classNames('h-3 w-3 md:h-4 md:w-4', {
-              'h-4 w-4 md:h-5 md:w-5': size === 'md',
-              'h-5 w-5 md:h-6 md:w-6': size === 'lg',
-            })}
-          />
-        ) : (
           <>
-            {preffixIcon && (
+            {isLoading ? (
+              <Icon
+                icon="TbLoader2"
+                className={classNames('h-3 w-3 animate-spin md:h-4 md:w-4', {
+                  'h-4 w-4 md:h-5 md:w-5': size === 'md',
+                  'h-5 w-5 md:h-6 md:w-6': size === 'lg',
+                })}
+              />
+            ) : (
+              <Icon
+                icon={iconButton}
+                className={classNames('h-3 w-3 md:h-4 md:w-4', {
+                  'h-4 w-4 md:h-5 md:w-5': size === 'md',
+                  'h-5 w-5 md:h-6 md:w-6': size === 'lg',
+                })}
+              />
+            )}
+          </>
+        ) : (
+          <span className="flex items-center gap-2">
+            {preffixIcon && !isLoading && (
               <Icon
                 icon={preffixIcon}
                 className={classNames('h-3 w-3 md:h-4 md:w-4', {
                   'h-4 w-4 md:h-5 md:w-5': size === 'md',
                   'h-5 w-5 md:h-6 md:w-6': size === 'lg',
-                  '-order-1': label,
-                  'opacity-0': isLoading,
+                })}
+              />
+            )}
+            {isLoading && (
+              <Icon
+                icon="TbLoader2"
+                className={classNames('h-3 w-3 animate-spin md:h-4 md:w-4', {
+                  'h-4 w-4 md:h-5 md:w-5': size === 'md',
+                  'h-5 w-5 md:h-6 md:w-6': size === 'lg',
                 })}
               />
             )}
             {label}
-            {suffixIcon && (
+            {suffixIcon && !isLoading && (
               <Icon
                 icon={suffixIcon}
                 className={classNames('h-3 w-3 md:h-4 md:w-4', {
                   'h-4 w-4 md:h-5 md:w-5': size === 'md',
                   'h-5 w-5 md:h-6 md:w-6': size === 'lg',
-                  'order-2': label,
-                  'opacity-0': isLoading,
                 })}
               />
             )}
-          </>
+          </span>
         )}
       </button>
     );
