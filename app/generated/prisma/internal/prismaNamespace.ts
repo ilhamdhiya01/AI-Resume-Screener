@@ -787,12 +787,16 @@ export type TransactionIsolationLevel =
 export const AccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  providerType: 'providerType',
-  providerId: 'providerId',
+  type: 'type',
+  provider: 'provider',
   providerAccountId: 'providerAccountId',
-  refreshToken: 'refreshToken',
-  accessToken: 'accessToken',
-  accessTokenExpires: 'accessTokenExpires',
+  refresh_token: 'refresh_token',
+  access_token: 'access_token',
+  expires_at: 'expires_at',
+  token_type: 'token_type',
+  scope: 'scope',
+  id_token: 'id_token',
+  session_state: 'session_state',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
@@ -802,10 +806,9 @@ export type AccountScalarFieldEnum =
 
 export const SessionScalarFieldEnum = {
   id: 'id',
+  sessionToken: 'sessionToken',
   userId: 'userId',
   expires: 'expires',
-  sessionToken: 'sessionToken',
-  accessToken: 'accessToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
@@ -817,6 +820,7 @@ export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
+  password: 'password',
   emailVerified: 'emailVerified',
   image: 'image',
   createdAt: 'createdAt',
@@ -880,6 +884,22 @@ export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<
 >;
 
 /**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Int'
+>;
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Int[]'
+>;
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<
@@ -896,19 +916,19 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<
 >;
 
 /**
- * Reference to a field of type 'Int'
+ * Reference to a field of type 'Float'
  */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<
   $PrismaModel,
-  'Int'
+  'Float'
 >;
 
 /**
- * Reference to a field of type 'Int[]'
+ * Reference to a field of type 'Float[]'
  */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<
   $PrismaModel,
-  'Int[]'
+  'Float[]'
 >;
 
 /**

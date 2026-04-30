@@ -79,12 +79,16 @@ export type TransactionIsolationLevel =
 export const AccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  providerType: 'providerType',
-  providerId: 'providerId',
+  type: 'type',
+  provider: 'provider',
   providerAccountId: 'providerAccountId',
-  refreshToken: 'refreshToken',
-  accessToken: 'accessToken',
-  accessTokenExpires: 'accessTokenExpires',
+  refresh_token: 'refresh_token',
+  access_token: 'access_token',
+  expires_at: 'expires_at',
+  token_type: 'token_type',
+  scope: 'scope',
+  id_token: 'id_token',
+  session_state: 'session_state',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
@@ -94,10 +98,9 @@ export type AccountScalarFieldEnum =
 
 export const SessionScalarFieldEnum = {
   id: 'id',
+  sessionToken: 'sessionToken',
   userId: 'userId',
   expires: 'expires',
-  sessionToken: 'sessionToken',
-  accessToken: 'accessToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
@@ -109,6 +112,7 @@ export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
+  password: 'password',
   emailVerified: 'emailVerified',
   image: 'image',
   createdAt: 'createdAt',

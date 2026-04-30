@@ -1,12 +1,16 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/Button';
 import { IconProps } from '@/components/ui/Icon';
 import Input from '@/components/ui/Input';
+import { useAuth } from '@/lib/hooks';
+import { LoginInput } from '@/lib/types/auth.types';
+import { loginSchema } from '@/lib/validations/auth.validation';
 
 import { AuthLayout } from './AuthLayout';
 
@@ -26,62 +30,88 @@ const LoginForm = () => {
     }));
   };
 
-  const handleGoogleSignIn = async () => {
-    await signIn('google', {
-      callbackUrl: '/',
-    });
+  const { login, loginWithOAuth, error: authError, isLoading } = useAuth();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (data: LoginInput) => {
+    await login(data);
   };
 
   return (
     <AuthLayout
       title="Welcome back"
       subtitle="Sign in to your account to continue"
+      error={authError}
     >
-      <Input
-        prefix={{
-          icon: 'TbMail',
-        }}
-        fullWidth
-        label="Email"
-        placeholder="Enter your email"
-      />
-      <Input
-        fullWidth
-        label="Password"
-        placeholder="Enter your password"
-        type={hide.type}
-        prefix={{
-          icon: hide.icon,
-          onClick: handleShowPassword,
-        }}
-      />
-      <Button variant="contained" color="primary" label="Login" fullWidth />
-      <div className="relative flex items-center py-2">
-        <div className="grow border-t border-gray-300" />
-        <span className="mx-4 shrink text-sm font-medium text-gray-500">
-          OR
-        </span>
-        <div className="grow border-t border-gray-300" />
-      </div>
-      <Button
-        preffixIcon="FcGoogle"
-        variant="outlined"
-        color="neutral"
-        label="Continue with Google"
-        fullWidth
-        onClick={handleGoogleSignIn}
-      />
-      <div className="mt-4 text-center">
-        <p className="text-neutral-700">
-          Don&apos;t have an account?{' '}
-          <Link
-            className="text-primary-700 font-semibold"
-            href="/auth/register"
-          >
-            Sign up
-          </Link>
-        </p>
-      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <Input
+          {...register('email')}
+          prefix={{
+            icon: 'TbMail',
+          }}
+          fullWidth
+          label="Email"
+          placeholder="Enter your email"
+          error={errors.email?.message}
+        />
+        <Input
+          {...register('password')}
+          fullWidth
+          label="Password"
+          placeholder="Enter your password"
+          type={hide.type}
+          prefix={{
+            icon: hide.icon,
+            onClick: handleShowPassword,
+          }}
+          error={errors.password?.message}
+        />
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          label="Login"
+          fullWidth
+          isLoading={isSubmitting}
+        />
+        <div className="relative flex items-center py-2">
+          <div className="grow border-t border-gray-300" />
+          <span className="mx-4 shrink text-sm font-medium text-gray-500">
+            OR
+          </span>
+          <div className="grow border-t border-gray-300" />
+        </div>
+        <Button
+          preffixIcon="FcGoogle"
+          variant="outlined"
+          color="neutral"
+          label="Continue with Google"
+          fullWidth
+          onClick={() => loginWithOAuth('google')}
+        />
+        <div className="mt-4 text-center">
+          <p className="text-neutral-700">
+            Don&apos;t have an account?{' '}
+            <Link
+              className="text-primary-700 font-semibold"
+              href="/auth/register"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
+      </form>
     </AuthLayout>
   );
 };
