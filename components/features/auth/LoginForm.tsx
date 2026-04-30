@@ -30,7 +30,7 @@ const LoginForm = () => {
     }));
   };
 
-  const { login, loginWithOAuth, error: authError, isLoading } = useAuth();
+  const { login, loginWithOAuth, error: authError } = useAuth();
 
   const {
     register,

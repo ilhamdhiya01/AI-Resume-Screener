@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+import { API_NEXT, LOGIN_PATH } from '@/routes';
+
 const axiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: API_NEXT,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -13,7 +15,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
+        window.location.href = LOGIN_PATH;
       }
     }
 

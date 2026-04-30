@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 
 import prisma from '../db';
+import { EmailNotFoundError } from '../errors/auth.error';
 import { LoginInput, RegisterInput } from '../types/auth.types';
 
 /**
@@ -58,7 +59,7 @@ export const verifyCredentials = async (request: LoginInput) => {
   const user = await findUserByEmail(request.email);
 
   if (!user || !user.password) {
-    return null;
+    throw new EmailNotFoundError();
   }
 
   const isValid = await bcrypt.compare(request.password, user.password);

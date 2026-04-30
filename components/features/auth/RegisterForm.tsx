@@ -34,7 +34,6 @@ const RegisterForm = () => {
     register: handleRegister,
     loginWithOAuth,
     error: authError,
-    isLoading,
   } = useAuth();
 
   const {
@@ -115,7 +114,6 @@ const RegisterForm = () => {
           label="Continue with Google"
           fullWidth
           onClick={() => loginWithOAuth('google')}
-          isLoading={isLoading}
         />
         <div className="mt-4 text-center">
           <p className="text-neutral-700">

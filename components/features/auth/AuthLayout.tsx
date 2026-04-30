@@ -17,7 +17,7 @@ export const AuthLayout = ({
   error,
 }: AuthLayoutProps) => {
   return (
-    <div className="w-[448px] rounded-xl bg-white p-6 drop-shadow">
+    <div className="before:bg-primary-800 relative w-[448px] overflow-hidden rounded-xl bg-white p-6 drop-shadow before:absolute before:inset-0 before:top-0 before:h-1.5 before:w-full">
       <div className="flex flex-col gap-3 text-center">
         <div className="mx-auto inline-flex items-center gap-2">
           <Image src="/icons/Logo.svg" alt="Logo" width={27} height={27} />

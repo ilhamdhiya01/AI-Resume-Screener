@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CredentialsSignin } from 'next-auth';
 
 interface ErrorHandlerOptions {
   defaultMessage?: string;
@@ -40,4 +41,29 @@ export const handleApiError = (
 
   // Unknown error
   return defaultMessage;
+};
+
+export class EmailNotFoundError extends CredentialsSignin {
+  code = 'email_not_found';
+}
+
+export class InvalidPasswordError extends CredentialsSignin {
+  code = 'invalid_password';
+}
+
+export class MissingCredentialsError extends CredentialsSignin {
+  code = 'missing_credentials';
+}
+
+export const getAuthErrorMessage = (errorCode: string): string => {
+  const errorMessages: Record<string, string> = {
+    email_not_found: 'Email is not registered',
+    invalid_password: 'Invalid password',
+    missing_credentials: 'Email and password are required',
+    CredentialsSignin: 'Invalid email or password',
+    Configuration: 'Server error. Please try again later.',
+    OAuthAccountNotLinked: 'This email is already linked to another account',
+  };
+
+  return errorMessages[errorCode] || 'An error occurred. Please try again.';
 };

@@ -2,9 +2,11 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 
+import { API_AUTH_REGISTER, ROOT_PATH } from '@/routes';
+
 import axiosInstance from '../axios';
+import { getAuthErrorMessage, handleApiError } from '../errors/auth.error';
 import { LoginInput, RegisterInput } from '../types/auth.types';
-import { handleApiError } from '../utils/error-handler';
 
 const useAuth = () => {
   const router = useRouter();
@@ -25,11 +27,14 @@ const useAuth = () => {
       });
 
       if (result?.error) {
-        setError(result.error);
+        const errorCode = result.code ?? result.error;
+        const userFriendlyError = getAuthErrorMessage(errorCode);
+        setError(userFriendlyError);
+        return { success: false, error: userFriendlyError };
       }
 
       if (result?.ok) {
-        router.push('/');
+        router.push(ROOT_PATH);
       }
     } catch (error) {
       const errorMessage = handleApiError(error, {
@@ -47,7 +52,7 @@ const useAuth = () => {
     setError(null);
     try {
       signIn(provider, {
-        callbackUrl: '/',
+        callbackUrl: ROOT_PATH,
       });
     } catch (error) {
       const errorMessage = handleApiError(error, {
@@ -63,7 +68,7 @@ const useAuth = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.post('/auth/register', request);
+      const response = await axiosInstance.post(API_AUTH_REGISTER, request);
 
       if (response.status === 201) {
         const loginResult = await login({
