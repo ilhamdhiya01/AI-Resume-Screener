@@ -55,14 +55,26 @@ export class MissingCredentialsError extends CredentialsSignin {
   code = 'missing_credentials';
 }
 
+export class InvalidLoginError extends CredentialsSignin {
+  code = 'invalid_credentials';
+}
+
+export class UnverifiedEmailError extends CredentialsSignin {
+  code = 'email_unverified';
+}
+
+export class EmailAlreadyExistsError extends CredentialsSignin {
+  code = 'email_already_exists';
+}
+
 export const getAuthErrorMessage = (errorCode: string): string => {
   const errorMessages: Record<string, string> = {
     email_not_found: 'Email is not registered',
     invalid_password: 'Invalid password',
     missing_credentials: 'Email and password are required',
-    CredentialsSignin: 'Invalid email or password',
-    Configuration: 'Server error. Please try again later.',
-    OAuthAccountNotLinked: 'This email is already linked to another account',
+    invalid_credentials: 'Invalid email or password',
+    email_unverified: 'Email is not verified',
+    email_already_exists: 'Email is already registered',
   };
 
   return errorMessages[errorCode] || 'An error occurred. Please try again.';

@@ -1,13 +1,14 @@
 import type { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import EmailProvider from 'next-auth/providers/email';
 import GoogleProvider from 'next-auth/providers/google';
 
-import { verifyCredentials } from '@/lib/services/auth.service';
-
 import {
-  InvalidPasswordError,
-  MissingCredentialsError,
-} from './lib/errors/auth.error';
+  generateVerificationTokenByEmail,
+  verifyCredentials,
+} from '@/lib/services/auth.service';
+
+import { MissingCredentialsError } from './lib/errors/auth.error';
 import { LOGIN_PATH } from './routes';
 
 export default {
@@ -16,6 +17,17 @@ export default {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    // EmailProvider({
+    //   server: {
+    //     host: process.env.EMAIL_SERVER_HOST,
+    //     port: Number(process.env.EMAIL_SERVER_PORT),
+    //     auth: {
+    //       user: process.env.EMAIL_SERVER_USER,
+    //       pass: process.env.EMAIL_SERVER_PASSWORD,
+    //     },
+    //   },
+    //   from: process.env.EMAIL_FROM,
+    // }),
     CredentialsProvider({
       name: 'credentials',
       credentials: {
@@ -33,8 +45,14 @@ export default {
         });
 
         if (!user) {
-          throw new InvalidPasswordError();
+          return null;
         }
+
+        await generateVerificationTokenByEmail(credentials.email as string);
+        // ✅ PENTING: Block user yang belum verify email
+        // if (!user.emailVerified) {
+        //   throw new Error('Please verify your email before logging in');
+        // }
 
         return user;
       },
@@ -42,5 +60,6 @@ export default {
   ],
   pages: {
     signIn: LOGIN_PATH,
+    verifyRequest: '/auth/verify-request',
   },
 } satisfies NextAuthConfig;

@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -34,6 +35,7 @@ const RegisterForm = () => {
     register: handleRegister,
     loginWithOAuth,
     error: authError,
+    success: authSuccess,
   } = useAuth();
 
   const {
@@ -50,7 +52,15 @@ const RegisterForm = () => {
   });
 
   const onSubmit = async (data: RegisterInput) => {
-    await handleRegister(data);
+    const response = await handleRegister(data);
+    if (response?.success) {
+      // 2. ✅ Auto-trigger magic link email
+      await signIn('email', {
+        email: data.email,
+        redirect: true,
+        callbackUrl: '/auth/verify-request', // Redirect ke "check email" page
+      });
+    }
   };
 
   return (
@@ -58,6 +68,7 @@ const RegisterForm = () => {
       title="Create an account"
       subtitle="Start analyzing resumes with AI precision."
       error={authError}
+      success={authSuccess}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input

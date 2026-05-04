@@ -1,7 +1,9 @@
 import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 
 import prisma from '../db';
-import { EmailNotFoundError } from '../errors/auth.error';
+import { EmailNotFoundError, InvalidPasswordError } from '../errors/auth.error';
+import { sendVerificationEmail } from '../resend';
 import { LoginInput, RegisterInput } from '../types/auth.types';
 
 /**
@@ -23,6 +25,7 @@ export const registerUser = async (request: RegisterInput) => {
       email: request.email,
       password: hashedPassword,
       name: request.name,
+      emailVerified: null,
     },
     select: {
       id: true,
@@ -32,7 +35,16 @@ export const registerUser = async (request: RegisterInput) => {
     },
   });
 
-  return user;
+  const verificationToken = await generateVerificationTokenByEmail(
+    request.email
+  );
+
+  await sendVerificationEmail(
+    verificationToken.identifier,
+    verificationToken.token
+  );
+
+  return { user, verificationToken };
 };
 
 /**
@@ -58,14 +70,14 @@ export const findUserByEmail = async (email: string) => {
 export const verifyCredentials = async (request: LoginInput) => {
   const user = await findUserByEmail(request.email);
 
-  if (!user || !user.password) {
+  if (!user) {
     throw new EmailNotFoundError();
   }
 
-  const isValid = await bcrypt.compare(request.password, user.password);
+  const isValid = await bcrypt.compare(request.password, user.password!);
 
   if (!isValid) {
-    return null;
+    throw new InvalidPasswordError();
   }
 
   return user;
@@ -92,4 +104,72 @@ export const getUserById = async (id: string) => {
   });
 
   return user;
+};
+
+/**
+ * Gets a verification token by email
+ * @param email - The email to search for
+ * @returns The verification token if found, null otherwise
+ */
+export const getVerificationTokenByEmail = async (email: string) => {
+  try {
+    const verificationToken = await prisma.verificationRequest.findFirst({
+      where: {
+        identifier: email,
+      },
+    });
+
+    return verificationToken;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Gets a verification token by token
+ * @param token - The token to search for
+ * @returns The verification token if found, null otherwise
+ */
+export const getVerificationTokenByToken = async (token: string) => {
+  try {
+    const verificationToken = await prisma.verificationRequest.findUnique({
+      where: {
+        token,
+      },
+    });
+
+    return verificationToken;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Generates a verification token for an email
+ * @param email - The email to generate a verification token for
+ * @returns The generated verification token
+ */
+export const generateVerificationTokenByEmail = async (email: string) => {
+  const token = uuidv4();
+  const expires = new Date(new Date().getTime() + 3600 * 1000); // 1 hour from now
+
+  const existingToken = await getVerificationTokenByEmail(email);
+
+  if (existingToken) {
+    await prisma.verificationRequest.delete({
+      where: {
+        id: existingToken.id,
+      },
+    });
+  }
+
+  const verificationToken = await prisma.verificationRequest.create({
+    data: {
+      identifier: email,
+      token,
+      expires,
+    },
+  });
+
+  return verificationToken;
 };

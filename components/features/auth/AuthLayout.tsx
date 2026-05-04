@@ -8,6 +8,7 @@ interface AuthLayoutProps {
   title: string;
   subtitle: string;
   error?: string | null;
+  success?: string | null;
 }
 
 export const AuthLayout = ({
@@ -15,6 +16,7 @@ export const AuthLayout = ({
   title,
   subtitle,
   error,
+  success,
 }: AuthLayoutProps) => {
   return (
     <div className="before:bg-primary-800 relative w-[448px] overflow-hidden rounded-xl bg-white p-6 drop-shadow before:absolute before:inset-0 before:top-0 before:h-1.5 before:w-full">
@@ -38,6 +40,16 @@ export const AuthLayout = ({
             size={20}
           />
           <p>{error}</p>
+        </div>
+      )}
+      {success && (
+        <div className="relative mt-4 rounded-lg border border-green-300 bg-green-100 py-2.5 pr-2.5 pl-10 text-green-500">
+          <Icon
+            icon="TbCheck"
+            className="absolute top-3 left-3 shrink-0"
+            size={20}
+          />
+          <p>{success}</p>
         </div>
       )}
       <div className="mt-8">{children}</div>

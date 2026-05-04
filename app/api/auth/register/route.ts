@@ -10,12 +10,13 @@ export const POST = async (request: NextRequest) => {
     const body: RegisterInput = await request.json();
     const validatedData = registerSchema.parse(body);
 
-    const user = await registerUser(validatedData);
+    const { user, verificationToken } = await registerUser(validatedData);
 
     return NextResponse.json(
       {
-        message: 'User created successfully',
+        message: 'Confirmation email sent. Please check your email.',
         user,
+        verificationToken,
       },
       {
         status: 201,
