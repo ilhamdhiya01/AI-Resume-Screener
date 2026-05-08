@@ -415,7 +415,9 @@ export const ModelName = {
   Account: 'Account',
   Session: 'Session',
   User: 'User',
+  Profile: 'Profile',
   VerificationRequest: 'VerificationRequest',
+  Menu: 'Menu',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -437,7 +439,13 @@ export type TypeMap<
     omit: GlobalOmitOptions;
   };
   meta: {
-    modelProps: 'account' | 'session' | 'user' | 'verificationRequest';
+    modelProps:
+      | 'account'
+      | 'session'
+      | 'user'
+      | 'profile'
+      | 'verificationRequest'
+      | 'menu';
     txIsolationLevel: TransactionIsolationLevel;
   };
   model: {
@@ -669,6 +677,82 @@ export type TypeMap<
         };
       };
     };
+    Profile: {
+      payload: Prisma.$ProfilePayload<ExtArgs>;
+      fields: Prisma.ProfileFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.ProfileFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.ProfileFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>;
+        };
+        findFirst: {
+          args: Prisma.ProfileFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.ProfileFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>;
+        };
+        findMany: {
+          args: Prisma.ProfileFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>[];
+        };
+        create: {
+          args: Prisma.ProfileCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>;
+        };
+        createMany: {
+          args: Prisma.ProfileCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.ProfileCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>[];
+        };
+        delete: {
+          args: Prisma.ProfileDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>;
+        };
+        update: {
+          args: Prisma.ProfileUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>;
+        };
+        deleteMany: {
+          args: Prisma.ProfileDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.ProfileUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.ProfileUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>[];
+        };
+        upsert: {
+          args: Prisma.ProfileUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePayload>;
+        };
+        aggregate: {
+          args: Prisma.ProfileAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProfile>;
+        };
+        groupBy: {
+          args: Prisma.ProfileGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.ProfileGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.ProfileCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.ProfileCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
     VerificationRequest: {
       payload: Prisma.$VerificationRequestPayload<ExtArgs>;
       fields: Prisma.VerificationRequestFieldRefs;
@@ -741,6 +825,82 @@ export type TypeMap<
           args: Prisma.VerificationRequestCountArgs<ExtArgs>;
           result:
             | runtime.Types.Utils.Optional<Prisma.VerificationRequestCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
+    Menu: {
+      payload: Prisma.$MenuPayload<ExtArgs>;
+      fields: Prisma.MenuFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.MenuFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.MenuFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>;
+        };
+        findFirst: {
+          args: Prisma.MenuFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.MenuFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>;
+        };
+        findMany: {
+          args: Prisma.MenuFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>[];
+        };
+        create: {
+          args: Prisma.MenuCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>;
+        };
+        createMany: {
+          args: Prisma.MenuCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.MenuCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>[];
+        };
+        delete: {
+          args: Prisma.MenuDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>;
+        };
+        update: {
+          args: Prisma.MenuUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>;
+        };
+        deleteMany: {
+          args: Prisma.MenuDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.MenuUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.MenuUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>[];
+        };
+        upsert: {
+          args: Prisma.MenuUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MenuPayload>;
+        };
+        aggregate: {
+          args: Prisma.MenuAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMenu>;
+        };
+        groupBy: {
+          args: Prisma.MenuGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.MenuGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.MenuCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.MenuCountAggregateOutputType>
             | number;
         };
       };
@@ -823,12 +983,27 @@ export const UserScalarFieldEnum = {
   password: 'password',
   emailVerified: 'emailVerified',
   image: 'image',
+  role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
 
 export type UserScalarFieldEnum =
   (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum];
+
+export const ProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  phoneNumber: 'phoneNumber',
+  bio: 'bio',
+  totalScanned: 'totalScanned',
+  credits: 'credits',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type ProfileScalarFieldEnum =
+  (typeof ProfileScalarFieldEnum)[keyof typeof ProfileScalarFieldEnum];
 
 export const VerificationRequestScalarFieldEnum = {
   id: 'id',
@@ -841,6 +1016,21 @@ export const VerificationRequestScalarFieldEnum = {
 
 export type VerificationRequestScalarFieldEnum =
   (typeof VerificationRequestScalarFieldEnum)[keyof typeof VerificationRequestScalarFieldEnum];
+
+export const MenuScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  icon: 'icon',
+  path: 'path',
+  order: 'order',
+  isActive: 'isActive',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type MenuScalarFieldEnum =
+  (typeof MenuScalarFieldEnum)[keyof typeof MenuScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',
@@ -913,6 +1103,30 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<
   $PrismaModel,
   'DateTime[]'
+>;
+
+/**
+ * Reference to a field of type 'Role'
+ */
+export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Role'
+>;
+
+/**
+ * Reference to a field of type 'Role[]'
+ */
+export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Role[]'
+>;
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Boolean'
 >;
 
 /**
@@ -1052,7 +1266,9 @@ export type GlobalOmitConfig = {
   account?: Prisma.AccountOmit;
   session?: Prisma.SessionOmit;
   user?: Prisma.UserOmit;
+  profile?: Prisma.ProfileOmit;
   verificationRequest?: Prisma.VerificationRequestOmit;
+  menu?: Prisma.MenuOmit;
 };
 
 /* Types for Logging */

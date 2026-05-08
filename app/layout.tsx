@@ -3,6 +3,9 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
+import { Navbar } from '@/components/shared/Layout/Navbar';
+import { Sidebar } from '@/components/shared/Layout/Sidebar';
+
 import { SessionProviderClient } from './providers';
 
 const inter = Inter({
@@ -25,9 +28,22 @@ const RootLayout = ({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body
-        className={`${inter.className} bg-primary-50 flex min-h-full flex-col`}
+        className={`${inter.className} bg-primary-100/30 flex min-h-full flex-col`}
       >
-        <SessionProviderClient>{children}</SessionProviderClient>
+        <SessionProviderClient>
+          <main className="flex min-h-screen">
+            {/* Sidebar: Kasih lebar fix dan biarkan dia fixed/sticky */}
+            <Sidebar />
+
+            {/* Konten Utama */}
+            <div className="flex flex-1 flex-col">
+              <Navbar />
+
+              {/* Area Konten */}
+              <section className="flex-1">{children}</section>
+            </div>
+          </main>
+        </SessionProviderClient>
       </body>
     </html>
   );

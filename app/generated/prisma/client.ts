@@ -62,7 +62,17 @@ export type Session = Prisma.SessionModel;
  */
 export type User = Prisma.UserModel;
 /**
+ * Model Profile
+ *
+ */
+export type Profile = Prisma.ProfileModel;
+/**
  * Model VerificationRequest
  *
  */
 export type VerificationRequest = Prisma.VerificationRequestModel;
+/**
+ * Model Menu
+ *
+ */
+export type Menu = Prisma.MenuModel;

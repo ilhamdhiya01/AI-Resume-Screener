@@ -1,16 +1,22 @@
 import type { ComponentType } from 'react';
 import React from 'react';
 import * as FcIcons from 'react-icons/fc';
+import * as FiIcons from 'react-icons/fi';
+import * as RiIcons from 'react-icons/ri';
 import * as TbIcons from 'react-icons/tb';
 
 type TbIconName = keyof typeof TbIcons;
 type FcIconName = keyof typeof FcIcons;
+type FiIconName = keyof typeof FiIcons;
+type RiIconName = keyof typeof RiIcons;
 
-export type IconName = TbIconName | FcIconName;
+export type IconName = TbIconName | FcIconName | FiIconName | RiIconName;
 
 const icons = {
   ...TbIcons,
   ...FcIcons,
+  ...FiIcons,
+  ...RiIcons,
 };
 
 type IconComponentType = ComponentType<{

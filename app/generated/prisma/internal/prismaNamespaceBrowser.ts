@@ -57,7 +57,9 @@ export const ModelName = {
   Account: 'Account',
   Session: 'Session',
   User: 'User',
+  Profile: 'Profile',
   VerificationRequest: 'VerificationRequest',
+  Menu: 'Menu',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -115,12 +117,27 @@ export const UserScalarFieldEnum = {
   password: 'password',
   emailVerified: 'emailVerified',
   image: 'image',
+  role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
 
 export type UserScalarFieldEnum =
   (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum];
+
+export const ProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  phoneNumber: 'phoneNumber',
+  bio: 'bio',
+  totalScanned: 'totalScanned',
+  credits: 'credits',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type ProfileScalarFieldEnum =
+  (typeof ProfileScalarFieldEnum)[keyof typeof ProfileScalarFieldEnum];
 
 export const VerificationRequestScalarFieldEnum = {
   id: 'id',
@@ -133,6 +150,21 @@ export const VerificationRequestScalarFieldEnum = {
 
 export type VerificationRequestScalarFieldEnum =
   (typeof VerificationRequestScalarFieldEnum)[keyof typeof VerificationRequestScalarFieldEnum];
+
+export const MenuScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  icon: 'icon',
+  path: 'path',
+  order: 'order',
+  isActive: 'isActive',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type MenuScalarFieldEnum =
+  (typeof MenuScalarFieldEnum)[keyof typeof MenuScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',

@@ -10,5 +10,7 @@
 export type * from './models/Account';
 export type * from './models/Session';
 export type * from './models/User';
+export type * from './models/Profile';
 export type * from './models/VerificationRequest';
+export type * from './models/Menu';
 export type * from './commonInputTypes';
