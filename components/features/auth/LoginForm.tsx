@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import Button from '@/components/ui/Button';
 import { IconProps } from '@/components/ui/Icon';
 import Input from '@/components/ui/Input';
+import Turnstile from '@/components/ui/Turnstile';
 import { useAuth } from '@/lib/hooks';
 import { LoginInput } from '@/lib/types/auth.types';
 import { loginSchema } from '@/lib/validations/auth.validation';
@@ -22,6 +23,8 @@ const LoginForm = () => {
     icon: 'TbEyeOff',
     type: 'password',
   });
+
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const handleShowPassword = () => {
     setHide((prev) => ({
@@ -45,7 +48,7 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (data: LoginInput) => {
-    await login(data);
+    await login({ ...data, turnstileToken });
   };
 
   return (
@@ -77,12 +80,17 @@ const LoginForm = () => {
           }}
           error={errors.password?.message}
         />
+        <Turnstile
+          onSuccess={(token) => setTurnstileToken(token)}
+          onError={() => setTurnstileToken(null)}
+        />
         <Button
           type="submit"
           variant="contained"
           color="primary"
           label="Login"
           fullWidth
+          disabled={!turnstileToken}
           isLoading={isSubmitting}
         />
         <div className="relative flex items-center py-2">

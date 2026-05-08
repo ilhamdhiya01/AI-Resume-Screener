@@ -8,6 +8,7 @@ import {
   privateRoutes,
   ROOT_AUTH_PATH,
   ROOT_PATH,
+  ROOT_VERIFY_REQUEST_PATH,
 } from './routes';
 
 // Use only one of the two proxy options below
@@ -34,6 +35,15 @@ export const proxy = auth(async (req) => {
     return NextResponse.redirect(
       new URL(`${LOGIN_PATH}?from=${encodeURIComponent(from)}`, url)
     );
+  }
+
+  // verify-request without token → redirect to login
+  if (
+    !isLoggedIn &&
+    path === ROOT_VERIFY_REQUEST_PATH &&
+    !nextUrl.searchParams.has('token')
+  ) {
+    return NextResponse.redirect(new URL(LOGIN_PATH, url));
   }
 
   return NextResponse.next();

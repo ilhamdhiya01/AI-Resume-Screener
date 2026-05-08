@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  const confirmLink = `http://localhost:3002/auth/verify-request?token=${token}`;
+  const confirmLink = `http://localhost:3002/auth/verify-request?token=${token}&email=${email}`;
 
   // TODO: Implement email sending logic here
   // You can use resend.emails.send() to send the email

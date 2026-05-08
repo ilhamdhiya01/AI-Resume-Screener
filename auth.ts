@@ -11,6 +11,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt',
+    // token expired on 1 day
+    maxAge: 24 * 60 * 60,
   },
   callbacks: {
     async signIn({ user, account }) {

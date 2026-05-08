@@ -2,7 +2,11 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import prisma from '../db';
-import { EmailNotFoundError, InvalidPasswordError } from '../errors/auth.error';
+import {
+  EmailNotFoundError,
+  InvalidPasswordError,
+  UnverifiedEmailError,
+} from '../errors/auth.error';
 import { sendVerificationEmail } from '../resend';
 import { LoginInput, RegisterInput } from '../types/auth.types';
 
@@ -12,7 +16,7 @@ import { LoginInput, RegisterInput } from '../types/auth.types';
  * @returns The created user
  */
 export const registerUser = async (request: RegisterInput) => {
-  const existingUser = await findUserByEmail(request.email);
+  const existingUser = await getUserByEmail(request.email);
 
   if (existingUser) {
     throw new Error('User already exists');
@@ -52,7 +56,7 @@ export const registerUser = async (request: RegisterInput) => {
  * @param email - The email to search for
  * @returns The user if found, null otherwise
  */
-export const findUserByEmail = async (email: string) => {
+export const getUserByEmail = async (email: string) => {
   const user = await prisma.user.findUnique({
     where: {
       email,
@@ -68,7 +72,7 @@ export const findUserByEmail = async (email: string) => {
  * @returns The user if credentials are valid, null otherwise
  */
 export const verifyCredentials = async (request: LoginInput) => {
-  const user = await findUserByEmail(request.email);
+  const user = await getUserByEmail(request.email);
 
   if (!user) {
     throw new EmailNotFoundError();
@@ -78,6 +82,10 @@ export const verifyCredentials = async (request: LoginInput) => {
 
   if (!isValid) {
     throw new InvalidPasswordError();
+  }
+
+  if (!user.emailVerified) {
+    throw new UnverifiedEmailError();
   }
 
   return user;
@@ -151,7 +159,7 @@ export const getVerificationTokenByToken = async (token: string) => {
  */
 export const generateVerificationTokenByEmail = async (email: string) => {
   const token = uuidv4();
-  const expires = new Date(new Date().getTime() + 3600 * 1000); // 1 hour from now
+  const expires = new Date(new Date().getTime() + 30 * 1000); // 30 seconds from now
 
   const existingToken = await getVerificationTokenByEmail(email);
 
@@ -172,4 +180,59 @@ export const generateVerificationTokenByEmail = async (email: string) => {
   });
 
   return verificationToken;
+};
+
+export const verificationRequest = async (token: string) => {
+  const existingToken = await getVerificationTokenByToken(token);
+
+  if (!existingToken) {
+    throw new Error('Verification token not found');
+  }
+
+  const hasExpired = new Date(existingToken.expires) < new Date();
+
+  if (hasExpired) {
+    throw new Error('Verification token has expired');
+  }
+
+  const user = await getUserByEmail(existingToken.identifier);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      emailVerified: new Date(),
+      email: user.email,
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      emailVerified: true,
+    },
+  });
+
+  await prisma.verificationRequest.delete({
+    where: {
+      id: existingToken.id,
+    },
+  });
+
+  return { success: 'Email verified successfully', user: updatedUser };
+};
+
+export const resendVerificationEmail = async (email: string) => {
+  const verificationToken = await generateVerificationTokenByEmail(email);
+
+  await sendVerificationEmail(
+    verificationToken.identifier,
+    verificationToken.token
+  );
+
+  return { success: 'Verification email resent successfully' };
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import classNames from 'classnames';
+import Link from 'next/link';
 import React, { forwardRef, useMemo } from 'react';
 import { tv } from 'tailwind-variants';
 
@@ -46,6 +47,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       color = 'primary',
       iconButton,
       isLoading = false,
+      disabled = false,
       preffixIcon,
       suffixIcon,
       link,
@@ -82,6 +84,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               true: '!min-w-0 aspect-square h-10 w-10 rounded-md p-2 md:h-11 md:w-11 md:p-2.5',
             },
             isLoading: {
+              true: 'pointer-events-none opacity-50',
+            },
+            disabled: {
               true: 'pointer-events-none opacity-50',
             },
           },
@@ -179,6 +184,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             fullWidth,
             iconButton: !!iconButton,
             isLoading,
+            disabled,
             color,
           }),
           className
@@ -190,12 +196,20 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         fullWidth,
         iconButton,
         isLoading,
+        disabled,
         color,
         className,
       ]
     );
-    return (
-      <button ref={ref} type={type} className={buttonClasses} {...props}>
+
+    const Button = (
+      <button
+        ref={ref}
+        type={type}
+        className={buttonClasses}
+        disabled={disabled}
+        {...props}
+      >
         {iconButton ? (
           <>
             {isLoading ? (
@@ -217,7 +231,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             )}
           </>
         ) : (
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-2 select-none">
             {preffixIcon && !isLoading && (
               <Icon
                 icon={preffixIcon}
@@ -250,6 +264,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
+    return <>{link ? <Link href={link}>{Button}</Link> : Button}</>;
   }
 );
 

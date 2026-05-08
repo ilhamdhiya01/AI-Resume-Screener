@@ -23,13 +23,10 @@ export const handleApiError = (
     console.error('API Error:', error);
   }
 
-  // Axios error
+  // Axios error — read from standardized { success, data, message } format
   if (axios.isAxiosError(error)) {
     const errorMessage =
-      error.response?.data?.error ||
-      error.response?.data?.message ||
-      error.message ||
-      defaultMessage;
+      error.response?.data?.message || error.message || defaultMessage;
 
     return errorMessage;
   }
@@ -73,7 +70,7 @@ export const getAuthErrorMessage = (errorCode: string): string => {
     invalid_password: 'Invalid password',
     missing_credentials: 'Email and password are required',
     invalid_credentials: 'Invalid email or password',
-    email_unverified: 'Email is not verified',
+    AccessDenied: 'Email is not verified',
     email_already_exists: 'Email is already registered',
   };
 

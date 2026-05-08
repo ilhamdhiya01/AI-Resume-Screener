@@ -2,13 +2,13 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/Button';
 import { IconProps } from '@/components/ui/Icon';
 import Input from '@/components/ui/Input';
+import Turnstile from '@/components/ui/Turnstile';
 import { useAuth } from '@/lib/hooks';
 import { RegisterInput } from '@/lib/types/auth.types';
 import { registerSchema } from '@/lib/validations/auth.validation';
@@ -23,6 +23,8 @@ const RegisterForm = () => {
     icon: 'TbEyeOff',
     type: 'password',
   });
+
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const handleShowPassword = () => {
     setHide((prev) => ({
@@ -41,6 +43,7 @@ const RegisterForm = () => {
   const {
     register,
     handleSubmit,
+    resetField,
     formState: { errors, isSubmitting },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -52,14 +55,12 @@ const RegisterForm = () => {
   });
 
   const onSubmit = async (data: RegisterInput) => {
-    const response = await handleRegister(data);
+    const response = await handleRegister({
+      ...data,
+      turnstileToken,
+    });
     if (response?.success) {
-      // 2. ✅ Auto-trigger magic link email
-      await signIn('email', {
-        email: data.email,
-        redirect: true,
-        callbackUrl: '/auth/verify-request', // Redirect ke "check email" page
-      });
+      resetField('password');
     }
   };
 
@@ -103,12 +104,17 @@ const RegisterForm = () => {
           }}
           error={errors.password?.message}
         />
+        <Turnstile
+          onSuccess={(token) => setTurnstileToken(token)}
+          onError={() => setTurnstileToken(null)}
+        />
         <Button
           type="submit"
           variant="contained"
           color="primary"
           label="Create Account"
           fullWidth
+          disabled={!turnstileToken}
           isLoading={isSubmitting}
         />
         <div className="relative flex items-center py-2">
