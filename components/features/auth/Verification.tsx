@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import { useRouter } from 'next/navigation';
 import { BeatLoader } from 'react-spinners';
 
-import Button from '@/components/ui/Button';
-import Icon, { IconProps } from '@/components/ui/Icon';
+import Button from '@/components/ui/button';
+import Icon, { IconProps } from '@/components/ui/icon';
 import { LOGIN_PATH, ROOT_PATH } from '@/routes';
 
 export type VerificationState =

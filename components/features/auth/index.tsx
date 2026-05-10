@@ -1,3 +1,8 @@
-export { AuthLayout } from './AuthLayout';
-export { default as LoginForm } from './LoginForm';
-export { default as RegisterForm } from './RegisterForm';
+import Layout from './AuthLayout';
+import AuthMessage from './AuthMessage';
+import Header from './Header';
+
+export const Auth = Object.assign(Layout, {
+  Message: AuthMessage,
+  Header,
+});

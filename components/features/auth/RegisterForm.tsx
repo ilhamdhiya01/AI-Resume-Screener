@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import Button from '@/components/ui/Button';
-import { IconProps } from '@/components/ui/Icon';
-import Input from '@/components/ui/Input';
-import Turnstile from '@/components/ui/Turnstile';
+import Turnstile from '@/components/shared/turnstile';
+import Button from '@/components/ui/button';
+import { IconProps } from '@/components/ui/icon';
+import Input from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks';
 import { RegisterInput } from '@/lib/types/auth.types';
 import { registerSchema } from '@/lib/validations/auth.validation';
+import { LOGIN_PATH } from '@/routes';
 
-import { AuthLayout } from './AuthLayout';
+import { Auth } from '.';
 
 const RegisterForm = () => {
   const [hide, setHide] = useState<{
@@ -65,7 +66,7 @@ const RegisterForm = () => {
   };
 
   return (
-    <AuthLayout
+    <Auth
       title="Create an account"
       subtitle="Start analyzing resumes with AI precision."
       error={authError}
@@ -135,13 +136,13 @@ const RegisterForm = () => {
         <div className="mt-4 text-center">
           <p className="text-neutral-700">
             Already have an account?{' '}
-            <Link className="text-primary-700 font-semibold" href="/auth/login">
+            <Link className="text-primary-700 font-semibold" href={LOGIN_PATH}>
               Sign in
             </Link>
           </p>
         </div>
       </form>
-    </AuthLayout>
+    </Auth>
   );
 };
 

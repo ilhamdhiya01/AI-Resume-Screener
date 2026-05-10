@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React, { forwardRef, useId } from 'react';
 
-import Icon, { IconProps } from '../Icon';
+import Icon, { IconProps } from '../icon';
 
 type SuffixAndPrefix = {
   suffix?: {

@@ -1,11 +1,11 @@
 const Navbar = () => {
   return (
-    <header className="bg-white/80 px-4 py-5 shadow-[0_4px_2px_-2px_rgba(0,0,0,0.1)]">
+    <header className="h-16 border-b border-slate-300 bg-white/30 px-4">
       <div className="mx-auto flex items-center justify-between">
         {/* Branding Area */}
-        <h1 className="text-xl font-bold tracking-tight text-slate-900">
+        {/* <h1 className="text-xl font-bold tracking-tight text-slate-900">
           AI Resume Screener
-        </h1>
+        </h1> */}
 
         {/* Navigation Area - Kosongkan dulu kalau belum ada menu, tapi siapkan tempatnya */}
         <nav aria-label="Main Navigation">

@@ -1,5 +1,5 @@
-import Button from '@/components/ui/Button';
-import Icon from '@/components/ui/Icon';
+import Button from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 import { LOGIN_PATH } from '@/routes';
 
 const CheckEmailPage = () => {

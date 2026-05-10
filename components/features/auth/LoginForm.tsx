@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import Button from '@/components/ui/Button';
-import { IconProps } from '@/components/ui/Icon';
-import Input from '@/components/ui/Input';
-import Turnstile from '@/components/ui/Turnstile';
+import Turnstile from '@/components/shared/turnstile';
+import Button from '@/components/ui/button';
+import { IconProps } from '@/components/ui/icon';
+import Input from '@/components/ui/input';
 import { useAuth } from '@/lib/hooks';
 import { LoginInput } from '@/lib/types/auth.types';
 import { loginSchema } from '@/lib/validations/auth.validation';
+import { REGISTER_PATH } from '@/routes';
 
-import { AuthLayout } from './AuthLayout';
+import { Auth } from '.';
 
 const LoginForm = () => {
   const [hide, setHide] = useState<{
@@ -52,7 +53,7 @@ const LoginForm = () => {
   };
 
   return (
-    <AuthLayout
+    <Auth
       title="Welcome back"
       subtitle="Sign in to your account to continue"
       error={authError}
@@ -113,14 +114,14 @@ const LoginForm = () => {
             Don&apos;t have an account?{' '}
             <Link
               className="text-primary-700 font-semibold"
-              href="/auth/register"
+              href={REGISTER_PATH}
             >
               Sign up
             </Link>
           </p>
         </div>
       </form>
-    </AuthLayout>
+    </Auth>
   );
 };
 

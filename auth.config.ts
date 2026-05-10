@@ -58,6 +58,6 @@ export default {
   ],
   pages: {
     signIn: LOGIN_PATH,
-    verifyRequest: '/auth/verify-request',
+    verifyRequest: '/verify-request',
   },
 } satisfies NextAuthConfig;

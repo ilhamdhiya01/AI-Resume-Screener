@@ -13,16 +13,17 @@ export const ANALYTICS_PATH = '/analytics';
 export const HISTORY_PATH = '/history';
 export const SETTINGS_PATH = '/settings';
 
-export const LOGIN_PATH = `${ROOT_AUTH_PATH}/login`;
-export const REGISTER_PATH = `${ROOT_AUTH_PATH}/register`;
-export const ROOT_VERIFY_REQUEST_PATH = `${ROOT_AUTH_PATH}/verify-request`;
-export const ROOT_CHECK_EMAIL_PATH = `${ROOT_AUTH_PATH}/check-email`;
+export const LOGIN_PATH = `${ROOT_PATH}login`;
+export const REGISTER_PATH = `${ROOT_PATH}register`;
+export const ROOT_VERIFY_REQUEST_PATH = `${ROOT_PATH}verify-request`;
+export const ROOT_CHECK_EMAIL_PATH = `${ROOT_PATH}check-email`;
 
 export const privateRoutes = [
   ROOT_PATH,
   DASHBOARD_PATH,
   SETTINGS_PATH,
   HISTORY_PATH,
+  ANALYTICS_PATH,
 ];
 export const publicRoutes = [
   ROOT_AUTH_PATH,

@@ -1,5 +1,5 @@
 import type { Prisma } from '@/app/generated/prisma/client';
-import { IconProps } from '@/components/ui/Icon';
+import { IconProps } from '@/components/ui/icon';
 import prisma from '@/lib/db';
 
 const Menus: (Omit<Prisma.MenuCreateInput, 'icon'> & {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import classNames from 'classnames';
@@ -5,7 +6,7 @@ import Link from 'next/link';
 import React, { forwardRef, useMemo } from 'react';
 import { tv } from 'tailwind-variants';
 
-import Icon, { IconProps } from '../Icon';
+import Icon, { IconProps } from '../icon';
 
 export const BUTTON_VARIANT = ['contained', 'outlined', 'ghost'] as const;
 export type ButtonVariant = (typeof BUTTON_VARIANT)[number];
@@ -18,8 +19,11 @@ export const THEME_VARIANT = [
   'secondary',
   'tertiary',
   'neutral',
+  'danger',
+  'success',
+  'warning',
 ] as const;
-export type ThemeVariant = (typeof THEME_VARIANT)[number];
+export type ThemeVariant = (typeof THEME_VARIANT)[number] | (string & {});
 
 interface ButtonProps extends React.ComponentPropsWithRef<'button'> {
   label?: string;
@@ -56,6 +60,21 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const isBrandColor = THEME_VARIANT.includes(color as any);
+
+    // const customStyle = useMemo(() => {
+    //   if (isBrandColor) return {};
+
+    //   // Jika inputnya seperti "bg-pink-500", kita bisa taruh di className
+    //   // Jika inputnya kode hex seperti "#ff00ff", kita taruh di inline style
+    //   if (color.startsWith('#')) {
+    //     return variant === 'contained'
+    //       ? { backgroundColor: color, color: 'white', borderColor: color }
+    //       : { color: color, borderColor: color };
+    //   }
+    //   return {};
+    // }, [color, isBrandColor, variant]);
+
     const buttonStyle = useMemo(
       () =>
         tv({
@@ -76,6 +95,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               secondary: '',
               tertiary: '',
               neutral: '',
+              danger: '',
+              success: '',
+              warning: '',
             },
             fullWidth: {
               true: 'w-full',
@@ -96,7 +118,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               variant: 'contained',
               color: 'primary',
               class:
-                'bg-primary-700 text-white border-primary-700 hover:bg-primary-800',
+                'bg-primary-600 text-white border-primary-700 hover:bg-primary-800',
             },
             // Primary + Outlined
             {
@@ -169,6 +191,62 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               color: 'neutral',
               class: 'text-neutral-700 hover:bg-neutral-100',
             },
+            // Danger + Contained
+            {
+              variant: 'contained',
+              color: 'danger',
+              class: 'bg-red-700 text-white border-red-700 hover:bg-red-800',
+            },
+            // red + Outlined
+            {
+              variant: 'outlined',
+              color: 'danger',
+              class: 'border-red-700 text-red-700 hover:bg-red-100',
+            },
+            // red + Ghost
+            {
+              variant: 'ghost',
+              color: 'danger',
+              class: 'text-red-600 hover:bg-red-100',
+            },
+            // Success + Contained
+            {
+              variant: 'contained',
+              color: 'success',
+              class:
+                'bg-green-700 text-white border-green-700 hover:bg-green-800',
+            },
+            // Success + Outlined
+            {
+              variant: 'outlined',
+              color: 'success',
+              class: 'border-green-700 text-green-700 hover:bg-green-100',
+            },
+            // Success + Ghost
+            {
+              variant: 'ghost',
+              color: 'success',
+              class: 'text-green-700 hover:bg-green-100',
+            },
+            // Warning + Contained
+            {
+              variant: 'contained',
+              color: 'warning',
+              class:
+                'bg-yellow-700 text-white border-yellow-700 hover:bg-yellow-800',
+            },
+            // Warning + Outlined
+            {
+              variant: 'outlined',
+              color: 'warning',
+              class: 'border-yellow-700 text-yellow-700 hover:bg-yellow-100',
+            },
+            // Warning + Ghost
+            {
+              variant: 'ghost',
+              color: 'warning',
+              class: 'text-yellow-700 hover:bg-yellow-100',
+            },
           ],
         }),
       []
@@ -185,8 +263,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             iconButton: !!iconButton,
             isLoading,
             disabled,
-            color,
+            color: isBrandColor ? (color as any) : undefined,
           }),
+          !isBrandColor ? color : '',
           className
         ),
       [
@@ -199,6 +278,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled,
         color,
         className,
+        isBrandColor,
       ]
     );
 
@@ -208,6 +288,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         className={buttonClasses}
         disabled={disabled}
+        // style={customStyle}
         {...props}
       >
         {iconButton ? (

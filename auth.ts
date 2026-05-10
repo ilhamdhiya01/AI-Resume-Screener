@@ -4,7 +4,7 @@ import NextAuth from 'next-auth';
 import authConfig from './auth.config';
 import prisma from './lib/db';
 import { getUserById } from './lib/services/auth.service';
-import { ROOT_AUTH_PATH } from './routes';
+import { authRoutes, ROOT_AUTH_PATH } from './routes';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   trustHost: true,
@@ -29,7 +29,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     authorized({ request, auth }) {
       const path = request.nextUrl.pathname;
 
-      if (path.includes(ROOT_AUTH_PATH)) {
+      if (authRoutes.includes(path)) {
         return true;
       }
 

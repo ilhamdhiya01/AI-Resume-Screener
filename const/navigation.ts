@@ -1,4 +1,4 @@
-import { IconProps } from '@/components/ui/Icon';
+import { IconProps } from '@/components/ui/icon';
 import { NavigationItem } from '@/lib/types/navigation.types';
 
 export const SIDEBAR_NAVIGATION: (Omit<NavigationItem, 'icon'> & {

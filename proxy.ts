@@ -6,7 +6,6 @@ import {
   authRoutes,
   LOGIN_PATH,
   privateRoutes,
-  ROOT_AUTH_PATH,
   ROOT_PATH,
   ROOT_VERIFY_REQUEST_PATH,
 } from './routes';
@@ -30,7 +29,7 @@ export const proxy = auth(async (req) => {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if ((!isLoggedIn && isPrivateRoutes) || path === ROOT_AUTH_PATH) {
+  if (!isLoggedIn && isPrivateRoutes) {
     const from = path + nextUrl.search;
     return NextResponse.redirect(
       new URL(`${LOGIN_PATH}?from=${encodeURIComponent(from)}`, url)

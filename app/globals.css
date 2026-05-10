@@ -91,6 +91,17 @@
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+
+  /* Definisikan Utility Animasi */
+  --animate-shimmer: shimmer 2s infinite;
+}
+@keyframes shimmer {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
