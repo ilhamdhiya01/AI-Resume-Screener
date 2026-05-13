@@ -59,7 +59,7 @@ export const ModelName = {
   User: 'User',
   Profile: 'Profile',
   VerificationRequest: 'VerificationRequest',
-  Menu: 'Menu',
+  Resume: 'Resume',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -151,20 +151,20 @@ export const VerificationRequestScalarFieldEnum = {
 export type VerificationRequestScalarFieldEnum =
   (typeof VerificationRequestScalarFieldEnum)[keyof typeof VerificationRequestScalarFieldEnum];
 
-export const MenuScalarFieldEnum = {
+export const ResumeScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  icon: 'icon',
-  path: 'path',
-  order: 'order',
-  isActive: 'isActive',
-  role: 'role',
+  userId: 'userId',
+  fileName: 'fileName',
+  fileSize: 'fileSize',
+  fileType: 'fileType',
+  filePath: 'filePath',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
 
-export type MenuScalarFieldEnum =
-  (typeof MenuScalarFieldEnum)[keyof typeof MenuScalarFieldEnum];
+export type ResumeScalarFieldEnum =
+  (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',

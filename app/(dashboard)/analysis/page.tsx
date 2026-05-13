@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import React from 'react';
 
 import { Upload } from '@/components/features/analysis/upload';
 

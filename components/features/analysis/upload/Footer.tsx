@@ -1,14 +1,19 @@
 'use client';
 
 import classNames from 'classnames';
+import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { TbArrowRight } from 'react-icons/tb';
 
 import Icon from '@/components/ui/icon';
+import { useUpload } from '@/lib/hooks';
 import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
 
 const Footer = () => {
   const { fileRejections, file } = useAnalysisStore();
+  const { uploadResume } = useUpload();
+
+  const router = useRouter();
 
   // ✅ Check apakah button harus disabled
   const isDisabled = useMemo(() => {
@@ -21,9 +26,19 @@ const Footer = () => {
     return false;
   }, [fileRejections, file]);
 
+  const onClik = async () => {
+    if (!file) return;
+    const result = await uploadResume(file);
+    if (result) {
+      router.push(`/analysis/${result.resumeId}`);
+      // setResumeId(result.resumeId);
+    }
+  };
+
   return (
     <>
       <button
+        onClick={onClik}
         disabled={isDisabled}
         className={classNames(
           'group relative overflow-hidden rounded-xl px-8 py-4 text-white shadow-lg transition-all duration-300',

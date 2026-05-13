@@ -36,8 +36,6 @@ const FilePreview = ({ open }: FilePreviewProps) => {
     return 'TbFileDescription';
   }, [fileRejections]);
 
-  console.log({ isDragActive });
-
   return (
     <>
       {file ? (

@@ -37,3 +37,25 @@ export const getRelativeTime = (date: Date): string => {
   const days = Math.floor(diffInSeconds / 86400);
   return `${days} day${days > 1 ? 's' : ''} ago`;
 };
+
+/**
+ * @description Helper to gradually increment progress from start to end
+ * @param start - Starting percentage
+ * @param end - Ending percentage
+ * @param durationMs - Total duration in milliseconds
+ * @param onProgress - Callback to update progress
+ */
+export const gradualProgress = async (
+  start: number,
+  end: number,
+  durationMs: number,
+  onProgress?: (progress: number) => Promise<void>
+) => {
+  const steps = end - start; // e.g. 20 - 0 = 20 steps
+  const delayPerStep = durationMs / steps; // e.g. 10000 / 20 = 500ms per 1%
+
+  for (let i = start + 1; i <= end; i++) {
+    await new Promise((resolve) => setTimeout(resolve, delayPerStep));
+    if (onProgress) await onProgress(i);
+  }
+};

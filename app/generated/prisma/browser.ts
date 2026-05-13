@@ -42,7 +42,7 @@ export type Profile = Prisma.ProfileModel;
  */
 export type VerificationRequest = Prisma.VerificationRequestModel;
 /**
- * Model Menu
+ * Model Resume
  *
  */
-export type Menu = Prisma.MenuModel;
+export type Resume = Prisma.ResumeModel;
