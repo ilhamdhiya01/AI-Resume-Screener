@@ -10,8 +10,8 @@ import { useUpload } from '@/lib/hooks';
 import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
 
 const Footer = () => {
-  const { fileRejections, file } = useAnalysisStore();
-  const { uploadResume } = useUpload();
+  const { fileRejections, file, setFile } = useAnalysisStore();
+  const { uploadResume, isUploading } = useUpload();
 
   const router = useRouter();
 
@@ -31,7 +31,7 @@ const Footer = () => {
     const result = await uploadResume(file);
     if (result) {
       router.push(`/analysis/${result.resumeId}`);
-      // setResumeId(result.resumeId);
+      setFile(null);
     }
   };
 
@@ -39,17 +39,18 @@ const Footer = () => {
     <>
       <button
         onClick={onClik}
-        disabled={isDisabled}
+        disabled={isDisabled || isUploading}
         className={classNames(
           'group relative overflow-hidden rounded-xl px-8 py-4 text-white shadow-lg transition-all duration-300',
           {
-            'bg-primary-600 hover:bg-primary-700': !isDisabled,
-            'bg-primary-700/30 cursor-not-allowed': isDisabled,
+            'bg-primary-600 hover:bg-primary-700 cursor-pointer':
+              !isDisabled && !isUploading,
+            'bg-primary-700/30 cursor-not-allowed': isDisabled || isUploading,
           }
         )}
       >
         {/* Efek Berkilau - cuma muncul kalo nggak disabled */}
-        {!isDisabled && (
+        {!isDisabled && !isUploading && (
           <>
             <div className="pointer-events-none absolute inset-0 h-full w-full transform bg-linear-to-r from-transparent via-white/40 to-transparent opacity-0 transition-all duration-600 ease-out group-hover:opacity-100" />
             <div className="group-hover:animate-shimmer pointer-events-none absolute top-0 -left-[75%] h-full w-[80%] bg-linear-to-r from-transparent via-white/30 to-transparent" />
@@ -62,7 +63,7 @@ const Footer = () => {
             className={classNames(
               'text-2xl transition-transform duration-300',
               {
-                'group-hover:translate-x-1.5': !isDisabled,
+                'group-hover:translate-x-1.5': !isDisabled && !isUploading,
               }
             )}
           />

@@ -17,7 +17,8 @@ export const analyzeResume = async (
 
     // if (onProgress) await onProgress(20);
     await gradualProgress(0, 20, 5000, async (progress) => {
-      if (onProgress) await onProgress({ progress, step: 'parsing' });
+      if (onProgress)
+        await onProgress({ progress, step: 'extracting_text_metadata' });
     });
     console.log(`📥 Downloading file...`);
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -25,7 +26,8 @@ export const analyzeResume = async (
     // Step 2: Extract text (40%)
     // if (onProgress) await onProgress(40);
     await gradualProgress(20, 40, 5000, async (progress) => {
-      if (onProgress) await onProgress({ progress, step: 'extracting_skills' });
+      if (onProgress)
+        await onProgress({ progress, step: 'analyzing_competencies' });
     });
     console.log(`📄 Extracting text...`);
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -40,7 +42,7 @@ export const analyzeResume = async (
 
     // Step 4: Save results (90%)
     // if (onProgress) await onProgress(90);
-    await gradualProgress(70, 90, 3000, async (progress) => {
+    await gradualProgress(70, 100, 3000, async (progress) => {
       if (onProgress) await onProgress({ progress, step: 'calculating_score' });
     });
     console.log(`💾 Saving results...`);
@@ -48,9 +50,9 @@ export const analyzeResume = async (
 
     // Step 5: Complete (100%)
     // if (onProgress) await onProgress(100);
-    await gradualProgress(90, 100, 2000, async (progress) => {
-      if (onProgress) await onProgress({ progress, step: 'completed' });
-    });
+    // await gradualProgress(90, 100, 2000, async (progress) => {
+    //   if (onProgress) await onProgress({ progress, step: 'completed' });
+    // });
 
     // Update to COMPLETED
     await prisma.resume.update({

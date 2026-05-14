@@ -92,5 +92,5 @@ export const useJobProgress = (resumeId: string | null) => {
     return () => stopPolling();
   }, [resumeId, stopPolling]);
 
-  return jobStatus;
+  return { ...jobStatus, progress: displayProgress };
 };

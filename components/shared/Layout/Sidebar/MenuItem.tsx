@@ -17,7 +17,11 @@ const MenuItem = ({ path, icon, name }: MenuItemProps) => {
   const pathName = usePathname();
 
   const isActive = useMemo(() => {
-    return pathName && pathName === path;
+    const exceptRoot = path.split('/')[1];
+    console.log({ exceptRoot });
+    return pathName && exceptRoot
+      ? pathName.includes(exceptRoot)
+      : pathName === '/';
   }, [pathName, path]);
 
   return (

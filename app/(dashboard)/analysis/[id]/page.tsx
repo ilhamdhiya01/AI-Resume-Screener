@@ -1,6 +1,7 @@
 import React, { use } from 'react';
 
 import Analyzing from '@/components/features/analysis/analyzing';
+import AnalyzingProcess from '@/components/features/analysis/analyzing/AnalyzingProcess';
 
 interface AnalyzingPageProps {
   params: Promise<{
@@ -11,8 +12,8 @@ interface AnalyzingPageProps {
 const AnalyzingPage = ({ params }: AnalyzingPageProps) => {
   const { id } = use(params);
   return (
-    <div className="p-12">
-      <Analyzing resumeId={id} />
+    <div className="">
+      <AnalyzingProcess resumeId={id} />
     </div>
   );
 };

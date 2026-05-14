@@ -1,42 +1,40 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-import Icon from '@/components/ui/icon';
 import { useJobProgress } from '@/lib/hooks/useJobProgress';
 
 import ProgressItem from './ProgressItem';
 
 interface AnalyzingProps {
-  resumeId: string; // 0-100
+  resumeId: string;
 }
 
 const STEPS = [
   {
     key: 'parsing',
-    title: 'Parsing document structure...',
+    title: 'Parsing document structure',
     description: 'Document hierarchy identified.',
   },
   {
     key: 'extracting_skills',
-    title: 'Extracting professional skills...',
+    title: 'Extracting professional skills',
     description: 'Skill taxonomy mapping.',
   },
   {
     key: 'mapping_timeline',
-    title: 'Mapping experience timeline...',
+    title: 'Mapping experience timeline',
     description: 'Chronological validation in progress.',
   },
   {
     key: 'calculating_score',
-    title: 'Calculating match score...',
+    title: 'Calculating match score',
     description: 'Scoring algorithm running.',
   },
 ];
 
 const Analyzing = ({ resumeId }: AnalyzingProps) => {
-  const { progress, step } = useJobProgress(resumeId);
-  const [recordProgress] = useState();
+  const { progress, step, status } = useJobProgress(resumeId);
 
   const size = 192; // size-48 = 192px
   const strokeWidth = 7;
@@ -49,15 +47,19 @@ const Analyzing = ({ resumeId }: AnalyzingProps) => {
     const currentIndex = stepOder.indexOf(step || '');
     const targetIndex = stepOder.indexOf(targetKey);
 
+    if (progress >= 100 || status === 'completed') {
+      return 'completed';
+    }
+
     if (currentIndex === -1) return 'pending';
-    if (targetIndex < currentIndex) return 'completed';
     if (targetIndex === currentIndex) return 'active';
+    if (targetIndex < currentIndex) return 'completed';
     return 'pending';
   };
 
   useEffect(() => {
-    console.log({ progress, step });
-  }, [progress, step]);
+    console.log({ progress, step, status });
+  }, [progress, step, status]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-10">
@@ -96,7 +98,7 @@ const Analyzing = ({ resumeId }: AnalyzingProps) => {
               {progress}%
             </span>
             <span className="font-semibold text-neutral-600 uppercase">
-              {step}
+              {progress === 100 ? 'completed' : 'processing'}
             </span>
           </div>
         </div>
@@ -118,74 +120,6 @@ const Analyzing = ({ resumeId }: AnalyzingProps) => {
             isCompleted={getStepStatus(item.key) === 'completed'}
           />
         ))}
-        {/* <div className="flex items-center gap-4 rounded-2xl border border-slate-300 bg-white p-4">
-          <div className="flex size-8 items-center justify-center rounded-full bg-green-200">
-            <Icon
-              icon="TbCheck"
-              className="stroke-3 text-green-600"
-              size={20}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-lg leading-none font-semibold">
-              Parsing document structure...
-            </span>
-            <p className="text-sm leading-none text-neutral-500">
-              Document hierarchy identified.
-            </p>
-          </div>
-        </div>
-        <div className="border-primary-300 bg-primary-100 flex items-center gap-4 rounded-2xl border p-4">
-          <div className="bg-primary-200 flex size-8 items-center justify-center rounded-full">
-            <Icon
-              icon="TbRefresh"
-              className="text-primary-700 animate-spin stroke-3"
-              size={20}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-primary-700 text-lg leading-none font-semibold">
-              Mapping experience timeline...
-            </span>
-            <p className="text-primary-500 text-sm leading-none">
-              Chronological validation in progress.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 rounded-2xl p-4">
-          <div className="flex size-8 items-center justify-center rounded-full bg-neutral-100">
-            <Icon
-              icon="TbHourglass"
-              className="stroke-3 text-neutral-700/20"
-              size={20}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-lg leading-none font-semibold text-neutral-700/30">
-              Calculating match score......
-            </span>
-            <p className="text-sm leading-none text-neutral-500/30">
-              Pending extraction data.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4 rounded-2xl border border-slate-300 bg-white p-4">
-          <div className="flex size-8 items-center justify-center rounded-full bg-green-200">
-            <Icon
-              icon="TbCheck"
-              className="stroke-3 text-green-600"
-              size={20}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-lg leading-none font-semibold">
-              Parsing document structure...
-            </span>
-            <p className="text-sm leading-none text-neutral-500">
-              Document hierarchy identified.
-            </p>
-          </div>
-        </div> */}
       </div>
     </div>
   );
