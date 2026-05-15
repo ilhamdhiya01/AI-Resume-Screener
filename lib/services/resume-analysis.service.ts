@@ -48,12 +48,6 @@ export const analyzeResume = async (
     console.log(`💾 Saving results...`);
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    // Step 5: Complete (100%)
-    // if (onProgress) await onProgress(100);
-    // await gradualProgress(90, 100, 2000, async (progress) => {
-    //   if (onProgress) await onProgress({ progress, step: 'completed' });
-    // });
-
     // Update to COMPLETED
     await prisma.resume.update({
       where: { id: resumeId },

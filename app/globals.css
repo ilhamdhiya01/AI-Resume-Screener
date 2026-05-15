@@ -93,14 +93,24 @@
   --font-mono: var(--font-mono);
 
   /* Definisikan Utility Animasi */
-  --animate-shimmer: shimmer 3s infinite;
+  --animate-shimmer-scan: shimmer-scan 3s infinite;
+  --animate-shimmer: shimmer 2s infinite;
 }
-@keyframes shimmer {
+@keyframes shimmer-scan {
   0% {
     top: -75%;
   }
   100% {
     top: 125%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
   }
 }
 

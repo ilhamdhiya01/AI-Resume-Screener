@@ -16,6 +16,7 @@ interface JobStatus {
     | 'completed'
     | 'failed'
     | 'unknown';
+  fileName?: string;
 }
 
 export const useJobProgress = (resumeId: string | null) => {
@@ -53,6 +54,9 @@ export const useJobProgress = (resumeId: string | null) => {
     if (!resumeId) return;
 
     const poll = async () => {
+      // ✅ Skip if tab hidden
+      if (document.hidden) return;
+
       try {
         const res = await axiosInstance.get(
           `/upload/status?resumeId=${resumeId}`
@@ -66,12 +70,7 @@ export const useJobProgress = (resumeId: string | null) => {
             setDisplayProgress(data.progress);
           }
 
-          setJobStatus({
-            status: data.status,
-            progress: data.progress,
-            jobId: data.jobId,
-            step: data.step,
-          });
+          setJobStatus({ ...data });
 
           // Stop polling when done
           if (data.status === 'completed' || data.status === 'failed') {
@@ -83,13 +82,24 @@ export const useJobProgress = (resumeId: string | null) => {
       }
     };
 
-    // Poll immediately
+    // Listen for visibility change
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        intervalRef.current = setInterval(poll, 3000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Poll immediately, then every 3 seconds
     poll();
-
-    // Then poll every 2 seconds
-    intervalRef.current = setInterval(poll, 2000);
-
-    return () => stopPolling();
+    intervalRef.current = setInterval(poll, 3000);
+    return () => {
+      stopPolling();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [resumeId, stopPolling]);
 
   return { ...jobStatus, progress: displayProgress };

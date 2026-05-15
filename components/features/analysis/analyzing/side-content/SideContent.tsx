@@ -7,7 +7,6 @@ interface SideContentProps {
 }
 
 const SideContent = ({ progress, step, status }: SideContentProps) => {
-  console.log({ step, progress });
   return (
     <aside className="flex w-full max-w-[418px] flex-col border-l border-slate-300 bg-white">
       <Step progress={progress} step={step as string} status={status} />

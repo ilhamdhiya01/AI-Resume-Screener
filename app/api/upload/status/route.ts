@@ -1,5 +1,7 @@
+import { Job } from 'bullmq';
 import { NextRequest } from 'next/server';
 
+import prisma from '@/lib/db';
 import { resumeQueue } from '@/lib/queue';
 import { errorResponse, successResponse } from '@/lib/utils/api-response';
 
@@ -12,13 +14,21 @@ export const GET = async (request: NextRequest) => {
       return errorResponse(`resumeId is required`, 404);
     }
 
-    const jobs = await resumeQueue.getJobs([
-      'waiting',
-      'active',
-      'completed',
-      'failed',
-    ]);
-    const job = jobs.find((j) => j.data.resumeId === resumeId);
+    const resume = await prisma.resume.findUnique({
+      where: {
+        id: resumeId,
+      },
+      select: {
+        fileName: true,
+      },
+    });
+
+    if (!resume) {
+      return errorResponse('Resume not found', 404);
+    }
+
+    // ✅ Direct lookup by ID (1 HGETALL) instead of getJobs() (N commands)
+    const job = await Job.fromId(resumeQueue, resumeId);
 
     if (!job) {
       return successResponse('Job not found', {
@@ -39,11 +49,14 @@ export const GET = async (request: NextRequest) => {
         ? (progressData as { step: string }).step
         : state;
 
+    console.log({ job });
+
     return successResponse('Job status retrieved', {
       jobId: job.id,
-      status: state, // 'active' | 'completed' | 'failed' | 'waiting'
-      progress: progressValue, // 0-100
+      status: state,
+      progress: progressValue,
       step: step,
+      fileName: resume.fileName,
     });
   } catch (error) {
     console.error('Error getting job status:', error);

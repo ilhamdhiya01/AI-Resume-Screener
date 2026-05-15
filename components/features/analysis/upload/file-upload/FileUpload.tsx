@@ -19,7 +19,6 @@ const FileUpload = () => {
   } = useAnalysisStore();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    console.log(acceptedFiles);
     setFile(acceptedFiles[0]);
     setUploadTime(new Date());
     setFileRejections([]);

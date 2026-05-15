@@ -43,19 +43,24 @@ export const getRelativeTime = (date: Date): string => {
  * @param start - Starting percentage
  * @param end - Ending percentage
  * @param durationMs - Total duration in milliseconds
- * @param onProgress - Callback to update progress
+ * @param onProgress - Callback to update progress (called every `throttle`%)
+ * @param throttle - Only call onProgress every N percent (default: 5)
  */
 export const gradualProgress = async (
   start: number,
   end: number,
   durationMs: number,
-  onProgress?: (progress: number) => Promise<void>
+  onProgress?: (progress: number) => Promise<void>,
+  throttle: number = 5
 ) => {
-  const steps = end - start; // e.g. 20 - 0 = 20 steps
-  const delayPerStep = durationMs / steps; // e.g. 10000 / 20 = 500ms per 1%
+  const steps = end - start;
+  const delayPerStep = durationMs / steps;
 
   for (let i = start + 1; i <= end; i++) {
     await new Promise((resolve) => setTimeout(resolve, delayPerStep));
-    if (onProgress) await onProgress(i);
+    // Only report at throttle intervals OR at the final step
+    if (onProgress && (i % throttle === 0 || i === end)) {
+      await onProgress(i);
+    }
   }
 };

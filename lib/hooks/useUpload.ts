@@ -36,8 +36,6 @@ const useUpload = () => {
           setProgress(percentCompleted);
         },
       });
-
-      console.log('res', response.data.data);
       return response.data.data;
     } catch (error) {
       console.error('Upload failed:', error);

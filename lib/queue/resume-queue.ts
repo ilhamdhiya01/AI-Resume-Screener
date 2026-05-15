@@ -7,8 +7,6 @@ const connection = new Redis(process.env.REDIS_URL!, {
   enableReadyCheck: false,
 });
 
-console.log('env', process.env.REDIS_URL);
-
 // Create Queue
 export const resumeQueue = new Queue('resume-analysis', {
   connection,

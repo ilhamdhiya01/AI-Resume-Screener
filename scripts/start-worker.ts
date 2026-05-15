@@ -1,7 +1,7 @@
 import 'dotenv/config';
-import '@/lib/queue/resume-worker';
 
 import { connection } from '@/lib/queue/resume-queue';
+import { ensureWorkerRunning } from '@/lib/queue/resume-worker';
 
 connection.ping((err, result) => {
   if (err) {
@@ -10,4 +10,7 @@ connection.ping((err, result) => {
   }
   console.log('✅ Redis connected:', result);
 });
+
+// Start worker immediately for standalone mode
+ensureWorkerRunning();
 console.log('Worker is running... Press Ctrl+C to stop');

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import prisma from '../db';
-import { resumeQueue } from '../queue';
+import { ensureWorkerRunning, resumeQueue } from '../queue';
 import { supabaseAdmin } from '../supabase-admin';
 
 /**
@@ -53,10 +53,19 @@ export const uploadResumeToSupabaseStorage = async (
     },
   });
 
-  await resumeQueue.add('resume-analysis', {
-    resumeId: resume.id,
-    filePath: data.path,
-  });
+  await resumeQueue.add(
+    'resume-analysis',
+    {
+      resumeId: resume.id,
+      filePath: data.path,
+    },
+    {
+      jobId: resume.id, // Use resumeId as BullMQ job ID for direct lookup
+    }
+  );
+
+  // Start worker on-demand (lazy — only connects when needed)
+  ensureWorkerRunning();
 
   return {
     signedUrl: signedUrlData.signedUrl,

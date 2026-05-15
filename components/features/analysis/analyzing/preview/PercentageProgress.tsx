@@ -1,15 +1,20 @@
 import Icon from '@/components/ui/icon';
+import { useUpload } from '@/lib/hooks';
 
-const PercentageProgress = () => {
-  //   const { progress, step, status } = useJobProgress('abc');
+interface PercentageProgressProps {
+  progress: number;
+  fileName?: string;
+}
 
+const PercentageProgress = ({
+  progress,
+  fileName,
+}: PercentageProgressProps) => {
   const size = 192; // size-48 = 192px
   const strokeWidth = 7;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (0 / 100) * circumference;
-
-  const progress = 0;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
     <div className="flex flex-col items-center justify-center gap-10">
@@ -51,12 +56,12 @@ const PercentageProgress = () => {
           </span>
         </div>
       </div>
-      <div className="border-primary-300 bg-primary-100 inline-flex max-w-lg min-w-0 items-center gap-2 rounded-full border px-3 py-1.5">
-        <Icon icon="TbFile" className="text-primary-700 shrink-0" size={18} />
-        <span className="truncate text-sm">
-          senior_software_engineer_cv.pdf
-        </span>
-      </div>
+      {fileName && (
+        <div className="border-primary-300 bg-primary-100 inline-flex max-w-lg min-w-0 items-center gap-2 rounded-full border px-3 py-1.5">
+          <Icon icon="TbFile" className="text-primary-700 shrink-0" size={18} />
+          <span className="truncate text-sm">{fileName}</span>
+        </div>
+      )}
     </div>
   );
 };

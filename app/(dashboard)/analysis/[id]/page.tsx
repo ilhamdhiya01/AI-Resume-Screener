@@ -1,6 +1,5 @@
-import React, { use } from 'react';
+import { use } from 'react';
 
-import Analyzing from '@/components/features/analysis/analyzing';
 import AnalyzingProcess from '@/components/features/analysis/analyzing/AnalyzingProcess';
 
 interface AnalyzingPageProps {
