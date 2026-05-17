@@ -17,6 +17,8 @@ interface JobStatus {
     | 'failed'
     | 'unknown';
   fileName?: string;
+  duration?: number;
+  fileUrl?: string;
 }
 
 export const useJobProgress = (resumeId: string | null) => {
@@ -102,5 +104,5 @@ export const useJobProgress = (resumeId: string | null) => {
     };
   }, [resumeId, stopPolling]);
 
-  return { ...jobStatus, progress: displayProgress };
+  return { ...jobStatus };
 };

@@ -5,7 +5,7 @@ const STEPS = [
     key: 'extracting_text_metadata',
     title: ' Ekstraksi Teks & Metadata',
     description:
-      'Berhasil mengekstrak struktur dokumen, font, dan elemen metadata dalam 1.2 detik.',
+      'Berhasil mengekstrak struktur dokumen, font, dan elemen metadata.',
   },
   {
     key: 'analyzing_competencies',
@@ -31,9 +31,10 @@ interface StepRootProps {
   progress: number;
   step: string;
   status: string;
+  duration: number;
 }
 
-const StepRoot = ({ progress, step, status }: StepRootProps) => {
+const StepRoot = ({ progress, step, status, duration }: StepRootProps) => {
   const getStepStatus = (targetKey: string) => {
     const stepOder = STEPS.map((step) => step.key);
     const currentIndex = stepOder.indexOf(step || '');
@@ -63,6 +64,7 @@ const StepRoot = ({ progress, step, status }: StepRootProps) => {
             stepIndex={index}
             isActive={getStepStatus(item.key) === 'active'}
             isCompleted={getStepStatus(item.key) === 'completed'}
+            duration={duration}
           />
         ))}
       </div>

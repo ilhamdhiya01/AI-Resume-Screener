@@ -4,7 +4,11 @@ import { gradualProgress } from '../helper';
 export const analyzeResume = async (
   resumeId: string,
   filePath: string,
-  onProgress?: (progress: { progress: number; step: string }) => Promise<void>
+  onProgress?: (progress: {
+    progress: number;
+    step: string;
+    duration: number;
+  }) => Promise<void>
 ) => {
   try {
     console.log(`🔄 Starting analysis for resume: ${resumeId}`);
@@ -18,7 +22,11 @@ export const analyzeResume = async (
     // if (onProgress) await onProgress(20);
     await gradualProgress(0, 20, 5000, async (progress) => {
       if (onProgress)
-        await onProgress({ progress, step: 'extracting_text_metadata' });
+        await onProgress({
+          progress,
+          step: 'extracting_text_metadata',
+          duration: 5000 / 20,
+        });
     });
     console.log(`📥 Downloading file...`);
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -27,7 +35,11 @@ export const analyzeResume = async (
     // if (onProgress) await onProgress(40);
     await gradualProgress(20, 40, 5000, async (progress) => {
       if (onProgress)
-        await onProgress({ progress, step: 'analyzing_competencies' });
+        await onProgress({
+          progress,
+          step: 'analyzing_competencies',
+          duration: 5000 / 20,
+        });
     });
     console.log(`📄 Extracting text...`);
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -35,7 +47,12 @@ export const analyzeResume = async (
     // Step 3: AI Analysis (70%)
     // if (onProgress) await onProgress(70);
     await gradualProgress(40, 70, 5000, async (progress) => {
-      if (onProgress) await onProgress({ progress, step: 'mapping_timeline' });
+      if (onProgress)
+        await onProgress({
+          progress,
+          step: 'mapping_timeline',
+          duration: 5000 / 30,
+        });
     });
     console.log(`🤖 Analyzing with AI...`);
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -43,7 +60,12 @@ export const analyzeResume = async (
     // Step 4: Save results (90%)
     // if (onProgress) await onProgress(90);
     await gradualProgress(70, 100, 3000, async (progress) => {
-      if (onProgress) await onProgress({ progress, step: 'calculating_score' });
+      if (onProgress)
+        await onProgress({
+          progress,
+          step: 'calculating_score',
+          duration: 3000 / 30,
+        });
     });
     console.log(`💾 Saving results...`);
     await new Promise((resolve) => setTimeout(resolve, 3000));

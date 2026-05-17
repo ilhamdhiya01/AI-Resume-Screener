@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 
 import prisma from '@/lib/db';
 import { resumeQueue } from '@/lib/queue';
+import { getSignedUrl } from '@/lib/services/upload.service';
 import { errorResponse, successResponse } from '@/lib/utils/api-response';
 
 export const GET = async (request: NextRequest) => {
@@ -20,6 +21,7 @@ export const GET = async (request: NextRequest) => {
       },
       select: {
         fileName: true,
+        filePath: true,
       },
     });
 
@@ -49,14 +51,24 @@ export const GET = async (request: NextRequest) => {
         ? (progressData as { step: string }).step
         : state;
 
-    console.log({ job });
+    const duration =
+      typeof progressData === 'object' && progressData !== null
+        ? (progressData as { duration: number }).duration
+        : 0;
+
+    let fileUrl = '';
+    if (state === 'completed' && progressValue === 100) {
+      fileUrl = await getSignedUrl(resume.filePath);
+    }
 
     return successResponse('Job status retrieved', {
       jobId: job.id,
       status: state,
       progress: progressValue,
       step: step,
+      duration: duration,
       fileName: resume.fileName,
+      fileUrl: fileUrl,
     });
   } catch (error) {
     console.error('Error getting job status:', error);

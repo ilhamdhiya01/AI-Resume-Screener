@@ -1,23 +1,14 @@
-import Icon from '@/components/ui/icon';
+import React from 'react';
 
-interface PercentageProgressProps {
-  progress: number;
-  fileName?: string;
-}
-
-const PercentageProgress = ({
-  progress,
-  fileName,
-}: PercentageProgressProps) => {
+const Score = ({ progress = 85 }: { progress: number }) => {
   const size = 224; // size-56 = 224px
-  const strokeWidth = 7;
+  const strokeWidth = 12;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
-
   return (
-    <div className="flex flex-col items-center justify-center gap-10">
-      <div className="relative flex size-56 items-center justify-center">
+    <div className="space-y-5">
+      <div className="relative mx-auto flex size-56 items-center justify-center">
         {/* SVG Progress Circle */}
         <svg width={size} height={size} className="absolute -rotate-90">
           {/* Background circle (gray) */}
@@ -45,24 +36,21 @@ const PercentageProgress = ({
         </svg>
 
         {/* Inner circle */}
-        <div className="flex size-56 flex-col items-center justify-center gap-1 rounded-full border border-slate-300 bg-transparent">
+        <div className="flex size-56 flex-col items-center justify-center gap-1 rounded-full bg-transparent">
           {/* Percentage text */}
           <span className="text-primary-700 text-3xl font-bold">
-            {progress}%
+            {progress}
           </span>
-          <span className="font-semibold text-neutral-600 uppercase">
-            {progress === 100 ? 'completed' : 'processing'}
+          <span className="text-primary-600 font-semibold uppercase">
+            match score
           </span>
         </div>
       </div>
-      {fileName && (
-        <div className="border-primary-300 bg-primary-100 z-50 inline-flex max-w-lg min-w-0 items-center gap-2 rounded-full border px-3 py-1.5">
-          <Icon icon="TbFile" className="text-primary-700 shrink-0" size={18} />
-          <span className="truncate text-sm">{fileName}</span>
-        </div>
-      )}
+      <p className="px-6 py-4 text-center text-neutral-600">
+        This resume is a Strong Fit for the <br /> Senior Product Designer role.
+      </p>
     </div>
   );
 };
 
-export default PercentageProgress;
+export default Score;

@@ -20,7 +20,7 @@ const RootLayout = ({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body
-        className={`${inter.className} bg-primary-100/30 flex min-h-full flex-col`}
+        className={`${inter.className} flex min-h-full flex-col bg-[#f0f5ff]`}
       >
         <SessionProviderClient>{children}</SessionProviderClient>
         <Toaster
