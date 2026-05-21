@@ -1,10 +1,12 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useEffect, useRef, useState } from 'react';
 
 import { useJobProgress } from '@/lib/hooks/useJobProgress';
 
 import SideContent from './side-content/SideContent';
+import SkelatonPreview from './SkelatonPreview';
 
 // ✅ Disable SSR for Preview to avoid DOMMatrix error from pdf.js
 const Preview = dynamic(() => import('./preview').then((mod) => mod.Preview), {
@@ -19,9 +21,30 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
   const { progress, step, status, fileName, duration, fileUrl } =
     useJobProgress(resumeId);
 
-  console.log({ status, progress });
+  const [showResult, setShowResult] = useState<boolean>(false);
+  const hasTriggeredSkeleton = useRef<boolean>(false);
 
-  return (
+  useEffect(() => {
+    if (
+      progress === 100 &&
+      status === 'completed' &&
+      !hasTriggeredSkeleton.current
+    ) {
+      hasTriggeredSkeleton.current = true;
+      const timer = setTimeout(() => {
+        setShowResult(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [progress, status]);
+
+  // Skeleton only when completed + waiting for transition
+  const showSkeleton =
+    progress === 100 && status === 'completed' && !showResult;
+
+  return showSkeleton ? (
+    <SkelatonPreview />
+  ) : (
     <div className="flex h-[calc(100vh-64px)] w-full">
       <Preview progress={progress} fileName={fileName} fileUrl={fileUrl} />
       <SideContent

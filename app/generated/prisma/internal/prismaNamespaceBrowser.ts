@@ -60,6 +60,7 @@ export const ModelName = {
   Profile: 'Profile',
   VerificationRequest: 'VerificationRequest',
   Resume: 'Resume',
+  AnalysisResult: 'AnalysisResult',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -166,12 +167,46 @@ export const ResumeScalarFieldEnum = {
 export type ResumeScalarFieldEnum =
   (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum];
 
+export const AnalysisResultScalarFieldEnum = {
+  id: 'id',
+  resumeId: 'resumeId',
+  score: 'score',
+  yearsExperience: 'yearsExperience',
+  matchedSkills: 'matchedSkills',
+  missingSkills: 'missingSkills',
+  role: 'role',
+  education: 'education',
+  hasTypos: 'hasTypos',
+  typoCount: 'typoCount',
+  atsIssues: 'atsIssues',
+  hardDataRaw: 'hardDataRaw',
+  summary: 'summary',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  suggestions: 'suggestions',
+  typoDetails: 'typoDetails',
+  atsRecommendations: 'atsRecommendations',
+  deepAnalysisRaw: 'deepAnalysisRaw',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type AnalysisResultScalarFieldEnum =
+  (typeof AnalysisResultScalarFieldEnum)[keyof typeof AnalysisResultScalarFieldEnum];
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc',
 } as const;
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder];
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull,
+} as const;
+
+export type JsonNullValueInput =
+  (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput];
 
 export const QueryMode = {
   default: 'default',
@@ -186,3 +221,12 @@ export const NullsOrder = {
 } as const;
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder];
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull,
+} as const;
+
+export type JsonNullValueFilter =
+  (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter];

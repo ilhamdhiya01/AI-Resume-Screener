@@ -9,7 +9,8 @@ export const ROOT_PATH = '/';
 export const ROOT_AUTH_PATH = '/auth';
 
 export const DASHBOARD_PATH = '/dashboard';
-export const ANALYTICS_PATH = '/analytics';
+export const ANALYSIS_PATH = '/analysis';
+export const ANALYSIS_DETAIL_PATH = '/analysis/[id]';
 export const HISTORY_PATH = '/history';
 export const SETTINGS_PATH = '/settings';
 
@@ -23,7 +24,8 @@ export const privateRoutes = [
   DASHBOARD_PATH,
   SETTINGS_PATH,
   HISTORY_PATH,
-  ANALYTICS_PATH,
+  ANALYSIS_PATH,
+  ANALYSIS_DETAIL_PATH,
 ];
 export const publicRoutes = [
   ROOT_AUTH_PATH,

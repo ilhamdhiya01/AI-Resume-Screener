@@ -418,6 +418,7 @@ export const ModelName = {
   Profile: 'Profile',
   VerificationRequest: 'VerificationRequest',
   Resume: 'Resume',
+  AnalysisResult: 'AnalysisResult',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -445,7 +446,8 @@ export type TypeMap<
       | 'user'
       | 'profile'
       | 'verificationRequest'
-      | 'resume';
+      | 'resume'
+      | 'analysisResult';
     txIsolationLevel: TransactionIsolationLevel;
   };
   model: {
@@ -905,6 +907,82 @@ export type TypeMap<
         };
       };
     };
+    AnalysisResult: {
+      payload: Prisma.$AnalysisResultPayload<ExtArgs>;
+      fields: Prisma.AnalysisResultFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.AnalysisResultFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.AnalysisResultFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>;
+        };
+        findFirst: {
+          args: Prisma.AnalysisResultFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.AnalysisResultFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>;
+        };
+        findMany: {
+          args: Prisma.AnalysisResultFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>[];
+        };
+        create: {
+          args: Prisma.AnalysisResultCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>;
+        };
+        createMany: {
+          args: Prisma.AnalysisResultCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.AnalysisResultCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>[];
+        };
+        delete: {
+          args: Prisma.AnalysisResultDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>;
+        };
+        update: {
+          args: Prisma.AnalysisResultUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>;
+        };
+        deleteMany: {
+          args: Prisma.AnalysisResultDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.AnalysisResultUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.AnalysisResultUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>[];
+        };
+        upsert: {
+          args: Prisma.AnalysisResultUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisResultPayload>;
+        };
+        aggregate: {
+          args: Prisma.AnalysisResultAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnalysisResult>;
+        };
+        groupBy: {
+          args: Prisma.AnalysisResultGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AnalysisResultGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.AnalysisResultCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.AnalysisResultCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
   };
 } & {
   other: {
@@ -1032,12 +1110,46 @@ export const ResumeScalarFieldEnum = {
 export type ResumeScalarFieldEnum =
   (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum];
 
+export const AnalysisResultScalarFieldEnum = {
+  id: 'id',
+  resumeId: 'resumeId',
+  score: 'score',
+  yearsExperience: 'yearsExperience',
+  matchedSkills: 'matchedSkills',
+  missingSkills: 'missingSkills',
+  role: 'role',
+  education: 'education',
+  hasTypos: 'hasTypos',
+  typoCount: 'typoCount',
+  atsIssues: 'atsIssues',
+  hardDataRaw: 'hardDataRaw',
+  summary: 'summary',
+  strengths: 'strengths',
+  weaknesses: 'weaknesses',
+  suggestions: 'suggestions',
+  typoDetails: 'typoDetails',
+  atsRecommendations: 'atsRecommendations',
+  deepAnalysisRaw: 'deepAnalysisRaw',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type AnalysisResultScalarFieldEnum =
+  (typeof AnalysisResultScalarFieldEnum)[keyof typeof AnalysisResultScalarFieldEnum];
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc',
 } as const;
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder];
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull,
+} as const;
+
+export type JsonNullValueInput =
+  (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput];
 
 export const QueryMode = {
   default: 'default',
@@ -1052,6 +1164,15 @@ export const NullsOrder = {
 } as const;
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder];
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull,
+} as const;
+
+export type JsonNullValueFilter =
+  (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter];
 
 /**
  * Field references
@@ -1119,6 +1240,30 @@ export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<
 export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<
   $PrismaModel,
   'Role[]'
+>;
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Json'
+>;
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'QueryMode'
+>;
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Boolean'
 >;
 
 /**
@@ -1261,6 +1406,7 @@ export type GlobalOmitConfig = {
   profile?: Prisma.ProfileOmit;
   verificationRequest?: Prisma.VerificationRequestOmit;
   resume?: Prisma.ResumeOmit;
+  analysisResult?: Prisma.AnalysisResultOmit;
 };
 
 /* Types for Logging */

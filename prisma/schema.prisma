@@ -105,5 +105,37 @@ model Resume {
   updatedAt  DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis AnalysisResult?
+}
+
+model AnalysisResult {
+  id        String @id @default(cuid())
+  resumeId  String @unique
+  
+  // GLM 5.1 output (hard data)
+  score           Int              
+  yearsExperience Int?             
+  matchedSkills   Json             
+  missingSkills   Json             
+  role            String?          
+  education       String?          
+  hasTypos        Boolean  @default(false)        // ← Add default
+  typoCount       Int      @default(0)            // ← Add default
+  atsIssues       Json     @default("{}")         // ← Add default
+  hardDataRaw     Json             
+ 
+  // Kimi K2.6 output (deep analysis)
+  summary         String   @db.Text  
+  strengths       Json               
+  weaknesses      Json               
+  suggestions     Json               
+  typoDetails     Json     @default("[]")         // ← Add default
+  atsRecommendations Json  @default("{}")         // ← Add default
+  deepAnalysisRaw Json               
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }
 

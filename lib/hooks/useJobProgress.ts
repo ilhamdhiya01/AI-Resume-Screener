@@ -5,7 +5,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import axiosInstance from '../axios';
 
 interface JobStatus {
-  status: string;
+  status:
+    | 'idle'
+    | 'active'
+    | 'waiting'
+    | 'delayed'
+    | 'paused'
+    | 'completed'
+    | 'failed';
   progress: number;
   jobId?: string;
   step?:
@@ -73,6 +80,8 @@ export const useJobProgress = (resumeId: string | null) => {
           }
 
           setJobStatus({ ...data });
+
+          console.log('status', data.status);
 
           // Stop polling when done
           if (data.status === 'completed' || data.status === 'failed') {

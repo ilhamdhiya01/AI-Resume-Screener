@@ -21,8 +21,14 @@ export const proxy = auth(async (req) => {
   const isLoggedIn = !!auth;
   const path = nextUrl.pathname;
 
-  const isPrivateRoutes = privateRoutes.includes(path);
-  const isAuthRoute = authRoutes.includes(path);
+  const isPrivateRoutes = privateRoutes.some((route) => {
+    const pattern = route.replace(/\[.*?\]/g, '[^/]+');
+    return new RegExp(`^${pattern}$`).test(path);
+  });
+  const isAuthRoute = authRoutes.some((route) => {
+    const pattern = route.replace(/\[.*?\]/g, '[^/]+');
+    return new RegExp(`^${pattern}$`).test(path);
+  });
 
   if (isLoggedIn && isAuthRoute) {
     const redirectUrl = new URL(ROOT_PATH, url);

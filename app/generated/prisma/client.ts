@@ -76,3 +76,8 @@ export type VerificationRequest = Prisma.VerificationRequestModel;
  *
  */
 export type Resume = Prisma.ResumeModel;
+/**
+ * Model AnalysisResult
+ *
+ */
+export type AnalysisResult = Prisma.AnalysisResultModel;

@@ -10,11 +10,7 @@ interface AnalyzingPageProps {
 
 const AnalyzingPage = ({ params }: AnalyzingPageProps) => {
   const { id } = use(params);
-  return (
-    <div className="">
-      <AnalyzingProcess resumeId={id} />
-    </div>
-  );
+  return <AnalyzingProcess resumeId={id} />;
 };
 
 export default AnalyzingPage;

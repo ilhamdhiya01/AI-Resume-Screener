@@ -253,6 +253,10 @@ export type ResumeWhereInput = {
   createdAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
+  analysis?: Prisma.XOR<
+    Prisma.AnalysisResultNullableScalarRelationFilter,
+    Prisma.AnalysisResultWhereInput
+  > | null;
 };
 
 export type ResumeOrderByWithRelationInput = {
@@ -266,6 +270,7 @@ export type ResumeOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   user?: Prisma.UserOrderByWithRelationInput;
+  analysis?: Prisma.AnalysisResultOrderByWithRelationInput;
 };
 
 export type ResumeWhereUniqueInput = Prisma.AtLeast<
@@ -283,6 +288,10 @@ export type ResumeWhereUniqueInput = Prisma.AtLeast<
     createdAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
     user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
+    analysis?: Prisma.XOR<
+      Prisma.AnalysisResultNullableScalarRelationFilter,
+      Prisma.AnalysisResultWhereInput
+    > | null;
   },
   'id'
 >;
@@ -333,6 +342,7 @@ export type ResumeCreateInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutResumesInput;
+  analysis?: Prisma.AnalysisResultCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeUncheckedCreateInput = {
@@ -345,6 +355,7 @@ export type ResumeUncheckedCreateInput = {
   status?: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+  analysis?: Prisma.AnalysisResultUncheckedCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeUpdateInput = {
@@ -357,6 +368,7 @@ export type ResumeUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutResumesNestedInput;
+  analysis?: Prisma.AnalysisResultUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeUncheckedUpdateInput = {
@@ -369,6 +381,7 @@ export type ResumeUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  analysis?: Prisma.AnalysisResultUncheckedUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeCreateManyInput = {
@@ -460,6 +473,11 @@ export type ResumeSumOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder;
 };
 
+export type ResumeScalarRelationFilter = {
+  is?: Prisma.ResumeWhereInput;
+  isNot?: Prisma.ResumeWhereInput;
+};
+
 export type ResumeCreateNestedManyWithoutUserInput = {
   create?:
     | Prisma.XOR<
@@ -546,6 +564,32 @@ export type ResumeUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ResumeScalarWhereInput | Prisma.ResumeScalarWhereInput[];
 };
 
+export type ResumeCreateNestedOneWithoutAnalysisInput = {
+  create?: Prisma.XOR<
+    Prisma.ResumeCreateWithoutAnalysisInput,
+    Prisma.ResumeUncheckedCreateWithoutAnalysisInput
+  >;
+  connectOrCreate?: Prisma.ResumeCreateOrConnectWithoutAnalysisInput;
+  connect?: Prisma.ResumeWhereUniqueInput;
+};
+
+export type ResumeUpdateOneRequiredWithoutAnalysisNestedInput = {
+  create?: Prisma.XOR<
+    Prisma.ResumeCreateWithoutAnalysisInput,
+    Prisma.ResumeUncheckedCreateWithoutAnalysisInput
+  >;
+  connectOrCreate?: Prisma.ResumeCreateOrConnectWithoutAnalysisInput;
+  upsert?: Prisma.ResumeUpsertWithoutAnalysisInput;
+  connect?: Prisma.ResumeWhereUniqueInput;
+  update?: Prisma.XOR<
+    Prisma.XOR<
+      Prisma.ResumeUpdateToOneWithWhereWithoutAnalysisInput,
+      Prisma.ResumeUpdateWithoutAnalysisInput
+    >,
+    Prisma.ResumeUncheckedUpdateWithoutAnalysisInput
+  >;
+};
+
 export type ResumeCreateWithoutUserInput = {
   id?: string;
   fileName: string;
@@ -555,6 +599,7 @@ export type ResumeCreateWithoutUserInput = {
   status?: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+  analysis?: Prisma.AnalysisResultCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeUncheckedCreateWithoutUserInput = {
@@ -566,6 +611,7 @@ export type ResumeUncheckedCreateWithoutUserInput = {
   status?: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+  analysis?: Prisma.AnalysisResultUncheckedCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeCreateOrConnectWithoutUserInput = {
@@ -624,6 +670,82 @@ export type ResumeScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
 };
 
+export type ResumeCreateWithoutAnalysisInput = {
+  id?: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  filePath: string;
+  status?: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+  user: Prisma.UserCreateNestedOneWithoutResumesInput;
+};
+
+export type ResumeUncheckedCreateWithoutAnalysisInput = {
+  id?: string;
+  userId: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  filePath: string;
+  status?: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+};
+
+export type ResumeCreateOrConnectWithoutAnalysisInput = {
+  where: Prisma.ResumeWhereUniqueInput;
+  create: Prisma.XOR<
+    Prisma.ResumeCreateWithoutAnalysisInput,
+    Prisma.ResumeUncheckedCreateWithoutAnalysisInput
+  >;
+};
+
+export type ResumeUpsertWithoutAnalysisInput = {
+  update: Prisma.XOR<
+    Prisma.ResumeUpdateWithoutAnalysisInput,
+    Prisma.ResumeUncheckedUpdateWithoutAnalysisInput
+  >;
+  create: Prisma.XOR<
+    Prisma.ResumeCreateWithoutAnalysisInput,
+    Prisma.ResumeUncheckedCreateWithoutAnalysisInput
+  >;
+  where?: Prisma.ResumeWhereInput;
+};
+
+export type ResumeUpdateToOneWithWhereWithoutAnalysisInput = {
+  where?: Prisma.ResumeWhereInput;
+  data: Prisma.XOR<
+    Prisma.ResumeUpdateWithoutAnalysisInput,
+    Prisma.ResumeUncheckedUpdateWithoutAnalysisInput
+  >;
+};
+
+export type ResumeUpdateWithoutAnalysisInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string;
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string;
+  filePath?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  user?: Prisma.UserUpdateOneRequiredWithoutResumesNestedInput;
+};
+
+export type ResumeUncheckedUpdateWithoutAnalysisInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string;
+  userId?: Prisma.StringFieldUpdateOperationsInput | string;
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string;
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string;
+  filePath?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+};
+
 export type ResumeCreateManyUserInput = {
   id?: string;
   fileName: string;
@@ -644,6 +766,7 @@ export type ResumeUpdateWithoutUserInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  analysis?: Prisma.AnalysisResultUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeUncheckedUpdateWithoutUserInput = {
@@ -655,6 +778,7 @@ export type ResumeUncheckedUpdateWithoutUserInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
+  analysis?: Prisma.AnalysisResultUncheckedUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeUncheckedUpdateManyWithoutUserInput = {
@@ -683,6 +807,7 @@ export type ResumeSelect<
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
+    analysis?: boolean | Prisma.Resume$analysisArgs<ExtArgs>;
   },
   ExtArgs['result']['resume']
 >;
@@ -757,6 +882,7 @@ export type ResumeInclude<
     runtime.Types.Extensions.DefaultArgs,
 > = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
+  analysis?: boolean | Prisma.Resume$analysisArgs<ExtArgs>;
 };
 export type ResumeIncludeCreateManyAndReturn<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
@@ -778,6 +904,7 @@ export type $ResumePayload<
   name: 'Resume';
   objects: {
     user: Prisma.$UserPayload<ExtArgs>;
+    analysis: Prisma.$AnalysisResultPayload<ExtArgs> | null;
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -1354,6 +1481,19 @@ export interface Prisma__ResumeClient<
     ExtArgs,
     GlobalOmitOptions
   >;
+  analysis<T extends Prisma.Resume$analysisArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.Resume$analysisArgs<ExtArgs>>
+  ): Prisma.Prisma__AnalysisResultClient<
+    runtime.Types.Result.GetResult<
+      Prisma.$AnalysisResultPayload<ExtArgs>,
+      T,
+      'findUniqueOrThrow',
+      GlobalOmitOptions
+    > | null,
+    null,
+    ExtArgs,
+    GlobalOmitOptions
+  >;
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1862,6 +2002,28 @@ export type ResumeDeleteManyArgs<
    * Limit how many Resumes to delete.
    */
   limit?: number;
+};
+
+/**
+ * Resume.analysis
+ */
+export type Resume$analysisArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs =
+    runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the AnalysisResult
+   */
+  select?: Prisma.AnalysisResultSelect<ExtArgs> | null;
+  /**
+   * Omit specific fields from the AnalysisResult
+   */
+  omit?: Prisma.AnalysisResultOmit<ExtArgs> | null;
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AnalysisResultInclude<ExtArgs> | null;
+  where?: Prisma.AnalysisResultWhereInput;
 };
 
 /**

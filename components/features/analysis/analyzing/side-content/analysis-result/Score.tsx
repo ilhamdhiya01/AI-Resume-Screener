@@ -46,7 +46,7 @@ const Score = ({ progress = 85 }: { progress: number }) => {
           </span>
         </div>
       </div>
-      <p className="px-6 py-4 text-center text-neutral-600">
+      <p className="px-6 text-center text-neutral-600">
         This resume is a Strong Fit for the <br /> Senior Product Designer role.
       </p>
     </div>
