@@ -6,6 +6,12 @@ interface SideContentProps {
   step: string;
   status: string;
   duration: number;
+  score: number;
+  items: {
+    strengths: string[];
+    criticals: string[];
+    suggestions: string[];
+  };
 }
 
 const SideContent = ({
@@ -13,11 +19,13 @@ const SideContent = ({
   step,
   status,
   duration,
+  score,
+  items,
 }: SideContentProps) => {
   return (
     <aside className="flex w-full max-w-[35%] flex-col border-l border-slate-300 bg-[#f7fafc]">
       {progress === 100 && status === 'completed' ? (
-        <AnalysisResult />
+        <AnalysisResult score={score} items={items} />
       ) : (
         <Step
           progress={progress}

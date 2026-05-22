@@ -1,6 +1,3 @@
-import 'pdf-parse/worker';
-
-import { PDFParse, VerbosityLevel } from 'pdf-parse';
 import { v4 as uuidv4 } from 'uuid';
 
 import prisma from '../db';
@@ -18,20 +15,6 @@ export const uploadResumeToSupabaseStorage = async (
   userId: string
 ): Promise<{ signedUrl: string; path: string; resumeId: string }> => {
   const uuidV4 = uuidv4();
-
-  // Convert PDF file to buffer
-  const arrayBuffer = await file.arrayBuffer();
-  //const buffer = Buffer.from(arrayBuffer);
-
-  // Parse PDF
-  const parser = new PDFParse({
-    data: arrayBuffer,
-    verbosity: VerbosityLevel.WARNINGS,
-  });
-  const test = await parser.getText();
-  await parser.destroy();
-
-  console.log(test.text);
 
   const timeStamp = Date.now();
   const fileExt = file.name.split('.').pop();

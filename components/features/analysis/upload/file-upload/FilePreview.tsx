@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { formatFileSize, getRelativeTime } from '@/lib/helper';
+import { formatFileSize, getRelativeTime } from '@/lib/helpers';
 import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
 
 interface FilePreviewProps {

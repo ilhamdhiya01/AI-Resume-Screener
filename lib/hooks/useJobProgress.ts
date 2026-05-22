@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import axiosInstance from '../axios';
+import { ResumeData } from '../types/resume-analysis.types';
 
 interface JobStatus {
   status:
@@ -23,9 +25,8 @@ interface JobStatus {
     | 'completed'
     | 'failed'
     | 'unknown';
-  fileName?: string;
   duration?: number;
-  fileUrl?: string;
+  data?: ResumeData;
 }
 
 export const useJobProgress = (resumeId: string | null) => {
@@ -59,59 +60,124 @@ export const useJobProgress = (resumeId: string | null) => {
     };
   }, [displayProgress, jobStatus.progress]);
 
+  const poll = useCallback(async () => {
+    // ✅ Skip if tab hidden
+    if (document.hidden) return;
+
+    try {
+      const res = await axiosInstance.get(
+        `/upload/status?resumeId=${resumeId}`
+      );
+      const data = res.data.data;
+
+      console.log({ data });
+
+      if (data) {
+        // ✅ First poll: set displayProgress immediately (no animation)
+        if (isFirstPoll.current) {
+          isFirstPoll.current = false;
+          setDisplayProgress(data.progress);
+        }
+
+        setJobStatus({ ...data });
+
+        console.log('status', data.status);
+
+        // Stop polling when done
+        if (
+          data.status === 'completed' ||
+          data.status === 'failed' ||
+          jobStatus.status === 'failed'
+        ) {
+          stopPolling();
+        }
+      }
+    } catch (error) {
+      console.error('Polling error:', error);
+    }
+  }, [resumeId, stopPolling]);
+
+  const startPolling = useCallback(() => {
+    stopPolling(); // Bersihkan interval lama jika ada
+    poll(); // Jalankan sekali langsung tanpa nunggu 3 detik
+    intervalRef.current = setInterval(poll, 3000);
+    console.log('🚀 Polling started/resumed');
+  }, [poll, stopPolling]);
+
+  useEffect(() => {
+    const target = jobStatus.progress;
+    if (displayProgress < target) {
+      animationRef.current = setTimeout(() => {
+        setDisplayProgress((prev) => prev + 1);
+      }, 100);
+    }
+    return () => {
+      if (animationRef.current) clearTimeout(animationRef.current);
+    };
+  }, [displayProgress, jobStatus.progress]);
+
+  // Handle siklus polling utama & visibility change
   useEffect(() => {
     if (!resumeId) return;
 
-    const poll = async () => {
-      // ✅ Skip if tab hidden
-      if (document.hidden) return;
+    startPolling();
 
-      try {
-        const res = await axiosInstance.get(
-          `/upload/status?resumeId=${resumeId}`
-        );
-        const data = res.data.data;
-
-        if (data) {
-          // ✅ First poll: set displayProgress immediately (no animation)
-          if (isFirstPoll.current) {
-            isFirstPoll.current = false;
-            setDisplayProgress(data.progress);
-          }
-
-          setJobStatus({ ...data });
-
-          console.log('status', data.status);
-
-          // Stop polling when done
-          if (data.status === 'completed' || data.status === 'failed') {
-            stopPolling();
-          }
-        }
-      } catch (error) {
-        console.error('Polling error:', error);
-      }
-    };
-
-    // Listen for visibility change
     const handleVisibilityChange = () => {
       if (document.hidden) {
         stopPolling();
       } else {
-        intervalRef.current = setInterval(poll, 3000);
+        // Nyalakan kembali kalau tab dibuka lagi dan status belum kelar/gagal
+        if (jobStatus.status !== 'completed' && jobStatus.status !== 'failed') {
+          startPolling();
+        }
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Poll immediately, then every 3 seconds
-    poll();
-    intervalRef.current = setInterval(poll, 3000);
     return () => {
       stopPolling();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [resumeId, stopPolling]);
+  }, [resumeId, startPolling, stopPolling, jobStatus.status]);
 
-  return { ...jobStatus };
+  // useEffect(() => {
+  //   if (!resumeId) return;
+
+  //   // Listen for visibility change
+  //   const handleVisibilityChange = () => {
+  //     if (document.hidden) {
+  //       stopPolling();
+  //     } else {
+  //       intervalRef.current = setInterval(poll, 3000);
+  //     }
+  //   };
+
+  //   document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  //   // Poll immediately, then every 3 seconds
+  //   poll();
+  //   intervalRef.current = setInterval(poll, 3000);
+  //   return () => {
+  //     stopPolling();
+  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
+  //   };
+  // }, [resumeId, stopPolling]);
+
+  const retryJob = async (jobId: string): Promise<string | null> => {
+    try {
+      // Catatan: Pastikan endpoint ini di backend bertugas me-retry job ke BullMQ, ya!
+      const response = await axiosInstance.get(`/upload/status/${jobId}`);
+
+      // 🎯 KUNCI UTAMA: Hidupkan kembali polling setelah hit API retry sukses
+      startPolling();
+
+      return response.data;
+    } catch (err) {
+      console.error('Failed to retry job:', err);
+      return null;
+    }
+  };
+
+  return { ...jobStatus, retryJob };
 };

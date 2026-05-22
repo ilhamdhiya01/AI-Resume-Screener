@@ -1,12 +1,12 @@
 import { Worker } from 'bullmq';
 
-import { connection } from '@/lib/queue/resume-queue';
+import { connection, resumeQueue } from '@/lib/queue/resume-queue';
 import { analyzeResume } from '@/lib/services/resume-analysis.service';
 
 let workerInstance: Worker | null = null;
 let idleTimeout: NodeJS.Timeout | null = null;
 
-const IDLE_TIMEOUT_MS = 30000; // Close worker after 30s idle
+const IDLE_TIMEOUT_MS = 10000; // Close worker after 30s idle
 
 /**
  * @description Creates and starts the BullMQ worker if not already running.
@@ -29,11 +29,17 @@ export const ensureWorkerRunning = () => {
 
       console.log(`🔄 Processing job ${job.id} - Resume: ${resumeId}`);
 
-      await analyzeResume(resumeId, filePath, async (data) => {
-        await job.updateProgress(data);
-      });
-
-      console.log(`✅ Job ${job.id} completed`);
+      try {
+        await analyzeResume(resumeId, filePath, async (data) => {
+          await job.updateProgress(data); // ← data bisa include error
+        });
+        console.log(`✅ Job ${job.id} completed`);
+      } catch (error) {
+        // ✅ Error sudah di-throw dari analyzeResume
+        // BullMQ otomatis set job state = 'failed'
+        console.error(`❌ Job ${job.id} failed:`, error);
+        throw error; // Re-throw biar BullMQ handle
+      }
     },
     {
       connection,
@@ -71,7 +77,7 @@ const resetIdleTimeout = () => {
   clearIdleTimer();
   idleTimeout = setTimeout(async () => {
     if (workerInstance) {
-      console.log('💤 Worker idle for 30s, closing connection...');
+      console.log('💤 Worker idle for 10s, closing connection...');
       await workerInstance.close();
       workerInstance = null;
     }
@@ -83,4 +89,21 @@ const clearIdleTimer = () => {
     clearTimeout(idleTimeout);
     idleTimeout = null;
   }
+};
+
+export const retrySpecificJob = async (jobId: string) => {
+  const job = await resumeQueue.getJob(jobId);
+
+  if (job && (await job.isFailed())) {
+    console.log(`🔄 Retrying job ${jobId} manually...`);
+
+    // 💡 KUNCI PENTING: Karena lu pakai sistem Lazy Worker (auto-close),
+    // lu harus bangunin worker-nya lagi pas mau retry!
+    ensureWorkerRunning();
+
+    await job.retry();
+    return { success: true, message: `Job ${jobId} dikembalikan ke antrean.` };
+  }
+
+  throw new Error('Job tidak ditemukan atau statusnya bukan failed');
 };

@@ -6,3 +6,15 @@ export type AnalysisResultPayload = Omit<
 > & {
   resumeId: string;
 };
+
+export type ResumeData = {
+  resume: Record<'fileName' | 'filePath', string>;
+  summary: string;
+  score: number;
+  hasTypos: boolean;
+  typoCount: number;
+  strengths: string[];
+  criticals: string[];
+  suggestions: string[];
+  typoDetails: string[];
+};

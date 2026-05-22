@@ -1125,7 +1125,7 @@ export const AnalysisResultScalarFieldEnum = {
   hardDataRaw: 'hardDataRaw',
   summary: 'summary',
   strengths: 'strengths',
-  weaknesses: 'weaknesses',
+  criticals: 'criticals',
   suggestions: 'suggestions',
   typoDetails: 'typoDetails',
   atsRecommendations: 'atsRecommendations',

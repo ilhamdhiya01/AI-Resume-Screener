@@ -1,6 +1,8 @@
 import { ErrorCode, FileRejection } from 'react-dropzone';
 import { create } from 'zustand';
 
+type Modal = Record<string, { isOpen: boolean; onClose: () => void }> | null;
+
 interface AnalysisState {
   file: File | null;
   uploadTime: Date | null;
@@ -10,6 +12,7 @@ interface AnalysisState {
   isDragActive: boolean;
   isDragReject: boolean;
   dropZoneErrorCode: ErrorCode | null;
+  modalCancelProcess: boolean;
 }
 
 interface AnalysisActions {
@@ -21,6 +24,7 @@ interface AnalysisActions {
   setIsDragReject: (reject: boolean) => void;
   clearFile: () => void;
   reset: () => void;
+  setModalCancelProcess: (cancel: boolean) => void;
 }
 
 type AnalysisStore = AnalysisState & AnalysisActions;
@@ -32,6 +36,7 @@ const InitialState: AnalysisState = {
   isDragActive: false,
   isDragReject: false,
   dropZoneErrorCode: null,
+  modalCancelProcess: false,
 };
 
 export const useAnalysisStore = create<AnalysisStore>()((set) => ({
@@ -45,4 +50,6 @@ export const useAnalysisStore = create<AnalysisStore>()((set) => ({
   setIsDragReject: (reject: boolean) => set({ isDragReject: reject }),
   clearFile: () => set({ file: null, uploadTime: null, fileRejections: [] }),
   reset: () => set(InitialState),
+  setModalCancelProcess: (cancel: boolean) =>
+    set({ modalCancelProcess: cancel }),
 }));

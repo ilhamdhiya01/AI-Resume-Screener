@@ -1,3 +1,6 @@
+import Button from '@/components/ui/button';
+import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+
 import { Step } from '.';
 
 const STEPS = [
@@ -35,6 +38,7 @@ interface StepRootProps {
 }
 
 const StepRoot = ({ progress, step, status, duration }: StepRootProps) => {
+  const { setModalCancelProcess } = useAnalysisStore();
   const getStepStatus = (targetKey: string) => {
     const stepOder = STEPS.map((step) => step.key);
     const currentIndex = stepOder.indexOf(step || '');
@@ -68,6 +72,13 @@ const StepRoot = ({ progress, step, status, duration }: StepRootProps) => {
           />
         ))}
       </div>
+      <Button
+        variant="outlined"
+        fullWidth
+        label="Batalkan Proses"
+        preffixIcon="TbCircleX"
+        onClick={() => setModalCancelProcess(true)}
+      />
     </div>
   );
 };

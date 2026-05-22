@@ -1,23 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PDFParse, VerbosityLevel } from 'pdf-parse';
 
 import { GLM_SYSTEM_PROMPT, KIMI_SYSTEM_PROMPT } from '@/const/prompt-system';
 
 import prisma from '../db';
-import { gradualProgress } from '../helper';
+import { gradualProgress } from '../helpers';
 import { openai } from '../open-ai';
 import { supabaseAdmin } from '../supabase-admin';
-import { AnalysisResultPayload } from '../types/resume-analysis.types';
 
 const updateResumeStatus = async (resumeId: string, status: string) => {
   await prisma.resume.update({
     where: { id: resumeId },
     data: { status },
-  });
-};
-
-const createAnalysisResult = async (data: AnalysisResultPayload) => {
-  await prisma.analysisResult.create({
-    data,
   });
 };
 
@@ -40,7 +34,7 @@ const extractTextFromPdf = async (file: Blob | null) => {
 
 const aiAnalyze = async (
   prompt: string,
-  model: string,
+  model: 'glm-5.1' | 'kimi-k2.6',
   content: string,
   timeoutMs: number = 60000
 ) => {
@@ -59,7 +53,7 @@ const aiAnalyze = async (
           { role: 'user', content },
         ],
         response_format: { type: 'json_object' },
-        // max_tokens: 2000,
+        // max_tokens: 1600,
         temperature: 0.7,
       },
       {
@@ -94,6 +88,7 @@ export const analyzeResume = async (
     progress: number;
     step: string;
     duration: number;
+    error?: string | null;
   }) => Promise<void>
 ) => {
   try {
@@ -109,6 +104,7 @@ export const analyzeResume = async (
           progress,
           step: 'extracting_text_metadata',
           duration: 150,
+          error: null,
         });
     });
 
@@ -119,22 +115,91 @@ export const analyzeResume = async (
     // Extract text from PDF
     const resumeText = await extractTextFromPdf(fileData);
 
-    // Step 2: GLM 5.1 — Extract Hard Data (20-50%)
-    await gradualProgress(20, 50, 5000, async (progress) => {
-      if (onProgress)
-        await onProgress({
-          progress,
-          step: 'analyzing_competencies',
-          duration: 166,
-        });
+    // ✅ Check if GLM analysis already exists (from previous failed attempt)
+    let hardData;
+    const existingAnalysis = await prisma.analysisResult.findUnique({
+      where: { resumeId },
+      select: { hardDataRaw: true },
     });
 
-    const hardData = await aiAnalyze(GLM_SYSTEM_PROMPT, 'glm-5.1', resumeText);
+    if (existingAnalysis?.hardDataRaw) {
+      console.log('♻️  Reusing existing GLM analysis from previous attempt');
+      hardData = existingAnalysis.hardDataRaw as Record<string, any>;
+
+      // Skip to 50% since GLM already done
+      await gradualProgress(20, 50, 1000, async (progress) => {
+        if (onProgress)
+          await onProgress({
+            progress,
+            step: 'analyzing_competencies',
+            duration: 166,
+            error: null,
+          });
+      });
+    } else {
+      // Step 2: GLM 5.1 — Extract Hard Data (20-50%)
+      await gradualProgress(20, 50, 5000, async (progress) => {
+        if (onProgress)
+          await onProgress({
+            progress,
+            step: 'analyzing_competencies',
+            duration: 166,
+            error: null,
+          });
+      });
+
+      hardData = await aiAnalyze(GLM_SYSTEM_PROMPT, 'glm-5.1', resumeText);
+
+      // ✅ Save GLM result immediately (checkpoint)
+      await prisma.analysisResult.upsert({
+        where: { resumeId },
+        create: {
+          resumeId,
+          score: hardData.score || 0,
+          yearsExperience: hardData.yearsExperience,
+          matchedSkills: hardData.matchedSkills || [],
+          missingSkills: hardData.missingSkills || [],
+          role: hardData.role,
+          education: hardData.education,
+          hasTypos: hardData.hasTypos || false,
+          typoCount: hardData.typoCount || 0,
+          atsIssues: hardData.atsIssues || {},
+          hardDataRaw: hardData,
+          // Temporary placeholder values for Kimi fields
+          summary: '',
+          strengths: [],
+          criticals: [],
+          suggestions: [],
+          typoDetails: [],
+          atsRecommendations: {},
+          deepAnalysisRaw: {},
+        },
+        update: {
+          score: hardData.score || 0,
+          yearsExperience: hardData.yearsExperience,
+          matchedSkills: hardData.matchedSkills || [],
+          missingSkills: hardData.missingSkills || [],
+          role: hardData.role,
+          education: hardData.education,
+          hasTypos: hardData.hasTypos || false,
+          typoCount: hardData.typoCount || 0,
+          atsIssues: hardData.atsIssues || {},
+          hardDataRaw: hardData,
+        },
+      });
+
+      console.log('💾 GLM analysis saved (checkpoint)');
+    }
 
     // Step 3: Kimi K2.6 — Deep Analysis (50-85%)
     await gradualProgress(50, 85, 5000, async (progress) => {
       if (onProgress)
-        await onProgress({ progress, step: 'mapping_timeline', duration: 142 });
+        await onProgress({
+          progress,
+          step: 'mapping_timeline',
+          duration: 142,
+          error: null,
+        });
     });
 
     const kimiInput = `## Resume Text:\n${resumeText}\n\n## GLM Analysis:\n${JSON.stringify(hardData)}`;
@@ -151,28 +216,22 @@ export const analyzeResume = async (
           progress,
           step: 'calculating_score',
           duration: 133,
+          error: null,
         });
     });
 
-    await createAnalysisResult({
-      resumeId,
-      score: hardData.score,
-      yearsExperience: hardData.yearsExperience,
-      matchedSkills: hardData.matchedSkills,
-      missingSkills: hardData.missingSkills,
-      role: hardData.role, // ← NEW
-      education: hardData.education, // ← NEW
-      hasTypos: hardData.hasTypos, // ← NEW
-      typoCount: hardData.typoCount, // ← NEW
-      atsIssues: hardData.atsIssues, // ← NEW
-      hardDataRaw: hardData,
-      summary: deepAnalysis.summary,
-      strengths: deepAnalysis.strengths,
-      weaknesses: deepAnalysis.weaknesses,
-      suggestions: deepAnalysis.suggestions,
-      typoDetails: deepAnalysis.typoDetails, // ← NEW
-      atsRecommendations: deepAnalysis.atsRecommendations, // ← NEW
-      deepAnalysisRaw: deepAnalysis,
+    // ✅ Update with Kimi results (GLM already saved)
+    await prisma.analysisResult.update({
+      where: { resumeId },
+      data: {
+        summary: deepAnalysis.summary,
+        strengths: deepAnalysis.strengths,
+        criticals: deepAnalysis.criticals,
+        suggestions: deepAnalysis.suggestions,
+        typoDetails: deepAnalysis.typoDetails,
+        atsRecommendations: deepAnalysis.atsRecommendations,
+        deepAnalysisRaw: deepAnalysis,
+      },
     });
 
     // Update to COMPLETED
@@ -180,6 +239,15 @@ export const analyzeResume = async (
     console.log(`✅ Resume ${resumeId} analyzed successfully`);
   } catch (error) {
     console.error(`❌ Analysis failed for ${resumeId}:`, error);
+
+    // if (onProgress) {
+    //   await onProgress({
+    //     progress: 0, // Keep last progress
+    //     step: 'error', // Keep last step
+    //     duration: 0,
+    //     error: error instanceof Error ? error.message : 'Unknown error',
+    //   });
+    // }
 
     await updateResumeStatus(resumeId, 'FAILED');
 

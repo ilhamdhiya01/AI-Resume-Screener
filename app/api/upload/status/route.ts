@@ -15,6 +15,7 @@ export const GET = async (request: NextRequest) => {
       return errorResponse(`resumeId is required`, 404);
     }
 
+    // ✅ Query Resume first (always exists)
     const resume = await prisma.resume.findUnique({
       where: {
         id: resumeId,
@@ -22,6 +23,7 @@ export const GET = async (request: NextRequest) => {
       select: {
         fileName: true,
         filePath: true,
+        status: true,
       },
     });
 
@@ -56,8 +58,28 @@ export const GET = async (request: NextRequest) => {
         ? (progressData as { duration: number }).duration
         : 0;
 
+    let analysisData = null;
     let fileUrl = '';
+
     if (state === 'completed' && progressValue === 100) {
+      analysisData = await prisma.analysisResult.findUnique({
+        where: {
+          resumeId,
+        },
+        select: {
+          atsIssues: true,
+          typoCount: true,
+          hasTypos: true,
+          typoDetails: true,
+          atsRecommendations: true,
+          summary: true,
+          strengths: true,
+          criticals: true,
+          suggestions: true,
+          score: true,
+        },
+      });
+
       fileUrl = await getSignedUrl(resume.filePath);
     }
 
@@ -67,8 +89,15 @@ export const GET = async (request: NextRequest) => {
       progress: progressValue,
       step: step,
       duration: duration,
-      fileName: resume.fileName,
-      fileUrl: fileUrl,
+      data: analysisData
+        ? {
+            resume: {
+              fileName: resume.fileName,
+              filePath: fileUrl,
+            },
+            ...analysisData,
+          }
+        : null,
     });
   } catch (error) {
     console.error('Error getting job status:', error);

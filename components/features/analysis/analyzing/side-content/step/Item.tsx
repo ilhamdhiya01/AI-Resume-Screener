@@ -86,7 +86,7 @@ const Item = ({
             className={classNames('shrink-0 stroke-3', {
               'animate-pulse text-white': isActive,
               'text-white': isCompleted,
-              'text-slate-400': isPending, // ✅ Tambah warna abu untuk pending
+              'text-slate-400': isPending,
             })}
             size={20}
           />

@@ -1,33 +1,50 @@
+import { startCase } from 'lodash';
+
+import { ResumeData } from '@/lib/types/resume-analysis.types';
+
 import { AnalysisResult } from '.';
 
-const AnalysisResultRoot = () => {
+export type Items = Record<'strengths' | 'criticals' | 'suggestions', string[]>;
+
+interface AnalysisResultRootProps {
+  score: number;
+  strengths: string[];
+  criticals: string[];
+  suggestions: string[];
+  items: Items;
+}
+
+const AnalysisResultRoot = ({
+  score,
+  strengths,
+  criticals,
+  suggestions,
+  items,
+}: AnalysisResultRootProps) => {
+  console.log({ items });
+  const keys: (keyof Items)[] = Object.keys(items) as (keyof Items)[];
   return (
     <div className="space-y-5 overflow-auto p-10">
-      <AnalysisResult.Score progress={85} />
-      <AnalysisResult.Item
-        isCritical
-        title="Critical Issues"
-        items={[
-          'Missing Quantifiable Metrics: Several achievements lack specific percentages or dollar values.',
-          'ATS Readability: Two-column layouts may be difficult for older systems to parse.',
-        ]}
-      />
-      <AnalysisResult.Item
+      <AnalysisResult.Score progress={score} />
+      {keys.map((key) => {
+        if (items[key].length === 0) return null;
+        return (
+          <AnalysisResult.Item
+            key={key}
+            isCritical={key === 'criticals'}
+            isSuggestions={key === 'suggestions'}
+            isStrengths={key === 'strengths'}
+            title={startCase(key)}
+            items={items[key as keyof Items]}
+          />
+        );
+      })}
+      {/* <AnalysisResult.Item
         isSuggestions
         title="Suggestions"
-        items={[
-          "Add specific metrics to achievements (e.g., 'Increased sales by 25%' instead of 'Improved sales').",
-          'Use single-column layout for better ATS compatibility.',
-        ]}
+        items={suggestions}
       />
-      <AnalysisResult.Item
-        isStrengths
-        title="Strengths"
-        items={[
-          'Clear role and company information.',
-          'Well-structured bullet points.',
-        ]}
-      />
+      <AnalysisResult.Item isStrengths title="Strengths" items={strengths} /> */}
     </div>
   );
 };

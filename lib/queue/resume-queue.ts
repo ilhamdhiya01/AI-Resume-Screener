@@ -11,7 +11,7 @@ const connection = new Redis(process.env.REDIS_URL!, {
 export const resumeQueue = new Queue('resume-analysis', {
   connection,
   defaultJobOptions: {
-    attempts: 3,
+    attempts: 1,
     backoff: {
       type: 'exponential',
       delay: 5000,

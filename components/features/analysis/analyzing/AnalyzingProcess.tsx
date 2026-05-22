@@ -3,7 +3,11 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 
+import Button from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
+import Modal from '@/components/ui/Modal/Modal';
 import { useJobProgress } from '@/lib/hooks/useJobProgress';
+import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
 
 import SideContent from './side-content/SideContent';
 import SkelatonPreview from './SkelatonPreview';
@@ -18,11 +22,14 @@ interface AnalyzingProcessProps {
 }
 
 const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
-  const { progress, step, status, fileName, duration, fileUrl } =
+  const { progress, step, status, duration, data, jobId, retryJob } =
     useJobProgress(resumeId);
+  const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore();
 
   const [showResult, setShowResult] = useState<boolean>(false);
   const hasTriggeredSkeleton = useRef<boolean>(false);
+
+  console.log({ progress, step, status });
 
   useEffect(() => {
     if (
@@ -38,22 +45,64 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     }
   }, [progress, status]);
 
+  const handleRetryJob = async () => {
+    if (jobId) {
+      await retryJob(jobId);
+    }
+  };
+
   // Skeleton only when completed + waiting for transition
   const showSkeleton =
     progress === 100 && status === 'completed' && !showResult;
 
-  return showSkeleton ? (
-    <SkelatonPreview />
-  ) : (
-    <div className="flex h-[calc(100vh-64px)] w-full">
-      <Preview progress={progress} fileName={fileName} fileUrl={fileUrl} />
-      <SideContent
-        progress={progress}
-        step={step as string}
-        status={status}
-        duration={duration || 0}
-      />
-    </div>
+  return (
+    <>
+      {showSkeleton || status === 'failed' ? (
+        <SkelatonPreview />
+      ) : (
+        <div className="flex h-[calc(100vh-64px)] w-full">
+          <Preview
+            progress={progress}
+            fileName={data?.resume.fileName}
+            fileUrl={data?.resume.filePath}
+          />
+          <SideContent
+            progress={progress}
+            step={step as string}
+            status={status}
+            duration={duration || 0}
+            score={data?.score || 0}
+            items={{
+              strengths: data?.strengths || [],
+              criticals: data?.criticals || [],
+              suggestions: data?.suggestions || [],
+            }}
+          />
+        </div>
+      )}
+      <Modal
+        isOpen={status === 'failed'}
+        onClose={() => setModalCancelProcess(!modalCancelProcess)}
+      >
+        <div className="flex flex-col items-center justify-center gap-2 text-center">
+          <div className="flex size-14 items-center justify-center rounded-full bg-red-200">
+            <Icon icon="TbAlertCircle" size={30} className="text-red-700" />
+          </div>
+          <h1 className="text-xl font-bold">Analysis Failed</h1>
+          <p>
+            A system error occurred while processing the document. The AI engine
+            was unable to extract and classify the data in your resume.
+          </p>
+          <Button
+            fullWidth
+            preffixIcon="TbRefresh"
+            label="Retry Analysis"
+            className="mt-3"
+            onClick={handleRetryJob}
+          />
+        </div>
+      </Modal>
+    </>
   );
 };
 

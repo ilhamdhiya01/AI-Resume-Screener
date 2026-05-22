@@ -127,7 +127,7 @@ model AnalysisResult {
   // Kimi K2.6 output (deep analysis)
   summary         String   @db.Text  
   strengths       Json               
-  weaknesses      Json               
+  criticals       Json               
   suggestions     Json               
   typoDetails     Json     @default("[]")         // ← Add default
   atsRecommendations Json  @default("{}")         // ← Add default
