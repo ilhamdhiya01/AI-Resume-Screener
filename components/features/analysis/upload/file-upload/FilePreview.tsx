@@ -173,7 +173,10 @@ const FilePreview = ({ open }: FilePreviewProps) => {
             <p className="text-neutral-700">
               or{' '}
               <span
-                onClick={open}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  open();
+                }}
                 className="text-primary-700 cursor-pointer underline"
               >
                 browse files

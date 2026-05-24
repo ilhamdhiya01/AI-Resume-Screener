@@ -1,7 +1,10 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { ANALYSIS_PATH } from '@/routes';
 
 import axiosInstance from '../axios';
 import { ResumeData } from '../types/resume-analysis.types';
@@ -39,6 +42,8 @@ export const useJobProgress = (resumeId: string | null) => {
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const isFirstPoll = useRef(true); // ✅ Track first poll
 
+  const router = useRouter();
+
   const stopPolling = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -70,8 +75,6 @@ export const useJobProgress = (resumeId: string | null) => {
       );
       const data = res.data.data;
 
-      console.log({ data });
-
       if (data) {
         // ✅ First poll: set displayProgress immediately (no animation)
         if (isFirstPoll.current) {
@@ -81,9 +84,7 @@ export const useJobProgress = (resumeId: string | null) => {
 
         setJobStatus({ ...data });
 
-        console.log('status', data.status);
-
-        // Stop polling when done
+        // Stop polling when condition
         if (
           data.status === 'completed' ||
           data.status === 'failed' ||
@@ -167,7 +168,9 @@ export const useJobProgress = (resumeId: string | null) => {
   const retryJob = async (jobId: string): Promise<string | null> => {
     try {
       // Catatan: Pastikan endpoint ini di backend bertugas me-retry job ke BullMQ, ya!
-      const response = await axiosInstance.get(`/upload/status/${jobId}`);
+      const response = await axiosInstance.get(
+        `/upload/status/${jobId}?retry=true`
+      );
 
       // 🎯 KUNCI UTAMA: Hidupkan kembali polling setelah hit API retry sukses
       startPolling();
@@ -179,5 +182,29 @@ export const useJobProgress = (resumeId: string | null) => {
     }
   };
 
-  return { ...jobStatus, retryJob };
+  const cancelJob = async (jobId: string): Promise<string | null> => {
+    try {
+      const response = await axiosInstance.get(
+        `/upload/status/${jobId}?cancel=true`
+      );
+      // 🎯 KUNCI UTAMA: Hidupkan kembali polling setelah hit API cancel sukses
+      // startPolling();
+
+      const data = response.data;
+
+      console.log({ data });
+
+      if (data?.success) {
+        startPolling();
+        // router.push(ANALYSIS_PATH);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Failed to cancel job:', error);
+      return null;
+    }
+  };
+
+  return { ...jobStatus, retryJob, cancelJob };
 };

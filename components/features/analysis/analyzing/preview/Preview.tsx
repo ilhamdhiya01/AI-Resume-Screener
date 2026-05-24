@@ -1,11 +1,14 @@
 import { useState } from 'react';
 
+import { ResumeData } from '@/lib/types/resume-analysis.types';
+
 import { Preview } from '.';
 
 interface PreviewRootProps {
   progress: number;
   fileName?: string;
   fileUrl?: string;
+  criticalHighlights: { text: string; page: number }[];
 }
 
 const ZOOM_CONFIG = {
@@ -15,7 +18,12 @@ const ZOOM_CONFIG = {
   default: 1,
 } as const;
 
-const PreviewRoot = ({ progress, fileName, fileUrl }: PreviewRootProps) => {
+const PreviewRoot = ({
+  progress,
+  fileName,
+  fileUrl,
+  criticalHighlights,
+}: PreviewRootProps) => {
   const [scale, setScale] = useState<number>(ZOOM_CONFIG.default);
 
   const zoomIn = () => {
@@ -29,6 +37,8 @@ const PreviewRoot = ({ progress, fileName, fileUrl }: PreviewRootProps) => {
   const resetZoom = () => {
     setScale(ZOOM_CONFIG.default);
   };
+
+  console.log({ criticalHighlights });
 
   return (
     <div className="relative flex w-full max-w-[65%] flex-col">
@@ -57,6 +67,7 @@ const PreviewRoot = ({ progress, fileName, fileUrl }: PreviewRootProps) => {
             setScale={setScale}
             minScale={ZOOM_CONFIG.min}
             maxScale={ZOOM_CONFIG.max}
+            criticalHighlights={criticalHighlights}
           />
         )}
       </div>

@@ -82,6 +82,7 @@ export type AnalysisResultCountAggregateOutputType = {
   summary: number;
   strengths: number;
   criticals: number;
+  criticalHighlights: number;
   suggestions: number;
   typoDetails: number;
   atsRecommendations: number;
@@ -147,6 +148,7 @@ export type AnalysisResultCountAggregateInputType = {
   summary?: true;
   strengths?: true;
   criticals?: true;
+  criticalHighlights?: true;
   suggestions?: true;
   typoDetails?: true;
   atsRecommendations?: true;
@@ -269,6 +271,7 @@ export type AnalysisResultGroupByOutputType = {
   summary: string;
   strengths: runtime.JsonValue;
   criticals: runtime.JsonValue;
+  criticalHighlights: runtime.JsonValue;
   suggestions: runtime.JsonValue;
   typoDetails: runtime.JsonValue;
   atsRecommendations: runtime.JsonValue;
@@ -315,6 +318,7 @@ export type AnalysisResultWhereInput = {
   summary?: Prisma.StringFilter<'AnalysisResult'> | string;
   strengths?: Prisma.JsonFilter<'AnalysisResult'>;
   criticals?: Prisma.JsonFilter<'AnalysisResult'>;
+  criticalHighlights?: Prisma.JsonFilter<'AnalysisResult'>;
   suggestions?: Prisma.JsonFilter<'AnalysisResult'>;
   typoDetails?: Prisma.JsonFilter<'AnalysisResult'>;
   atsRecommendations?: Prisma.JsonFilter<'AnalysisResult'>;
@@ -343,6 +347,7 @@ export type AnalysisResultOrderByWithRelationInput = {
   summary?: Prisma.SortOrder;
   strengths?: Prisma.SortOrder;
   criticals?: Prisma.SortOrder;
+  criticalHighlights?: Prisma.SortOrder;
   suggestions?: Prisma.SortOrder;
   typoDetails?: Prisma.SortOrder;
   atsRecommendations?: Prisma.SortOrder;
@@ -375,6 +380,7 @@ export type AnalysisResultWhereUniqueInput = Prisma.AtLeast<
     summary?: Prisma.StringFilter<'AnalysisResult'> | string;
     strengths?: Prisma.JsonFilter<'AnalysisResult'>;
     criticals?: Prisma.JsonFilter<'AnalysisResult'>;
+    criticalHighlights?: Prisma.JsonFilter<'AnalysisResult'>;
     suggestions?: Prisma.JsonFilter<'AnalysisResult'>;
     typoDetails?: Prisma.JsonFilter<'AnalysisResult'>;
     atsRecommendations?: Prisma.JsonFilter<'AnalysisResult'>;
@@ -405,6 +411,7 @@ export type AnalysisResultOrderByWithAggregationInput = {
   summary?: Prisma.SortOrder;
   strengths?: Prisma.SortOrder;
   criticals?: Prisma.SortOrder;
+  criticalHighlights?: Prisma.SortOrder;
   suggestions?: Prisma.SortOrder;
   typoDetails?: Prisma.SortOrder;
   atsRecommendations?: Prisma.SortOrder;
@@ -450,6 +457,7 @@ export type AnalysisResultScalarWhereWithAggregatesInput = {
   summary?: Prisma.StringWithAggregatesFilter<'AnalysisResult'> | string;
   strengths?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
   criticals?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
+  criticalHighlights?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
   suggestions?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
   typoDetails?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
   atsRecommendations?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
@@ -479,6 +487,7 @@ export type AnalysisResultCreateInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -504,6 +513,7 @@ export type AnalysisResultUncheckedCreateInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -530,6 +540,7 @@ export type AnalysisResultUpdateInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string;
   strengths?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -558,6 +569,7 @@ export type AnalysisResultUncheckedUpdateInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string;
   strengths?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -582,6 +594,7 @@ export type AnalysisResultCreateManyInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -608,6 +621,7 @@ export type AnalysisResultUpdateManyMutationInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string;
   strengths?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -635,6 +649,7 @@ export type AnalysisResultUncheckedUpdateManyInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string;
   strengths?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -664,6 +679,7 @@ export type AnalysisResultCountOrderByAggregateInput = {
   summary?: Prisma.SortOrder;
   strengths?: Prisma.SortOrder;
   criticals?: Prisma.SortOrder;
+  criticalHighlights?: Prisma.SortOrder;
   suggestions?: Prisma.SortOrder;
   typoDetails?: Prisma.SortOrder;
   atsRecommendations?: Prisma.SortOrder;
@@ -787,6 +803,7 @@ export type AnalysisResultCreateWithoutResumeInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -810,6 +827,7 @@ export type AnalysisResultUncheckedCreateWithoutResumeInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -864,6 +882,7 @@ export type AnalysisResultUpdateWithoutResumeInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string;
   strengths?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -890,6 +909,7 @@ export type AnalysisResultUncheckedUpdateWithoutResumeInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string;
   strengths?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
@@ -918,6 +938,7 @@ export type AnalysisResultSelect<
     summary?: boolean;
     strengths?: boolean;
     criticals?: boolean;
+    criticalHighlights?: boolean;
     suggestions?: boolean;
     typoDetails?: boolean;
     atsRecommendations?: boolean;
@@ -949,6 +970,7 @@ export type AnalysisResultSelectCreateManyAndReturn<
     summary?: boolean;
     strengths?: boolean;
     criticals?: boolean;
+    criticalHighlights?: boolean;
     suggestions?: boolean;
     typoDetails?: boolean;
     atsRecommendations?: boolean;
@@ -980,6 +1002,7 @@ export type AnalysisResultSelectUpdateManyAndReturn<
     summary?: boolean;
     strengths?: boolean;
     criticals?: boolean;
+    criticalHighlights?: boolean;
     suggestions?: boolean;
     typoDetails?: boolean;
     atsRecommendations?: boolean;
@@ -1007,6 +1030,7 @@ export type AnalysisResultSelectScalar = {
   summary?: boolean;
   strengths?: boolean;
   criticals?: boolean;
+  criticalHighlights?: boolean;
   suggestions?: boolean;
   typoDetails?: boolean;
   atsRecommendations?: boolean;
@@ -1034,6 +1058,7 @@ export type AnalysisResultOmit<
   | 'summary'
   | 'strengths'
   | 'criticals'
+  | 'criticalHighlights'
   | 'suggestions'
   | 'typoDetails'
   | 'atsRecommendations'
@@ -1086,6 +1111,7 @@ export type $AnalysisResultPayload<
       summary: string;
       strengths: runtime.JsonValue;
       criticals: runtime.JsonValue;
+      criticalHighlights: runtime.JsonValue;
       suggestions: runtime.JsonValue;
       typoDetails: runtime.JsonValue;
       atsRecommendations: runtime.JsonValue;
@@ -1722,6 +1748,7 @@ export interface AnalysisResultFieldRefs {
   readonly summary: Prisma.FieldRef<'AnalysisResult', 'String'>;
   readonly strengths: Prisma.FieldRef<'AnalysisResult', 'Json'>;
   readonly criticals: Prisma.FieldRef<'AnalysisResult', 'Json'>;
+  readonly criticalHighlights: Prisma.FieldRef<'AnalysisResult', 'Json'>;
   readonly suggestions: Prisma.FieldRef<'AnalysisResult', 'Json'>;
   readonly typoDetails: Prisma.FieldRef<'AnalysisResult', 'Json'>;
   readonly atsRecommendations: Prisma.FieldRef<'AnalysisResult', 'Json'>;

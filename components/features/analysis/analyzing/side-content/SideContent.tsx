@@ -8,8 +8,8 @@ interface SideContentProps {
   duration: number;
   score: number;
   items: {
-    strengths: string[];
     criticals: string[];
+    strengths: string[];
     suggestions: string[];
   };
 }

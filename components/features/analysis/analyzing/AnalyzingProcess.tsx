@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -22,12 +23,14 @@ interface AnalyzingProcessProps {
 }
 
 const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
-  const { progress, step, status, duration, data, jobId, retryJob } =
+  const { progress, step, status, duration, data, jobId, retryJob, cancelJob } =
     useJobProgress(resumeId);
   const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore();
 
   const [showResult, setShowResult] = useState<boolean>(false);
   const hasTriggeredSkeleton = useRef<boolean>(false);
+
+  const router = useRouter();
 
   console.log({ progress, step, status });
 
@@ -51,6 +54,13 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     }
   };
 
+  const handleCancelJob = async () => {
+    if (jobId) {
+      await cancelJob(jobId);
+      setModalCancelProcess(false);
+    }
+  };
+
   // Skeleton only when completed + waiting for transition
   const showSkeleton =
     progress === 100 && status === 'completed' && !showResult;
@@ -65,6 +75,7 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             progress={progress}
             fileName={data?.resume.fileName}
             fileUrl={data?.resume.filePath}
+            criticalHighlights={data?.criticalHighlights || []}
           />
           <SideContent
             progress={progress}
@@ -73,17 +84,14 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             duration={duration || 0}
             score={data?.score || 0}
             items={{
-              strengths: data?.strengths || [],
               criticals: data?.criticals || [],
               suggestions: data?.suggestions || [],
+              strengths: data?.strengths || [],
             }}
           />
         </div>
       )}
-      <Modal
-        isOpen={status === 'failed'}
-        onClose={() => setModalCancelProcess(!modalCancelProcess)}
-      >
+      <Modal isOpen={status === 'failed'}>
         <div className="flex flex-col items-center justify-center gap-2 text-center">
           <div className="flex size-14 items-center justify-center rounded-full bg-red-200">
             <Icon icon="TbAlertCircle" size={30} className="text-red-700" />
@@ -93,13 +101,48 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             A system error occurred while processing the document. The AI engine
             was unable to extract and classify the data in your resume.
           </p>
-          <Button
-            fullWidth
-            preffixIcon="TbRefresh"
-            label="Retry Analysis"
-            className="mt-3"
-            onClick={handleRetryJob}
-          />
+          <div className="flex gap-2">
+            <Button
+              preffixIcon="TbRefresh"
+              label="Retry Analysis"
+              className="mt-3"
+              onClick={handleRetryJob}
+            />
+            <Button
+              variant="outlined"
+              preffixIcon="TbCancel"
+              label="Cancel Analysis"
+              className="mt-3"
+              onClick={handleCancelJob}
+            />
+          </div>
+        </div>
+      </Modal>
+      <Modal
+        isOpen={modalCancelProcess}
+        onClose={() => setModalCancelProcess(false)}
+      >
+        <div className="flex flex-col items-center justify-center gap-2 text-center">
+          <div className="flex size-14 items-center justify-center rounded-full bg-red-200">
+            <Icon icon="TbAlertCircle" size={30} className="text-red-700" />
+          </div>
+          <h1 className="text-xl font-bold">Cancel Process</h1>
+          <p>Are you sure you want to cancel the analysis process?</p>
+          <div className="flex gap-2">
+            <Button
+              preffixIcon="TbRefresh"
+              label="Continue Process"
+              className="mt-3"
+              onClick={() => setModalCancelProcess(false)}
+            />
+            <Button
+              variant="outlined"
+              preffixIcon="TbCancel"
+              label="Cancel Process"
+              className="mt-3"
+              onClick={handleCancelJob}
+            />
+          </div>
         </div>
       </Modal>
     </>

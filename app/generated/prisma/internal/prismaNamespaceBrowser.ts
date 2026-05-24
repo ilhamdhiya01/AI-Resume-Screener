@@ -61,6 +61,7 @@ export const ModelName = {
   VerificationRequest: 'VerificationRequest',
   Resume: 'Resume',
   AnalysisResult: 'AnalysisResult',
+  ExtractedText: 'ExtractedText',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -183,6 +184,7 @@ export const AnalysisResultScalarFieldEnum = {
   summary: 'summary',
   strengths: 'strengths',
   criticals: 'criticals',
+  criticalHighlights: 'criticalHighlights',
   suggestions: 'suggestions',
   typoDetails: 'typoDetails',
   atsRecommendations: 'atsRecommendations',
@@ -193,6 +195,17 @@ export const AnalysisResultScalarFieldEnum = {
 
 export type AnalysisResultScalarFieldEnum =
   (typeof AnalysisResultScalarFieldEnum)[keyof typeof AnalysisResultScalarFieldEnum];
+
+export const ExtractedTextScalarFieldEnum = {
+  id: 'id',
+  resumeId: 'resumeId',
+  text: 'text',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type ExtractedTextScalarFieldEnum =
+  (typeof ExtractedTextScalarFieldEnum)[keyof typeof ExtractedTextScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',

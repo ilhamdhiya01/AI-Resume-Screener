@@ -34,6 +34,11 @@ export const ensureWorkerRunning = () => {
           throw new Error('Proses dibatalkan oleh user');
         }
 
+        // if (signal) {
+        //   await analyzeResume(resumeId, filePath, signal, async (data) => {
+        //     await job.updateProgress(data); // ← data bisa include error
+        //   });
+        // }
         await analyzeResume(
           resumeId,
           filePath,

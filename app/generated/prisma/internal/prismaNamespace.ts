@@ -419,6 +419,7 @@ export const ModelName = {
   VerificationRequest: 'VerificationRequest',
   Resume: 'Resume',
   AnalysisResult: 'AnalysisResult',
+  ExtractedText: 'ExtractedText',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -447,7 +448,8 @@ export type TypeMap<
       | 'profile'
       | 'verificationRequest'
       | 'resume'
-      | 'analysisResult';
+      | 'analysisResult'
+      | 'extractedText';
     txIsolationLevel: TransactionIsolationLevel;
   };
   model: {
@@ -983,6 +985,82 @@ export type TypeMap<
         };
       };
     };
+    ExtractedText: {
+      payload: Prisma.$ExtractedTextPayload<ExtArgs>;
+      fields: Prisma.ExtractedTextFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.ExtractedTextFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.ExtractedTextFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+        };
+        findFirst: {
+          args: Prisma.ExtractedTextFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.ExtractedTextFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+        };
+        findMany: {
+          args: Prisma.ExtractedTextFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>[];
+        };
+        create: {
+          args: Prisma.ExtractedTextCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+        };
+        createMany: {
+          args: Prisma.ExtractedTextCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.ExtractedTextCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>[];
+        };
+        delete: {
+          args: Prisma.ExtractedTextDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+        };
+        update: {
+          args: Prisma.ExtractedTextUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+        };
+        deleteMany: {
+          args: Prisma.ExtractedTextDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.ExtractedTextUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.ExtractedTextUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>[];
+        };
+        upsert: {
+          args: Prisma.ExtractedTextUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+        };
+        aggregate: {
+          args: Prisma.ExtractedTextAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExtractedText>;
+        };
+        groupBy: {
+          args: Prisma.ExtractedTextGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.ExtractedTextGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.ExtractedTextCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.ExtractedTextCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
   };
 } & {
   other: {
@@ -1126,6 +1204,7 @@ export const AnalysisResultScalarFieldEnum = {
   summary: 'summary',
   strengths: 'strengths',
   criticals: 'criticals',
+  criticalHighlights: 'criticalHighlights',
   suggestions: 'suggestions',
   typoDetails: 'typoDetails',
   atsRecommendations: 'atsRecommendations',
@@ -1136,6 +1215,17 @@ export const AnalysisResultScalarFieldEnum = {
 
 export type AnalysisResultScalarFieldEnum =
   (typeof AnalysisResultScalarFieldEnum)[keyof typeof AnalysisResultScalarFieldEnum];
+
+export const ExtractedTextScalarFieldEnum = {
+  id: 'id',
+  resumeId: 'resumeId',
+  text: 'text',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type ExtractedTextScalarFieldEnum =
+  (typeof ExtractedTextScalarFieldEnum)[keyof typeof ExtractedTextScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',
@@ -1407,6 +1497,7 @@ export type GlobalOmitConfig = {
   verificationRequest?: Prisma.VerificationRequestOmit;
   resume?: Prisma.ResumeOmit;
   analysisResult?: Prisma.AnalysisResultOmit;
+  extractedText?: Prisma.ExtractedTextOmit;
 };
 
 /* Types for Logging */

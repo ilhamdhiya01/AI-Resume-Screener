@@ -40,7 +40,7 @@ const FileUpload = () => {
     },
     maxSize: 10 * 1024 * 1024,
     multiple: false,
-    noClick: true,
+    noClick: false,
     noKeyboard: true,
     onDrop,
     onDropRejected,

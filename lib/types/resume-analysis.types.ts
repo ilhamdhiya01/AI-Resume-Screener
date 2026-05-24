@@ -17,4 +17,5 @@ export type ResumeData = {
   criticals: string[];
   suggestions: string[];
   typoDetails: string[];
+  criticalHighlights: { text: string; page: number }[];
 };

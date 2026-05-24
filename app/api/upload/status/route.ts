@@ -75,6 +75,7 @@ export const GET = async (request: NextRequest) => {
           summary: true,
           strengths: true,
           criticals: true,
+          criticalHighlights: true,
           suggestions: true,
           score: true,
         },

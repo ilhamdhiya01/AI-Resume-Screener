@@ -6,6 +6,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 
 import Button from '@/components/ui/button';
+import { useTextHighlighter } from '@/lib/hooks/useTextHighlighter';
+import { ResumeData } from '@/lib/types/resume-analysis.types';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -52,6 +54,7 @@ interface PdfPreviewProps {
   setScale: React.Dispatch<React.SetStateAction<number>>;
   minScale: number;
   maxScale: number;
+  criticalHighlights: { text: string; page: number }[];
 }
 
 const resizeObserverOptions = {};
@@ -62,6 +65,7 @@ const PdfPreview = ({
   setScale,
   minScale,
   maxScale,
+  criticalHighlights,
 }: PdfPreviewProps) => {
   const maxWidth = 900;
 
@@ -69,6 +73,14 @@ const PdfPreview = ({
   const [containerWidth, setContainerWidth] = useState<number>();
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
+
+  const activeHighlights = useTextHighlighter(
+    criticalHighlights,
+    pageNumber,
+    scale
+  );
+
+  console.log({ activeHighlights });
 
   const onResize = useCallback<ResizeObserverCallback>((entries) => {
     const [entry] = entries;
@@ -172,7 +184,7 @@ const PdfPreview = ({
 
             {/* Render current page */}
             <div
-              className="inline-block origin-top-left transition-transform duration-200"
+              className="relative inline-block origin-top-left transition-transform duration-200"
               style={{ transform: `scale(${scale})` }}
             >
               <Page
@@ -192,45 +204,27 @@ const PdfPreview = ({
             </div>
 
             {/* ✅ Overlay Highlights dari AI Analysis */}
-            {/* {DUMMY_HIGHLIGHTS.map((highlight) => (
-                    <div
-                      key={highlight.id}
-                      className="group absolute cursor-pointer transition-all hover:z-100"
-                      style={{
-                        left: `${highlight.boundingBox.x}px`,
-                        top: `${highlight.boundingBox.y}px`,
-                        width: `${highlight.boundingBox.width}px`,
-                        height: `${highlight.boundingBox.height}px`,
-                      }}
-                      onMouseEnter={() => console.log('Hover:', highlight.text)}
-                    >
-                      <div
-                        className={
-                          highlight.type === 'critical'
-                            ? 'h-full w-full rounded border-2 border-red-500 bg-red-500/20 transition-all group-hover:bg-red-500/30'
-                            : 'h-full w-full rounded border-2 border-green-500 bg-green-500/20 transition-all group-hover:bg-green-500/30'
-                        }
-                      />
-                      <div className="pointer-events-none absolute -top-14 left-1/2 z-[200] hidden -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-sm whitespace-nowrap text-white shadow-xl group-hover:block">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={
-                              highlight.type === 'critical'
-                                ? 'size-2 rounded-full bg-red-500'
-                                : 'size-2 rounded-full bg-green-500'
-                            }
-                          />
-                          <span>
-                            {highlight.type === 'critical'
-                              ? '⚠️ Critical'
-                              : '✅ Strength'}
-                            : {highlight.text}
-                          </span>
-                        </div>
-                        <div className="absolute -bottom-1 left-1/2 size-2 -translate-x-1/2 rotate-45 bg-gray-900" />
-                      </div>
-                    </div>
-                  ))} */}
+            {activeHighlights.map((highlight, idx) => (
+              <div
+                key={idx}
+                className="group absolute cursor-pointer"
+                style={{
+                  left: `${highlight.x}px`,
+                  top: `${highlight.y}px`,
+                  width: `${highlight.width}px`,
+                  height: `${highlight.height}px`,
+                  backgroundColor: 'rgba(239, 68, 68, 0.2)', // red-500/20
+                  border: '2px solid rgb(239, 68, 68)', // red-500
+                  borderRadius: '4px',
+                  zIndex: 9999,
+                }}
+              >
+                {/* Tooltip tetap sama seperti kode lama Anda */}
+                <div className="pointer-events-none absolute -top-10 left-1/2 hidden -translate-x-1/2 rounded bg-gray-900 px-2 py-1 text-xs text-white group-hover:block">
+                  ⚠️ Critical Issue
+                </div>
+              </div>
+            ))}
           </div>
         </Document>
       ) : (

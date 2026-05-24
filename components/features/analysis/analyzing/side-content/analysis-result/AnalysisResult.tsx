@@ -1,26 +1,15 @@
 import { startCase } from 'lodash';
 
-import { ResumeData } from '@/lib/types/resume-analysis.types';
-
 import { AnalysisResult } from '.';
 
-export type Items = Record<'strengths' | 'criticals' | 'suggestions', string[]>;
+export type Items = Record<'criticals' | 'suggestions' | 'strengths', string[]>;
 
 interface AnalysisResultRootProps {
   score: number;
-  strengths: string[];
-  criticals: string[];
-  suggestions: string[];
   items: Items;
 }
 
-const AnalysisResultRoot = ({
-  score,
-  strengths,
-  criticals,
-  suggestions,
-  items,
-}: AnalysisResultRootProps) => {
+const AnalysisResultRoot = ({ score, items }: AnalysisResultRootProps) => {
   console.log({ items });
   const keys: (keyof Items)[] = Object.keys(items) as (keyof Items)[];
   return (
@@ -39,12 +28,6 @@ const AnalysisResultRoot = ({
           />
         );
       })}
-      {/* <AnalysisResult.Item
-        isSuggestions
-        title="Suggestions"
-        items={suggestions}
-      />
-      <AnalysisResult.Item isStrengths title="Strengths" items={strengths} /> */}
     </div>
   );
 };

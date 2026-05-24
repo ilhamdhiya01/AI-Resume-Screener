@@ -15,7 +15,7 @@ const updateResumeStatus = async (resumeId: string, status: string) => {
   });
 };
 
-const extractTextFromPdf = async (file: Blob | null) => {
+const extractTextFromPdf = async (file: Blob | null, resumeId: string) => {
   if (!file) {
     throw new Error('File is null');
   }
@@ -29,14 +29,22 @@ const extractTextFromPdf = async (file: Blob | null) => {
   const data = await parser.getText();
   await parser.destroy();
 
+  await prisma.extractedText.create({
+    data: {
+      resumeId,
+      text: data.text,
+    },
+  });
+
   return data.text;
 };
 
 const aiAnalyze = async (
   prompt: string,
-  model: 'glm-5.1' | 'kimi-k2.6',
+  model: 'glm-5.1' | 'kimi-k2.6' | 'gpt-5-mini',
   content: string,
-  timeoutMs: number = 60000
+  timeoutMs: number = 60000,
+  signal?: AbortSignal
 ) => {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -54,12 +62,18 @@ const aiAnalyze = async (
         ],
         response_format: { type: 'json_object' },
         // max_tokens: 1600,
-        temperature: 0.7,
+        temperature: 0.2,
       },
       {
+        signal,
         timeout: timeoutMs,
       }
+      // {
+      //   timeout: timeoutMs,
+      // }
     );
+
+    if (signal?.aborted) throw new Error('Proses dibatalkan oleh user');
 
     clearTimeout(timeout);
     console.timeEnd(`⏱️  ${model} Analysis`);
@@ -84,6 +98,7 @@ const aiAnalyze = async (
 export const analyzeResume = async (
   resumeId: string,
   filePath: string,
+  signal: AbortSignal,
   onProgress?: (progress: {
     progress: number;
     step: string;
@@ -97,23 +112,32 @@ export const analyzeResume = async (
     // Update to PROCESSING
     await updateResumeStatus(resumeId, 'PROCESSING');
 
-    // Step 1: Download PDF from Supabase (0-20%)
-    await gradualProgress(0, 20, 3000, async (progress) => {
-      if (onProgress)
-        await onProgress({
-          progress,
-          step: 'extracting_text_metadata',
-          duration: 150,
-          error: null,
-        });
+    let resumeText;
+    const existingExtractedText = await prisma.extractedText.findUnique({
+      where: {
+        resumeId,
+      },
     });
 
-    const { data: fileData } = await supabaseAdmin.storage
-      .from('resumes')
-      .download(filePath);
-
     // Extract text from PDF
-    const resumeText = await extractTextFromPdf(fileData);
+    if (!existingExtractedText?.text) {
+      await gradualProgress(0, 20, 3000, async (progress) => {
+        if (onProgress)
+          await onProgress({
+            progress,
+            step: 'extracting_text_metadata',
+            duration: 150,
+            error: null,
+          });
+      });
+
+      const { data: fileData } = await supabaseAdmin.storage
+        .from('resumes')
+        .download(filePath);
+      resumeText = await extractTextFromPdf(fileData, resumeId);
+    } else {
+      resumeText = existingExtractedText.text;
+    }
 
     // ✅ Check if GLM analysis already exists (from previous failed attempt)
     let hardData;
@@ -148,7 +172,13 @@ export const analyzeResume = async (
           });
       });
 
-      hardData = await aiAnalyze(GLM_SYSTEM_PROMPT, 'glm-5.1', resumeText);
+      hardData = await aiAnalyze(
+        GLM_SYSTEM_PROMPT,
+        'gpt-4o-mini',
+        resumeText,
+        60000,
+        signal
+      );
 
       // ✅ Save GLM result immediately (checkpoint)
       await prisma.analysisResult.upsert({
@@ -169,6 +199,7 @@ export const analyzeResume = async (
           summary: '',
           strengths: [],
           criticals: [],
+          criticalHighlights: {},
           suggestions: [],
           typoDetails: [],
           atsRecommendations: {},
@@ -205,8 +236,10 @@ export const analyzeResume = async (
     const kimiInput = `## Resume Text:\n${resumeText}\n\n## GLM Analysis:\n${JSON.stringify(hardData)}`;
     const deepAnalysis = await aiAnalyze(
       KIMI_SYSTEM_PROMPT,
-      'kimi-k2.6',
-      kimiInput
+      'gpt-5-mini',
+      kimiInput,
+      60000,
+      signal
     );
 
     // Step 4: Save to DB (85-100%)
@@ -227,6 +260,7 @@ export const analyzeResume = async (
         summary: deepAnalysis.summary,
         strengths: deepAnalysis.strengths,
         criticals: deepAnalysis.criticals,
+        criticalHighlights: deepAnalysis.criticalHighlights,
         suggestions: deepAnalysis.suggestions,
         typoDetails: deepAnalysis.typoDetails,
         atsRecommendations: deepAnalysis.atsRecommendations,
@@ -239,15 +273,6 @@ export const analyzeResume = async (
     console.log(`✅ Resume ${resumeId} analyzed successfully`);
   } catch (error) {
     console.error(`❌ Analysis failed for ${resumeId}:`, error);
-
-    // if (onProgress) {
-    //   await onProgress({
-    //     progress: 0, // Keep last progress
-    //     step: 'error', // Keep last step
-    //     duration: 0,
-    //     error: error instanceof Error ? error.message : 'Unknown error',
-    //   });
-    // }
 
     await updateResumeStatus(resumeId, 'FAILED');
 

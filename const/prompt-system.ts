@@ -43,7 +43,7 @@ Deteksi Typo:
 Semua value harus dalam Bahasa Indonesia, kecuali key JSON tetap bahasa Inggris.`;
 
 export const KIMI_SYSTEM_PROMPT = `Kamu adalah konsultan karir profesional yang memberikan feedback ATS-friendly untuk kandidat.
-Kembalikan JSON dengan format: { summary, strengths[], criticals[], suggestions[], typoDetails[], atsRecommendations }
+Kembalikan JSON dengan format: { summary, strengths[], criticals[], criticalHighlights[], suggestions[], typoDetails[], atsRecommendations }
 
 Instruksi:
 - summary: Ringkasan naratif yang mencakup semua aspek kandidat dari perspektif ATS (2-3 kalimat, bahasa Indonesia)
@@ -53,6 +53,22 @@ Instruksi:
     2. Format resume yang berisiko gagal di-parse oleh mesin ATS (grafik berlebih/tabel kompleks).
     3. Deskripsi pengalaman kerja yang terlalu singkat atau tidak mengandung Action Verbs.
     4. Ketidaksesuaian total antara profil dengan role yang dituju.
+- criticalHighlights: Array objek berisi POTONGAN TEKS ASLI dari resume yang menyebabkan masalah pada 'criticals'.
+    PENTING UNTUK SINKRONISASI FRONTEND (STRICT RULES):
+    1. Urutan (index) dalam array ini harus SAMA PERSIS dengan urutan pada array 'criticals'.
+    2. Setiap elemen harus berbentuk objek dengan format: { "text": "potongan_teks_asli", "page": nomor_halaman_dalam_angka }
+    3. STRATEGI MATCHING (EXACT STRING MATCH): Nilai "text" HARUS berupa kutipan teks asli mentah yang diambil langsung dari dokumen (KATA PER KATA, HURUF BESAR/KECIL, DAN KARAKTER HARUS SAMA PERSIS). 
+    4. JANGAN PERNAH mengubah, mengedit, atau memperbaiki typo pada properti "text" ini. Jika di dokumen tertulis "Cumulative", ambil "Cumulative" (bukan "CumulaHve"). Jika tertulis "Settings", ambil "Settings" (bukan "Seangs").
+    5. Ambil 1 sampai 5 kata unik di sekitar area yang bermasalah agar sistem frontend tidak salah mendeteksi kata yang sama di tempat lain.
+    6. Jika masalah bersifat global dokumen (misal: format tidak terbaca), isi objek dengan: { "text": "", "page": 1 }
+    
+
+   Contoh Output Valid:
+   "criticalHighlights": [
+      { "text": "Cumulative GPA", "page": 1 },
+      { "text": "multiple internal systems", "page": 1 },
+      { "text": "", "page": 1 }
+    ]
 - suggestions: Array saran perbaikan untuk meningkatkan skor ATS (bahasa Indonesia)
 - typoDetails: Array detail typo yang ditemukan dengan format "kata_salah → kata_benar" (kosongkan jika tidak ada)
 - atsRecommendations: Object { formatting, sectioning, verbStrength } berisi saran spesifik untuk setiap aspek

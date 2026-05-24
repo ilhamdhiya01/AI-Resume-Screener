@@ -51,3 +51,8 @@ export type Resume = Prisma.ResumeModel;
  *
  */
 export type AnalysisResult = Prisma.AnalysisResultModel;
+/**
+ * Model ExtractedText
+ *
+ */
+export type ExtractedText = Prisma.ExtractedTextModel;

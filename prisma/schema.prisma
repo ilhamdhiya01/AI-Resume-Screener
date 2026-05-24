@@ -106,6 +106,7 @@ model Resume {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   analysis AnalysisResult?
+  extractedText ExtractedText?
 }
 
 model AnalysisResult {
@@ -127,12 +128,25 @@ model AnalysisResult {
   // Kimi K2.6 output (deep analysis)
   summary         String   @db.Text  
   strengths       Json               
-  criticals       Json               
+  criticals       Json       
+  criticalHighlights Json  @default("{}")       
   suggestions     Json               
   typoDetails     Json     @default("[]")         // ← Add default
   atsRecommendations Json  @default("{}")         // ← Add default
   deepAnalysisRaw Json               
  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+}
+
+model ExtractedText {
+  id        String @id @default(cuid())
+  resumeId  String @unique
+  
+  text      String   @db.Text
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
  

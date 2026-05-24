@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Worker } from 'bullmq';
 
 import { connection, resumeQueue } from '@/lib/queue/resume-queue';
@@ -24,6 +23,7 @@ export const ensureWorkerRunning = () => {
     'resume-analysis',
     async (job, token, signal) => {
       const { resumeId, filePath } = job.data;
+
       // Clear idle timeout while processing
       clearIdleTimer();
 
@@ -34,25 +34,11 @@ export const ensureWorkerRunning = () => {
           throw new Error('Proses dibatalkan oleh user');
         }
 
-        await analyzeResume(
-          resumeId,
-          filePath,
-          signal || new AbortSignal(),
-          async (data) => {
-            await job.updateProgress(data); // ← data bisa include error
-          }
-        );
+        await analyzeResume(resumeId, filePath, async (data) => {
+          await job.updateProgress(data); // ← data bisa include error
+        });
         console.log(`✅ Job ${job.id} completed`);
-      } catch (error: any) {
-        if (
-          signal?.aborted ||
-          error?.name === 'AbortError' ||
-          error?.message?.includes('cancel')
-        ) {
-          const cancelError = new Error('Proses dibatalkan oleh user');
-          console.error(`❌ Job ${job.id} cancelled:`, cancelError.message);
-          throw cancelError;
-        }
+      } catch (error) {
         // ✅ Error sudah di-throw dari analyzeResume
         // BullMQ otomatis set job state = 'failed'
         console.error(`❌ Job ${job.id} failed:`, error);
@@ -72,6 +58,9 @@ export const ensureWorkerRunning = () => {
   });
 
   workerInstance.on('failed', (job, err) => {
+    if (err.message === 'Proses dibatalkan oleh user') {
+      console.log(`Job ${job?.id} dicancel oleh user. Update database/UI.`);
+    }
     console.error(`❌ Job ${job?.id} failed:`, err.message);
     resetIdleTimeout();
   });
@@ -137,28 +126,16 @@ export const cancelSpecificJob = async (jobId: string) => {
     const state = await job.getState();
 
     if (state === 'active') {
-      ensureWorkerRunning();
+      workerInstance?.cancelJob(jobId, 'User requested cancellation');
 
-      // Kirim sinyal cancel melalui instance worker
-      await workerInstance?.cancelJob(jobId, 'Proses dibatalkan oleh user');
-
-      return {
-        success: true,
-        message: 'Sinyal pembatalan berhasil dikirim ke worker',
-      };
+      return { success: true, message: 'Cancellation signal sent' };
     }
 
     // Logika untuk state 'waiting' tetap bisa langsung menggunakan job.remove()
-    if (state === 'waiting' || state === 'delayed') {
-      // Langsung hapus dari antrean Redis tanpa melibatkan worker
+    if (state === 'waiting') {
       await job.remove();
-      return { success: true, message: 'Job berhasil dihapus dari antrean' };
+      return { success: true, message: 'Job removed from waiting queue' };
     }
-
-    return {
-      success: false,
-      message: `Job tidak bisa dibatalkan karena berstatus: ${state}`,
-    };
   } catch (error) {
     console.error('Failed to cancel job:', error);
     throw error;
