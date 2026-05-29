@@ -17,17 +17,31 @@ const MenuItem = ({ path, icon, name }: MenuItemProps) => {
   const pathName = usePathname();
 
   const isActive = useMemo(() => {
+    // ✅ Handle static routes
     const exceptRoot = path.split('/')[1];
-    console.log({ exceptRoot });
     return pathName && exceptRoot
       ? pathName.includes(exceptRoot)
       : pathName === '/';
+  }, [pathName, path]);
+
+  // ✅ Replace history when navigating from dynamic route to base path
+  const shouldReplace = useMemo(() => {
+    if (path === '/') return true;
+
+    // Check if current path is dynamic and target is its base
+    // Example: current = "/analysis/abc123", target = "/analysis" → replace = true
+    const currentHasParams =
+      pathName.split('/').length > path.split('/').length;
+    const isSameBasePath = pathName.startsWith(path + '/');
+
+    return currentHasParams && isSameBasePath;
   }, [pathName, path]);
 
   return (
     <Link
       key={path}
       href={path}
+      replace={shouldReplace}
       className={classNames(
         'relative flex items-center gap-3 overflow-hidden rounded-md px-4 py-3 transition-colors duration-200',
         {

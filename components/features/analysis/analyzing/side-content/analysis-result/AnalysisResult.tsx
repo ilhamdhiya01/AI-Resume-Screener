@@ -1,8 +1,10 @@
 import { startCase } from 'lodash';
 
+import { ResumeData } from '@/lib/types/resume-analysis.types';
+
 import { AnalysisResult } from '.';
 
-export type Items = Record<'criticals' | 'suggestions' | 'strengths', string[]>;
+export type Items = Record<'strengths' | 'criticals' | 'suggestions', string[]>;
 
 interface AnalysisResultRootProps {
   score: number;
@@ -10,7 +12,6 @@ interface AnalysisResultRootProps {
 }
 
 const AnalysisResultRoot = ({ score, items }: AnalysisResultRootProps) => {
-  console.log({ items });
   const keys: (keyof Items)[] = Object.keys(items) as (keyof Items)[];
   return (
     <div className="space-y-5 overflow-auto p-10">

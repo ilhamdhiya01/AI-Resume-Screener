@@ -78,7 +78,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonStyle = useMemo(
       () =>
         tv({
-          base: 'inline-flex min-w-[100px] flex-shrink-0 cursor-pointer items-center justify-center gap-2 border font-semibold transition-all duration-200 ease-in-out md:min-w-[120px] rounded-md',
+          base: 'inline-flex min-w-[100px] flex-shrink-0 cursor-pointer items-center justify-center gap-2 border font-semibold transition-all duration-200 ease-in-out md:min-w-[120px] rounded-md leading-none',
           variants: {
             variant: {
               contained: '',

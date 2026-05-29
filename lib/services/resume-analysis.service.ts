@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PDFParse, VerbosityLevel } from 'pdf-parse';
 
-import { GLM_SYSTEM_PROMPT, KIMI_SYSTEM_PROMPT } from '@/const/prompt-system';
+import { UNIFIED_SYSTEM_PROMPT } from '@/const/prompt-system';
 
 import prisma from '../db';
 import { gradualProgress } from '../helpers';
@@ -41,7 +40,7 @@ const extractTextFromPdf = async (file: Blob | null, resumeId: string) => {
 
 const aiAnalyze = async (
   prompt: string,
-  model: 'glm-5.1' | 'kimi-k2.6' | 'gpt-5-mini',
+  model: 'glm-5.1',
   content: string,
   timeoutMs: number = 60000,
   signal?: AbortSignal
@@ -61,7 +60,7 @@ const aiAnalyze = async (
           { role: 'user', content },
         ],
         response_format: { type: 'json_object' },
-        // max_tokens: 1600,
+        // max_tokens: 700,
         temperature: 0.2,
       },
       {
@@ -131,6 +130,11 @@ export const analyzeResume = async (
           });
       });
 
+      // ✅ Check if user cancelled
+      if (signal?.aborted) {
+        throw new Error('Proses dibatalkan oleh user');
+      }
+
       const { data: fileData } = await supabaseAdmin.storage
         .from('resumes')
         .download(filePath);
@@ -139,111 +143,64 @@ export const analyzeResume = async (
       resumeText = existingExtractedText.text;
     }
 
-    // ✅ Check if GLM analysis already exists (from previous failed attempt)
-    let hardData;
-    const existingAnalysis = await prisma.analysisResult.findUnique({
-      where: { resumeId },
-      select: { hardDataRaw: true },
-    });
+    // ✅ Check if analysis already exists (from previous failed attempt)
+    // const existingAnalysis = await prisma.analysisResult.findUnique({
+    //   where: { resumeId },
+    //   select: { hardDataRaw: true },
+    // });
 
-    if (existingAnalysis?.hardDataRaw) {
-      console.log('♻️  Reusing existing GLM analysis from previous attempt');
-      hardData = existingAnalysis.hardDataRaw as Record<string, any>;
+    // if (existingAnalysis?.hardDataRaw) {
+    //   console.log('♻️  Analysis already completed, skipping AI call');
+    //   // Skip to 100% since analysis already done
+    //   await gradualProgress(20, 100, 1000, async (progress) => {
+    //     if (onProgress)
+    //       await onProgress({
+    //         progress,
+    //         step: 'calculating_score',
+    //         duration: 100,
+    //         error: null,
+    //       });
+    //   });
+    // } else {
 
-      // Skip to 50% since GLM already done
-      await gradualProgress(20, 50, 1000, async (progress) => {
-        if (onProgress)
-          await onProgress({
-            progress,
-            step: 'analyzing_competencies',
-            duration: 166,
-            error: null,
-          });
-      });
-    } else {
-      // Step 2: GLM 5.1 — Extract Hard Data (20-50%)
-      await gradualProgress(20, 50, 5000, async (progress) => {
-        if (onProgress)
-          await onProgress({
-            progress,
-            step: 'analyzing_competencies',
-            duration: 166,
-            error: null,
-          });
-      });
+    // }
 
-      hardData = await aiAnalyze(
-        GLM_SYSTEM_PROMPT,
-        'gpt-4o-mini',
-        resumeText,
-        60000,
-        signal
-      );
+    // Step 2: AI Analysis (20-85%)
+    // await gradualProgress(20, 50, 8000, async (progress) => {
+    //   if (onProgress)
+    //     await onProgress({
+    //       progress,
+    //       step: 'analyzing_competencies',
+    //       duration: 140,
+    //       error: null,
+    //     });
+    // });
 
-      // ✅ Save GLM result immediately (checkpoint)
-      await prisma.analysisResult.upsert({
-        where: { resumeId },
-        create: {
-          resumeId,
-          score: hardData.score || 0,
-          yearsExperience: hardData.yearsExperience,
-          matchedSkills: hardData.matchedSkills || [],
-          missingSkills: hardData.missingSkills || [],
-          role: hardData.role,
-          education: hardData.education,
-          hasTypos: hardData.hasTypos || false,
-          typoCount: hardData.typoCount || 0,
-          atsIssues: hardData.atsIssues || {},
-          hardDataRaw: hardData,
-          // Temporary placeholder values for Kimi fields
-          summary: '',
-          strengths: [],
-          criticals: [],
-          criticalHighlights: {},
-          suggestions: [],
-          typoDetails: [],
-          atsRecommendations: {},
-          deepAnalysisRaw: {},
-        },
-        update: {
-          score: hardData.score || 0,
-          yearsExperience: hardData.yearsExperience,
-          matchedSkills: hardData.matchedSkills || [],
-          missingSkills: hardData.missingSkills || [],
-          role: hardData.role,
-          education: hardData.education,
-          hasTypos: hardData.hasTypos || false,
-          typoCount: hardData.typoCount || 0,
-          atsIssues: hardData.atsIssues || {},
-          hardDataRaw: hardData,
-        },
-      });
-
-      console.log('💾 GLM analysis saved (checkpoint)');
-    }
-
-    // Step 3: Kimi K2.6 — Deep Analysis (50-85%)
-    await gradualProgress(50, 85, 5000, async (progress) => {
+    await gradualProgress(20, 90, 8000, async (progress) => {
       if (onProgress)
         await onProgress({
           progress,
-          step: 'mapping_timeline',
-          duration: 142,
+          step: progress < 50 ? 'analyzing_competencies' : 'mapping_timeline',
+          duration: 140,
           error: null,
         });
     });
 
-    const kimiInput = `## Resume Text:\n${resumeText}\n\n## GLM Analysis:\n${JSON.stringify(hardData)}`;
-    const deepAnalysis = await aiAnalyze(
-      KIMI_SYSTEM_PROMPT,
-      'gpt-5-mini',
-      kimiInput,
+    // ✅ Check if user cancelled before AI call
+    if (signal?.aborted) {
+      throw new Error('Proses dibatalkan oleh user');
+    }
+
+    const analysisResult = await aiAnalyze(
+      UNIFIED_SYSTEM_PROMPT,
+      'glm-5.1',
+      resumeText,
       60000,
       signal
     );
 
-    // Step 4: Save to DB (85-100%)
-    await gradualProgress(85, 100, 2000, async (progress) => {
+    // Step 3: Calculating score (90-100%)
+    await gradualProgress(90, 100, 2000, async (progress) => {
       if (onProgress)
         await onProgress({
           progress,
@@ -253,20 +210,32 @@ export const analyzeResume = async (
         });
     });
 
-    // ✅ Update with Kimi results (GLM already saved)
-    await prisma.analysisResult.update({
-      where: { resumeId },
+    // ✅ Save complete analysis result (after calculating_score step completes)
+    await prisma.analysisResult.create({
       data: {
-        summary: deepAnalysis.summary,
-        strengths: deepAnalysis.strengths,
-        criticals: deepAnalysis.criticals,
-        criticalHighlights: deepAnalysis.criticalHighlights,
-        suggestions: deepAnalysis.suggestions,
-        typoDetails: deepAnalysis.typoDetails,
-        atsRecommendations: deepAnalysis.atsRecommendations,
-        deepAnalysisRaw: deepAnalysis,
+        resumeId,
+        score: analysisResult.score || 0,
+        yearsExperience: analysisResult.yearsExperience,
+        matchedSkills: analysisResult.matchedSkills || [],
+        missingSkills: analysisResult.missingSkills || [],
+        role: analysisResult.role,
+        education: analysisResult.education,
+        hasTypos: analysisResult.hasTypos || false,
+        typoCount: analysisResult.typoCount || 0,
+        atsIssues: analysisResult.atsIssues || {},
+        hardDataRaw: analysisResult,
+        summary: analysisResult.summary,
+        strengths: analysisResult.strengths || [],
+        criticals: analysisResult.criticals || [],
+        criticalHighlights: analysisResult.criticalHighlights || [],
+        suggestions: analysisResult.suggestions || [],
+        typoDetails: analysisResult.typoDetails || [],
+        atsRecommendations: analysisResult.atsRecommendations || {},
+        deepAnalysisRaw: analysisResult,
       },
     });
+
+    console.log('💾 Analysis saved successfully');
 
     // Update to COMPLETED
     await updateResumeStatus(resumeId, 'COMPLETED');

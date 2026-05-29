@@ -9,6 +9,7 @@ import Icon from '@/components/ui/icon';
 import Modal from '@/components/ui/Modal/Modal';
 import { useJobProgress } from '@/lib/hooks/useJobProgress';
 import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { ANALYSIS_PATH } from '@/routes';
 
 import SideContent from './side-content/SideContent';
 import SkelatonPreview from './SkelatonPreview';
@@ -101,7 +102,7 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             A system error occurred while processing the document. The AI engine
             was unable to extract and classify the data in your resume.
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             <Button
               preffixIcon="TbRefresh"
               label="Retry Analysis"
@@ -110,10 +111,12 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             />
             <Button
               variant="outlined"
-              preffixIcon="TbCancel"
-              label="Cancel Analysis"
+              preffixIcon="TbUpload"
+              label="Upload New Resume"
               className="mt-3"
-              onClick={handleCancelJob}
+              onClick={() => {
+                router.replace(ANALYSIS_PATH);
+              }}
             />
           </div>
         </div>

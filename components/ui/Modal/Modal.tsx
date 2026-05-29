@@ -46,7 +46,7 @@ const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     >
       {/* Konten Modal dengan animasi Scale dan Fade */}
       <div
-        className={`w-full max-w-md transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-out ${
+        className={`box-border w-full max-w-lg transform rounded-lg bg-white p-6 shadow-xl transition-all duration-300 ease-out ${
           animate ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}
         onClick={(e) => e.stopPropagation()}
