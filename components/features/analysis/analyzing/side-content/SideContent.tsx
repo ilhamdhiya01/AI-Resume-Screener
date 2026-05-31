@@ -5,7 +5,7 @@ interface SideContentProps {
   progress: number;
   step: string;
   status: string;
-  duration: number;
+  durations: Record<string, number>;
   score: number;
   items: {
     criticals: string[];
@@ -19,7 +19,7 @@ const SideContent = ({
   progress,
   step,
   status,
-  duration,
+  durations,
   score,
   items,
   matchSummary,
@@ -37,7 +37,7 @@ const SideContent = ({
           progress={progress}
           step={step as string}
           status={status}
-          duration={duration}
+          durations={durations}
         />
       )}
     </aside>

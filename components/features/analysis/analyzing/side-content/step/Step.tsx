@@ -34,10 +34,10 @@ interface StepRootProps {
   progress: number;
   step: string;
   status: string;
-  duration: number;
+  durations: Record<string, number>;
 }
 
-const StepRoot = ({ progress, step, status, duration }: StepRootProps) => {
+const StepRoot = ({ progress, step, status, durations }: StepRootProps) => {
   const { setModalCancelProcess } = useAnalysisStore();
   const getStepStatus = (targetKey: string) => {
     const stepOder = STEPS.map((step) => step.key);
@@ -68,7 +68,8 @@ const StepRoot = ({ progress, step, status, duration }: StepRootProps) => {
             stepIndex={index}
             isActive={getStepStatus(item.key) === 'active'}
             isCompleted={getStepStatus(item.key) === 'completed'}
-            duration={duration}
+            stepKey={item.key}
+            durations={durations}
           />
         ))}
       </div>

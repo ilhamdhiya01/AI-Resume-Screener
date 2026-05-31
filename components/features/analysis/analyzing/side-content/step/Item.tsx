@@ -13,7 +13,8 @@ interface ItemProps {
   title: string;
   description: string;
   stepIndex: number;
-  duration: number;
+  stepKey: string;
+  durations: Record<string, number>;
 }
 
 const Item = ({
@@ -23,10 +24,14 @@ const Item = ({
   title,
   description,
   stepIndex,
-  duration,
+  stepKey,
+  durations,
 }: ItemProps) => {
   const isPending = !isActive && !isCompleted;
   const [elapsedTime, setElapsedTime] = useState(0);
+
+  // Durasi NYATA hasil pengukuran backend (ms) untuk step ini.
+  const finalMs = durations[stepKey] ?? 0;
 
   const icon: IconProps['icon'] = useMemo(() => {
     if (isActive) return 'FiActivity';
@@ -35,26 +40,21 @@ const Item = ({
     return `TbNumber${stepIndex + 1}` as IconProps['icon'];
   }, [isActive, isCompleted, stepIndex]);
 
-  // ✅ Calculate progress percentage based on elapsed time
+  // Bar fill saat step aktif. Durasi total nggak diketahui di awal,
+  // jadi pakai easing asimptotik biar bar tetap gerak (mendekati 95%)
+  // dan baru penuh (100%) ketika step selesai.
   const progressPercentage = useMemo(() => {
-    if (!isActive || duration === 0) return 0;
+    if (isCompleted) return 100;
+    if (!isActive) return 0;
+    return Math.min(95, 100 * (1 - Math.exp(-elapsedTime / 4000)));
+  }, [elapsedTime, isActive, isCompleted]);
 
-    // Duration dari BE = duration per tick (misal: 250ms)
-    // Total ticks untuk step ini sesuai dengan gradualProgress di backend
-    // Step 1: 0-20% = 20 ticks
-    // Step 2: 20-40% = 20 ticks
-    // Step 3: 40-70% = 30 ticks
-    // Step 4: 70-100% = 30 ticks
-    const ticksPerStep = [20, 20, 30, 30];
-    const totalTicks = ticksPerStep[stepIndex] || 20;
-    const totalDuration = duration * totalTicks;
+  // Timer durasi yang ditampilkan: live saat aktif, freeze di durasi
+  // nyata dari backend saat selesai.
+  const displayMs = isCompleted ? finalMs : elapsedTime;
+  const displaySeconds = (displayMs / 1000).toFixed(1);
 
-    const percentage = (elapsedTime / totalDuration) * 100;
-
-    return Math.min(percentage, 100);
-  }, [elapsedTime, duration, isActive, stepIndex]);
-
-  // ✅ Track elapsed time when step is active
+  // ✅ Track elapsed time real-time selama step aktif
   useEffect(() => {
     if (!isActive) {
       setElapsedTime(0);
@@ -62,7 +62,7 @@ const Item = ({
     }
 
     const interval = setInterval(() => {
-      setElapsedTime((prev) => prev + 100); // Increment every 100ms
+      setElapsedTime((prev) => prev + 100); // tick tiap 100ms
     }, 100);
 
     return () => clearInterval(interval);
@@ -111,7 +111,14 @@ const Item = ({
         >
           {description}
         </p>
-        {isActive && <ProgressBar progress={progressPercentage} />}
+        {(isActive || isCompleted) && (
+          <div className="space-y-1">
+            {isActive && <ProgressBar progress={progressPercentage} />}
+            <span className="text-xs font-medium text-slate-500">
+              {displaySeconds}s
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,12 @@
 import { PDFParse, VerbosityLevel } from 'pdf-parse';
 
-import { UNIFIED_SYSTEM_PROMPT } from '@/const/prompt-system';
+import {
+  EXTRACTION_SYSTEM_PROMPT,
+  SCORING_SYSTEM_PROMPT,
+  SYNTHESIS_SYSTEM_PROMPT,
+} from '@/const/prompt-system';
 
 import prisma from '../db';
-import { gradualProgress } from '../helpers';
 import { openai } from '../open-ai';
 import { supabaseAdmin } from '../supabase-admin';
 
@@ -98,7 +101,7 @@ export const analyzeResume = async (
   onProgress?: (progress: {
     progress: number;
     step: string;
-    duration: number;
+    durations: Record<string, number>;
     error?: string | null;
   }) => Promise<void>
 ) => {
@@ -107,6 +110,20 @@ export const analyzeResume = async (
 
     // Update to PROCESSING
     await updateResumeStatus(resumeId, 'PROCESSING');
+
+    // Akumulasi durasi NYATA tiap stage (ms). Dikirim ulang tiap emit
+    // biar polling yang kelewat tetap dapet snapshot lengkap.
+    const durations: Record<string, number> = {};
+    const report = async (progress: number, step: string) => {
+      if (onProgress) {
+        await onProgress({
+          progress,
+          step,
+          durations: { ...durations },
+          error: null,
+        });
+      }
+    };
 
     // Fetch job description from resume
     const resume = await prisma.resume.findUnique({
@@ -122,102 +139,80 @@ export const analyzeResume = async (
       },
     });
 
-    // Extract text from PDF
-    if (!existingExtractedText?.text) {
-      await gradualProgress(0, 20, 3000, async (progress) => {
-        if (onProgress)
-          await onProgress({
-            progress,
-            step: 'extracting_text_metadata',
-            duration: 150,
-            error: null,
-          });
-      });
+    // === STAGE 1: Ekstraksi teks PDF (0 -> 25%) ===
+    await report(0, 'extracting_text_metadata');
 
-      // ✅ Check if user cancelled
-      if (signal?.aborted) {
-        throw new Error('Proses dibatalkan oleh user');
-      }
-
-      const { data: fileData } = await supabaseAdmin.storage
-        .from('resumes')
-        .download(filePath);
-      resumeText = await extractTextFromPdf(fileData, resumeId);
-    } else {
-      resumeText = existingExtractedText.text;
-    }
-
-    // ✅ Check if analysis already exists (from previous failed attempt)
-    // const existingAnalysis = await prisma.analysisResult.findUnique({
-    //   where: { resumeId },
-    //   select: { hardDataRaw: true },
-    // });
-
-    // if (existingAnalysis?.hardDataRaw) {
-    //   console.log('♻️  Analysis already completed, skipping AI call');
-    //   // Skip to 100% since analysis already done
-    //   await gradualProgress(20, 100, 1000, async (progress) => {
-    //     if (onProgress)
-    //       await onProgress({
-    //         progress,
-    //         step: 'calculating_score',
-    //         duration: 100,
-    //         error: null,
-    //       });
-    //   });
-    // } else {
-
-    // }
-
-    // Step 2: AI Analysis (20-85%)
-    // await gradualProgress(20, 50, 8000, async (progress) => {
-    //   if (onProgress)
-    //     await onProgress({
-    //       progress,
-    //       step: 'analyzing_competencies',
-    //       duration: 140,
-    //       error: null,
-    //     });
-    // });
-
-    await gradualProgress(20, 90, 8000, async (progress) => {
-      if (onProgress)
-        await onProgress({
-          progress,
-          step: progress < 50 ? 'analyzing_competencies' : 'mapping_timeline',
-          duration: 140,
-          error: null,
-        });
-    });
-
-    // ✅ Check if user cancelled before AI call
+    // ✅ Check if user cancelled
     if (signal?.aborted) {
       throw new Error('Proses dibatalkan oleh user');
     }
 
-    // Construct prompt content with job description if provided
-    const promptContent = jobDescription
-      ? `## Resume Text:\n${resumeText}\n\n## Job Description:\n${jobDescription}\n\n**INSTRUKSI KHUSUS**: Karena Job Description disediakan, lakukan matching analysis:\n- Bandingkan skill kandidat dengan requirements\n- Tentukan fitAssessment (Strong/Good/Partial/Not a Fit)\n- Berikan fitReason yang spesifik\n- Kosongkan recommendedRoles dengan []`
-      : `## Resume Text:\n${resumeText}\n\n**INSTRUKSI KHUSUS**: Karena TIDAK ada Job Description, lakukan role recommendation:\n- Analisis skill dan pengalaman kandidat\n- Berikan 3-5 recommendedRoles yang paling cocok\n- Kosongkan fitAssessment dan fitReason dengan null`;
+    if (!existingExtractedText?.text) {
+      const extractStart = Date.now();
+      const { data: fileData } = await supabaseAdmin.storage
+        .from('resumes')
+        .download(filePath);
+      resumeText = await extractTextFromPdf(fileData, resumeId);
+      durations.extracting_text_metadata = Date.now() - extractStart;
+    } else {
+      resumeText = existingExtractedText.text;
+      durations.extracting_text_metadata = 0;
+    }
 
-    const analysisResult = await aiAnalyze(
-      UNIFIED_SYSTEM_PROMPT,
+    // === STAGE 2: AI Ekstraksi fakta (analyzing_competencies, 25 -> 50%) ===
+    await report(25, 'analyzing_competencies');
+
+    if (signal?.aborted) {
+      throw new Error('Proses dibatalkan oleh user');
+    }
+
+    const extractStart = Date.now();
+    const extraction = await aiAnalyze(
+      EXTRACTION_SYSTEM_PROMPT,
       'kimi-k2.6',
-      promptContent,
+      `## Resume Text:\n${resumeText}`,
+      60000,
+      signal
+    );
+    durations.analyzing_competencies = Date.now() - extractStart;
+
+    // === STAGE 3: AI Penilaian & red flags (mapping_timeline, 50 -> 85%) ===
+    await report(50, 'mapping_timeline');
+
+    if (signal?.aborted) {
+      throw new Error('Proses dibatalkan oleh user');
+    }
+
+    const scoringStart = Date.now();
+    const scoring = await aiAnalyze(
+      SCORING_SYSTEM_PROMPT,
+      'kimi-k2.6',
+      `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
+        jobDescription || '(tidak ada job description)'
+      }`,
+      60000,
+      signal
+    );
+    durations.mapping_timeline = Date.now() - scoringStart;
+
+    // === STAGE 4: AI Sintesis naratif (calculating_score, 85 -> 100%) ===
+    await report(85, 'calculating_score');
+
+    if (signal?.aborted) {
+      throw new Error('Proses dibatalkan oleh user');
+    }
+
+    const synthesisStart = Date.now();
+    const synthesis = await aiAnalyze(
+      SYNTHESIS_SYSTEM_PROMPT,
+      'kimi-k2.6',
+      `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
       60000,
       signal
     );
 
-    // Step 3: Calculating score (90-100%)
-    await gradualProgress(90, 100, 2000, async (progress) => {
-      if (onProgress)
-        await onProgress({
-          progress,
-          step: 'calculating_score',
-          duration: 133,
-          error: null,
-        });
-    });
+    // Gabungkan hasil ketiga tahap jadi satu objek hasil analisis.
+    const analysisResult = { ...extraction, ...scoring, ...synthesis };
 
     // ✅ Save complete analysis result (after calculating_score step completes)
     await prisma.analysisResult.create({
@@ -244,6 +239,9 @@ export const analyzeResume = async (
         deepAnalysisRaw: analysisResult,
       },
     });
+
+    durations.calculating_score = Date.now() - synthesisStart;
+    await report(100, 'completed');
 
     console.log('💾 Analysis saved successfully');
 

@@ -24,10 +24,16 @@ interface AnalyzingProcessProps {
 }
 
 const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
-  const { progress, step, status, duration, data, jobId, retryJob, cancelJob } =
-    useJobProgress(resumeId);
-
-  console.log({ data });
+  const {
+    progress,
+    step,
+    status,
+    durations,
+    data,
+    jobId,
+    retryJob,
+    cancelJob,
+  } = useJobProgress(resumeId);
   const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore();
 
   const [showResult, setShowResult] = useState<boolean>(false);
@@ -84,7 +90,7 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             progress={progress}
             step={step as string}
             status={status}
-            duration={duration || 0}
+            durations={durations || {}}
             score={data?.score || 0}
             items={{
               criticals: data?.criticals || [],

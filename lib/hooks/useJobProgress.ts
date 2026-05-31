@@ -28,7 +28,7 @@ interface JobStatus {
     | 'completed'
     | 'failed'
     | 'unknown';
-  duration?: number;
+  durations?: Record<string, number>;
   data?: ResumeData;
 }
 
@@ -101,7 +101,7 @@ export const useJobProgress = (resumeId: string | null) => {
   const startPolling = useCallback(() => {
     stopPolling(); // Bersihkan interval lama jika ada
     poll(); // Jalankan sekali langsung tanpa nunggu 3 detik
-    intervalRef.current = setInterval(poll, 3000);
+    intervalRef.current = setInterval(poll, 1000);
     console.log('🚀 Polling started/resumed');
   }, [poll, stopPolling]);
 

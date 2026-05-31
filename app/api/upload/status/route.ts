@@ -53,10 +53,11 @@ export const GET = async (request: NextRequest) => {
         ? (progressData as { step: string }).step
         : state;
 
-    const duration =
+    const durations =
       typeof progressData === 'object' && progressData !== null
-        ? (progressData as { duration: number }).duration
-        : 0;
+        ? (progressData as { durations?: Record<string, number> }).durations ||
+          {}
+        : {};
 
     let analysisData = null;
     let fileUrl = '';
@@ -90,7 +91,7 @@ export const GET = async (request: NextRequest) => {
       status: state,
       progress: progressValue,
       step: step,
-      duration: duration,
+      durations: durations,
       data: analysisData
         ? {
             resume: {
