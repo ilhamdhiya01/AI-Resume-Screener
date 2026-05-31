@@ -18,4 +18,5 @@ export type ResumeData = {
   suggestions: string[];
   typoDetails: string[];
   criticalHighlights: { text: string; page: number }[];
+  matchSummary?: string;
 };

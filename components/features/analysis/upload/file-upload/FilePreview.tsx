@@ -42,7 +42,7 @@ const FilePreview = ({ open }: FilePreviewProps) => {
         <>
           <div
             className={classNames(
-              'relative flex h-28 w-22',
+              'relative flex h-24 w-18',
               'items-center justify-center rounded-xl border',
               'transition-transform duration-600',
               'group-hover:scale-105',

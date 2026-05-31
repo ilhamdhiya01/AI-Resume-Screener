@@ -1,11 +1,12 @@
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, signOut } from 'next-auth/react';
 import { useState } from 'react';
 
 import {
   API_AUTH_REGISTER,
   API_AUTH_RESEND_VERIFY_REQUEST,
   API_AUTH_VERIFY_REQUEST,
+  LOGIN_PATH,
   ROOT_CHECK_EMAIL_PATH,
   ROOT_PATH,
 } from '@/routes';
@@ -156,6 +157,22 @@ const useAuth = () => {
     }
   };
 
+  const logout = async () => {
+    setIsLoading(true);
+    try {
+      await signOut({
+        redirect: false, // ✅ Disable auto redirect
+      });
+
+      // Manual redirect tanpa reload
+      router.replace(LOGIN_PATH);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     isLoading,
     error,
@@ -167,6 +184,7 @@ const useAuth = () => {
     loginWithOAuth,
     verifyEmail,
     resendVerificationEmail,
+    logout,
   };
 };
 

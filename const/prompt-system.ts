@@ -17,7 +17,8 @@ Kembalikan JSON dengan format lengkap:
   criticalHighlights[],
   suggestions[],
   typoDetails[],
-  atsRecommendations
+  atsRecommendations,
+  matchSummary
 }
 
 === BAGIAN 1: EKSTRAKSI DATA & PENILAIAN ===
@@ -91,6 +92,31 @@ Kembalikan JSON dengan format lengkap:
      "sectioning": "Saran untuk perbaikan struktur section (jika ada issue)",
      "verbStrength": "Saran untuk perbaikan penggunaan action verbs (jika ada issue)"
    }
+
+=== BAGIAN 3: JOB MATCHING SUMMARY ===
+
+- matchSummary: Satu kalimat singkat tentang kesesuaian kandidat (bahasa Indonesia, format konsisten)
+
+  **Jika ADA Job Description:**
+  Format: "Resume ini [FitLevel] untuk posisi [RoleName]."
+  
+  FitLevel options berdasarkan score:
+  • "Sangat Cocok" (score 85-100)
+  • "Cocok" (score 70-84)
+  • "Cukup Cocok" (score 50-69)
+  • "Kurang Cocok" (score <50)
+  
+  Contoh output:
+  - "Resume ini Sangat Cocok untuk posisi Senior Product Designer."
+  - "Resume ini Cocok untuk posisi Frontend Developer."
+  - "Resume ini Cukup Cocok untuk posisi Full Stack Developer."
+  
+  **Jika TIDAK ada Job Description:**
+  Format: "Resume ini paling cocok untuk posisi [Role1], [Role2], atau [Role3]."
+  
+  Contoh output:
+  - "Resume ini paling cocok untuk posisi Frontend Developer, UI Engineer, atau React Developer."
+  - "Resume ini paling cocok untuk posisi Marketing Manager, Brand Manager, atau Digital Marketing Lead."
 
 === PANDUAN DETEKSI TYPO ===
 - Periksa kesalahan ejaan kata bahasa Indonesia dan Inggris

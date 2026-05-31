@@ -14,6 +14,7 @@ export const POST = async (request: NextRequest) => {
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
+    const jobDescription = (formData.get('jobDescription') as string) || '';
 
     if (!file) {
       return errorResponse('No file provided', 400);
@@ -41,7 +42,8 @@ export const POST = async (request: NextRequest) => {
     // Upload to Supabase (private bucket)
     const { signedUrl, path, resumeId } = await uploadResumeToSupabaseStorage(
       file,
-      session.user.id
+      session.user.id,
+      jobDescription
     );
 
     // ✅ Return signedUrl instead of publicUrl

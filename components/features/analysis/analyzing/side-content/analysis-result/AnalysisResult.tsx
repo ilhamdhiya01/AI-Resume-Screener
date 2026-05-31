@@ -9,13 +9,18 @@ export type Items = Record<'strengths' | 'criticals' | 'suggestions', string[]>;
 interface AnalysisResultRootProps {
   score: number;
   items: Items;
+  matchSummary?: string;
 }
 
-const AnalysisResultRoot = ({ score, items }: AnalysisResultRootProps) => {
+const AnalysisResultRoot = ({
+  score,
+  items,
+  matchSummary,
+}: AnalysisResultRootProps) => {
   const keys: (keyof Items)[] = Object.keys(items) as (keyof Items)[];
   return (
     <div className="space-y-5 overflow-auto p-10">
-      <AnalysisResult.Score progress={score} />
+      <AnalysisResult.Score progress={score} matchSummary={matchSummary} />
       {keys.map((key) => {
         if (items[key].length === 0) return null;
         return (

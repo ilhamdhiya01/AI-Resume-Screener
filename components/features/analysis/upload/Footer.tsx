@@ -10,7 +10,8 @@ import { useUpload } from '@/lib/hooks';
 import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
 
 const Footer = () => {
-  const { fileRejections, file, setFile } = useAnalysisStore();
+  const { fileRejections, file, setFile, jobDescription, setJobDescription } =
+    useAnalysisStore();
   const { uploadResume, isUploading } = useUpload();
 
   const router = useRouter();
@@ -28,10 +29,11 @@ const Footer = () => {
 
   const onClik = async () => {
     if (!file) return;
-    const result = await uploadResume(file);
+    const result = await uploadResume(file, jobDescription);
     if (result) {
       router.push(`/analysis/${result.resumeId}`);
       setFile(null);
+      setJobDescription('');
     }
   };
 

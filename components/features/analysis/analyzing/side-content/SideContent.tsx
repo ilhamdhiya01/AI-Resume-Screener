@@ -12,6 +12,7 @@ interface SideContentProps {
     strengths: string[];
     suggestions: string[];
   };
+  matchSummary?: string;
 }
 
 const SideContent = ({
@@ -21,11 +22,16 @@ const SideContent = ({
   duration,
   score,
   items,
+  matchSummary,
 }: SideContentProps) => {
   return (
     <aside className="flex w-full max-w-[35%] flex-col border-l border-slate-300 bg-[#f7fafc]">
       {progress === 100 && status === 'completed' ? (
-        <AnalysisResult score={score} items={items} />
+        <AnalysisResult
+          score={score}
+          items={items}
+          matchSummary={matchSummary}
+        />
       ) : (
         <Step
           progress={progress}

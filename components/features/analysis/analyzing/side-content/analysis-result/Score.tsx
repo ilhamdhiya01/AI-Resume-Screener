@@ -1,6 +1,11 @@
 import React from 'react';
 
-const Score = ({ progress = 85 }: { progress: number }) => {
+interface ScoreProps {
+  progress: number;
+  matchSummary?: string;
+}
+
+const Score = ({ progress = 85, matchSummary }: ScoreProps) => {
   const size = 224; // size-56 = 224px
   const strokeWidth = 12;
   const radius = (size - strokeWidth) / 2;
@@ -46,9 +51,9 @@ const Score = ({ progress = 85 }: { progress: number }) => {
           </span>
         </div>
       </div>
-      <p className="px-6 text-center text-neutral-600">
-        This resume is a Strong Fit for the <br /> Senior Product Designer role.
-      </p>
+      {matchSummary && (
+        <p className="px-6 text-center text-neutral-600">{matchSummary}</p>
+      )}
     </div>
   );
 };

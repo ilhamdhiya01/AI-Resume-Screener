@@ -1,7 +1,7 @@
 'use client';
 
 import classNames from 'classnames';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 
 import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
@@ -16,6 +16,9 @@ const FileUpload = () => {
     setIsDragReject,
     setIsDragActive,
     fileRejections,
+    setOpenFileDialog,
+    open: openDialog,
+    file,
   } = useAnalysisStore();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -48,12 +51,18 @@ const FileUpload = () => {
     onDragLeave: () => setIsDragActive(false),
   });
 
+  useEffect(() => {
+    setOpenFileDialog(open);
+
+    return () => setOpenFileDialog(null);
+  }, [setOpenFileDialog]);
+
   return (
     <section
       {...getRootProps()}
       className={classNames(
         'group card',
-        'flex h-80 w-full flex-col items-center justify-center gap-4',
+        'flex h-70 w-full flex-col items-center justify-center gap-4',
         'border-primary-200 rounded-2xl border-2 border-dashed',
         'bg-white transition-colors duration-300',
         {

@@ -48,6 +48,7 @@ export type AnalysisResultMinAggregateOutputType = {
   hasTypos: boolean | null;
   typoCount: number | null;
   summary: string | null;
+  matchSummary: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -62,6 +63,7 @@ export type AnalysisResultMaxAggregateOutputType = {
   hasTypos: boolean | null;
   typoCount: number | null;
   summary: string | null;
+  matchSummary: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -86,6 +88,7 @@ export type AnalysisResultCountAggregateOutputType = {
   suggestions: number;
   typoDetails: number;
   atsRecommendations: number;
+  matchSummary: number;
   deepAnalysisRaw: number;
   createdAt: number;
   updatedAt: number;
@@ -114,6 +117,7 @@ export type AnalysisResultMinAggregateInputType = {
   hasTypos?: true;
   typoCount?: true;
   summary?: true;
+  matchSummary?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -128,6 +132,7 @@ export type AnalysisResultMaxAggregateInputType = {
   hasTypos?: true;
   typoCount?: true;
   summary?: true;
+  matchSummary?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -152,6 +157,7 @@ export type AnalysisResultCountAggregateInputType = {
   suggestions?: true;
   typoDetails?: true;
   atsRecommendations?: true;
+  matchSummary?: true;
   deepAnalysisRaw?: true;
   createdAt?: true;
   updatedAt?: true;
@@ -275,6 +281,7 @@ export type AnalysisResultGroupByOutputType = {
   suggestions: runtime.JsonValue;
   typoDetails: runtime.JsonValue;
   atsRecommendations: runtime.JsonValue;
+  matchSummary: string | null;
   deepAnalysisRaw: runtime.JsonValue;
   createdAt: Date;
   updatedAt: Date;
@@ -322,6 +329,7 @@ export type AnalysisResultWhereInput = {
   suggestions?: Prisma.JsonFilter<'AnalysisResult'>;
   typoDetails?: Prisma.JsonFilter<'AnalysisResult'>;
   atsRecommendations?: Prisma.JsonFilter<'AnalysisResult'>;
+  matchSummary?: Prisma.StringNullableFilter<'AnalysisResult'> | string | null;
   deepAnalysisRaw?: Prisma.JsonFilter<'AnalysisResult'>;
   createdAt?: Prisma.DateTimeFilter<'AnalysisResult'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'AnalysisResult'> | Date | string;
@@ -351,6 +359,7 @@ export type AnalysisResultOrderByWithRelationInput = {
   suggestions?: Prisma.SortOrder;
   typoDetails?: Prisma.SortOrder;
   atsRecommendations?: Prisma.SortOrder;
+  matchSummary?: Prisma.SortOrderInput | Prisma.SortOrder;
   deepAnalysisRaw?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -384,6 +393,10 @@ export type AnalysisResultWhereUniqueInput = Prisma.AtLeast<
     suggestions?: Prisma.JsonFilter<'AnalysisResult'>;
     typoDetails?: Prisma.JsonFilter<'AnalysisResult'>;
     atsRecommendations?: Prisma.JsonFilter<'AnalysisResult'>;
+    matchSummary?:
+      | Prisma.StringNullableFilter<'AnalysisResult'>
+      | string
+      | null;
     deepAnalysisRaw?: Prisma.JsonFilter<'AnalysisResult'>;
     createdAt?: Prisma.DateTimeFilter<'AnalysisResult'> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<'AnalysisResult'> | Date | string;
@@ -415,6 +428,7 @@ export type AnalysisResultOrderByWithAggregationInput = {
   suggestions?: Prisma.SortOrder;
   typoDetails?: Prisma.SortOrder;
   atsRecommendations?: Prisma.SortOrder;
+  matchSummary?: Prisma.SortOrderInput | Prisma.SortOrder;
   deepAnalysisRaw?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -461,6 +475,10 @@ export type AnalysisResultScalarWhereWithAggregatesInput = {
   suggestions?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
   typoDetails?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
   atsRecommendations?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
+  matchSummary?:
+    | Prisma.StringNullableWithAggregatesFilter<'AnalysisResult'>
+    | string
+    | null;
   deepAnalysisRaw?: Prisma.JsonWithAggregatesFilter<'AnalysisResult'>;
   createdAt?:
     | Prisma.DateTimeWithAggregatesFilter<'AnalysisResult'>
@@ -487,10 +505,11 @@ export type AnalysisResultCreateInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?: string | null;
   deepAnalysisRaw: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -513,10 +532,11 @@ export type AnalysisResultUncheckedCreateInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?: string | null;
   deepAnalysisRaw: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -544,6 +564,10 @@ export type AnalysisResultUpdateInput = {
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   deepAnalysisRaw?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -573,6 +597,10 @@ export type AnalysisResultUncheckedUpdateInput = {
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   deepAnalysisRaw?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -594,10 +622,11 @@ export type AnalysisResultCreateManyInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?: string | null;
   deepAnalysisRaw: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -625,6 +654,10 @@ export type AnalysisResultUpdateManyMutationInput = {
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   deepAnalysisRaw?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -653,6 +686,10 @@ export type AnalysisResultUncheckedUpdateManyInput = {
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   deepAnalysisRaw?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -683,6 +720,7 @@ export type AnalysisResultCountOrderByAggregateInput = {
   suggestions?: Prisma.SortOrder;
   typoDetails?: Prisma.SortOrder;
   atsRecommendations?: Prisma.SortOrder;
+  matchSummary?: Prisma.SortOrder;
   deepAnalysisRaw?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -704,6 +742,7 @@ export type AnalysisResultMaxOrderByAggregateInput = {
   hasTypos?: Prisma.SortOrder;
   typoCount?: Prisma.SortOrder;
   summary?: Prisma.SortOrder;
+  matchSummary?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -718,6 +757,7 @@ export type AnalysisResultMinOrderByAggregateInput = {
   hasTypos?: Prisma.SortOrder;
   typoCount?: Prisma.SortOrder;
   summary?: Prisma.SortOrder;
+  matchSummary?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -803,10 +843,11 @@ export type AnalysisResultCreateWithoutResumeInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?: string | null;
   deepAnalysisRaw: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -827,10 +868,11 @@ export type AnalysisResultUncheckedCreateWithoutResumeInput = {
   summary: string;
   strengths: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   criticals: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  criticalHighlights: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  criticalHighlights?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   suggestions: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?: string | null;
   deepAnalysisRaw: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -886,6 +928,10 @@ export type AnalysisResultUpdateWithoutResumeInput = {
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   deepAnalysisRaw?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -913,6 +959,10 @@ export type AnalysisResultUncheckedUpdateWithoutResumeInput = {
   suggestions?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   typoDetails?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   atsRecommendations?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
+  matchSummary?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   deepAnalysisRaw?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -942,6 +992,7 @@ export type AnalysisResultSelect<
     suggestions?: boolean;
     typoDetails?: boolean;
     atsRecommendations?: boolean;
+    matchSummary?: boolean;
     deepAnalysisRaw?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -974,6 +1025,7 @@ export type AnalysisResultSelectCreateManyAndReturn<
     suggestions?: boolean;
     typoDetails?: boolean;
     atsRecommendations?: boolean;
+    matchSummary?: boolean;
     deepAnalysisRaw?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -1006,6 +1058,7 @@ export type AnalysisResultSelectUpdateManyAndReturn<
     suggestions?: boolean;
     typoDetails?: boolean;
     atsRecommendations?: boolean;
+    matchSummary?: boolean;
     deepAnalysisRaw?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -1034,6 +1087,7 @@ export type AnalysisResultSelectScalar = {
   suggestions?: boolean;
   typoDetails?: boolean;
   atsRecommendations?: boolean;
+  matchSummary?: boolean;
   deepAnalysisRaw?: boolean;
   createdAt?: boolean;
   updatedAt?: boolean;
@@ -1062,6 +1116,7 @@ export type AnalysisResultOmit<
   | 'suggestions'
   | 'typoDetails'
   | 'atsRecommendations'
+  | 'matchSummary'
   | 'deepAnalysisRaw'
   | 'createdAt'
   | 'updatedAt',
@@ -1115,6 +1170,7 @@ export type $AnalysisResultPayload<
       suggestions: runtime.JsonValue;
       typoDetails: runtime.JsonValue;
       atsRecommendations: runtime.JsonValue;
+      matchSummary: string | null;
       deepAnalysisRaw: runtime.JsonValue;
       createdAt: Date;
       updatedAt: Date;
@@ -1752,6 +1808,7 @@ export interface AnalysisResultFieldRefs {
   readonly suggestions: Prisma.FieldRef<'AnalysisResult', 'Json'>;
   readonly typoDetails: Prisma.FieldRef<'AnalysisResult', 'Json'>;
   readonly atsRecommendations: Prisma.FieldRef<'AnalysisResult', 'Json'>;
+  readonly matchSummary: Prisma.FieldRef<'AnalysisResult', 'String'>;
   readonly deepAnalysisRaw: Prisma.FieldRef<'AnalysisResult', 'Json'>;
   readonly createdAt: Prisma.FieldRef<'AnalysisResult', 'DateTime'>;
   readonly updatedAt: Prisma.FieldRef<'AnalysisResult', 'DateTime'>;

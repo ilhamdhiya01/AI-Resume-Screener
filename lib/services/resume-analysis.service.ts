@@ -40,7 +40,7 @@ const extractTextFromPdf = async (file: Blob | null, resumeId: string) => {
 
 const aiAnalyze = async (
   prompt: string,
-  model: 'glm-5.1',
+  model: 'kimi-k2.6',
   content: string,
   timeoutMs: number = 60000,
   signal?: AbortSignal
@@ -67,9 +67,6 @@ const aiAnalyze = async (
         signal,
         timeout: timeoutMs,
       }
-      // {
-      //   timeout: timeoutMs,
-      // }
     );
 
     if (signal?.aborted) throw new Error('Proses dibatalkan oleh user');
@@ -110,6 +107,13 @@ export const analyzeResume = async (
 
     // Update to PROCESSING
     await updateResumeStatus(resumeId, 'PROCESSING');
+
+    // Fetch job description from resume
+    const resume = await prisma.resume.findUnique({
+      where: { id: resumeId },
+      select: { jobDescription: true },
+    });
+    const jobDescription = resume?.jobDescription || '';
 
     let resumeText;
     const existingExtractedText = await prisma.extractedText.findUnique({
@@ -191,10 +195,15 @@ export const analyzeResume = async (
       throw new Error('Proses dibatalkan oleh user');
     }
 
+    // Construct prompt content with job description if provided
+    const promptContent = jobDescription
+      ? `## Resume Text:\n${resumeText}\n\n## Job Description:\n${jobDescription}\n\n**INSTRUKSI KHUSUS**: Karena Job Description disediakan, lakukan matching analysis:\n- Bandingkan skill kandidat dengan requirements\n- Tentukan fitAssessment (Strong/Good/Partial/Not a Fit)\n- Berikan fitReason yang spesifik\n- Kosongkan recommendedRoles dengan []`
+      : `## Resume Text:\n${resumeText}\n\n**INSTRUKSI KHUSUS**: Karena TIDAK ada Job Description, lakukan role recommendation:\n- Analisis skill dan pengalaman kandidat\n- Berikan 3-5 recommendedRoles yang paling cocok\n- Kosongkan fitAssessment dan fitReason dengan null`;
+
     const analysisResult = await aiAnalyze(
       UNIFIED_SYSTEM_PROMPT,
-      'glm-5.1',
-      resumeText,
+      'kimi-k2.6',
+      promptContent,
       60000,
       signal
     );
@@ -231,6 +240,7 @@ export const analyzeResume = async (
         suggestions: analysisResult.suggestions || [],
         typoDetails: analysisResult.typoDetails || [],
         atsRecommendations: analysisResult.atsRecommendations || {},
+        matchSummary: analysisResult.matchSummary || null,
         deepAnalysisRaw: analysisResult,
       },
     });

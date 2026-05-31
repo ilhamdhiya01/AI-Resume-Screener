@@ -42,6 +42,7 @@ export type ResumeMinAggregateOutputType = {
   fileType: string | null;
   filePath: string | null;
   status: string | null;
+  jobDescription: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -54,6 +55,7 @@ export type ResumeMaxAggregateOutputType = {
   fileType: string | null;
   filePath: string | null;
   status: string | null;
+  jobDescription: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -66,6 +68,7 @@ export type ResumeCountAggregateOutputType = {
   fileType: number;
   filePath: number;
   status: number;
+  jobDescription: number;
   createdAt: number;
   updatedAt: number;
   _all: number;
@@ -87,6 +90,7 @@ export type ResumeMinAggregateInputType = {
   fileType?: true;
   filePath?: true;
   status?: true;
+  jobDescription?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -99,6 +103,7 @@ export type ResumeMaxAggregateInputType = {
   fileType?: true;
   filePath?: true;
   status?: true;
+  jobDescription?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -111,6 +116,7 @@ export type ResumeCountAggregateInputType = {
   fileType?: true;
   filePath?: true;
   status?: true;
+  jobDescription?: true;
   createdAt?: true;
   updatedAt?: true;
   _all?: true;
@@ -217,6 +223,7 @@ export type ResumeGroupByOutputType = {
   fileType: string;
   filePath: string;
   status: string;
+  jobDescription: string | null;
   createdAt: Date;
   updatedAt: Date;
   _count: ResumeCountAggregateOutputType | null;
@@ -250,6 +257,7 @@ export type ResumeWhereInput = {
   fileType?: Prisma.StringFilter<'Resume'> | string;
   filePath?: Prisma.StringFilter<'Resume'> | string;
   status?: Prisma.StringFilter<'Resume'> | string;
+  jobDescription?: Prisma.StringNullableFilter<'Resume'> | string | null;
   createdAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
@@ -271,6 +279,7 @@ export type ResumeOrderByWithRelationInput = {
   fileType?: Prisma.SortOrder;
   filePath?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
+  jobDescription?: Prisma.SortOrderInput | Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   user?: Prisma.UserOrderByWithRelationInput;
@@ -290,6 +299,7 @@ export type ResumeWhereUniqueInput = Prisma.AtLeast<
     fileType?: Prisma.StringFilter<'Resume'> | string;
     filePath?: Prisma.StringFilter<'Resume'> | string;
     status?: Prisma.StringFilter<'Resume'> | string;
+    jobDescription?: Prisma.StringNullableFilter<'Resume'> | string | null;
     createdAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
     user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
@@ -313,6 +323,7 @@ export type ResumeOrderByWithAggregationInput = {
   fileType?: Prisma.SortOrder;
   filePath?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
+  jobDescription?: Prisma.SortOrderInput | Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   _count?: Prisma.ResumeCountOrderByAggregateInput;
@@ -337,6 +348,10 @@ export type ResumeScalarWhereWithAggregatesInput = {
   fileType?: Prisma.StringWithAggregatesFilter<'Resume'> | string;
   filePath?: Prisma.StringWithAggregatesFilter<'Resume'> | string;
   status?: Prisma.StringWithAggregatesFilter<'Resume'> | string;
+  jobDescription?:
+    | Prisma.StringNullableWithAggregatesFilter<'Resume'>
+    | string
+    | null;
   createdAt?: Prisma.DateTimeWithAggregatesFilter<'Resume'> | Date | string;
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<'Resume'> | Date | string;
 };
@@ -348,6 +363,7 @@ export type ResumeCreateInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutResumesInput;
@@ -363,6 +379,7 @@ export type ResumeUncheckedCreateInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   analysis?: Prisma.AnalysisResultUncheckedCreateNestedOneWithoutResumeInput;
@@ -376,6 +393,10 @@ export type ResumeUpdateInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutResumesNestedInput;
@@ -391,6 +412,10 @@ export type ResumeUncheckedUpdateInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   analysis?: Prisma.AnalysisResultUncheckedUpdateOneWithoutResumeNestedInput;
@@ -405,6 +430,7 @@ export type ResumeCreateManyInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -416,6 +442,10 @@ export type ResumeUpdateManyMutationInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -428,6 +458,10 @@ export type ResumeUncheckedUpdateManyInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -450,6 +484,7 @@ export type ResumeCountOrderByAggregateInput = {
   fileType?: Prisma.SortOrder;
   filePath?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
+  jobDescription?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -466,6 +501,7 @@ export type ResumeMaxOrderByAggregateInput = {
   fileType?: Prisma.SortOrder;
   filePath?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
+  jobDescription?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -478,6 +514,7 @@ export type ResumeMinOrderByAggregateInput = {
   fileType?: Prisma.SortOrder;
   filePath?: Prisma.SortOrder;
   status?: Prisma.SortOrder;
+  jobDescription?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -636,6 +673,7 @@ export type ResumeCreateWithoutUserInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   analysis?: Prisma.AnalysisResultCreateNestedOneWithoutResumeInput;
@@ -649,6 +687,7 @@ export type ResumeUncheckedCreateWithoutUserInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   analysis?: Prisma.AnalysisResultUncheckedCreateNestedOneWithoutResumeInput;
@@ -707,6 +746,7 @@ export type ResumeScalarWhereInput = {
   fileType?: Prisma.StringFilter<'Resume'> | string;
   filePath?: Prisma.StringFilter<'Resume'> | string;
   status?: Prisma.StringFilter<'Resume'> | string;
+  jobDescription?: Prisma.StringNullableFilter<'Resume'> | string | null;
   createdAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
 };
@@ -718,6 +758,7 @@ export type ResumeCreateWithoutAnalysisInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutResumesInput;
@@ -732,6 +773,7 @@ export type ResumeUncheckedCreateWithoutAnalysisInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   extractedText?: Prisma.ExtractedTextUncheckedCreateNestedOneWithoutResumeInput;
@@ -772,6 +814,10 @@ export type ResumeUpdateWithoutAnalysisInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutResumesNestedInput;
@@ -786,6 +832,10 @@ export type ResumeUncheckedUpdateWithoutAnalysisInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   extractedText?: Prisma.ExtractedTextUncheckedUpdateOneWithoutResumeNestedInput;
@@ -798,6 +848,7 @@ export type ResumeCreateWithoutExtractedTextInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutResumesInput;
@@ -812,6 +863,7 @@ export type ResumeUncheckedCreateWithoutExtractedTextInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   analysis?: Prisma.AnalysisResultUncheckedCreateNestedOneWithoutResumeInput;
@@ -852,6 +904,10 @@ export type ResumeUpdateWithoutExtractedTextInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutResumesNestedInput;
@@ -866,6 +922,10 @@ export type ResumeUncheckedUpdateWithoutExtractedTextInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   analysis?: Prisma.AnalysisResultUncheckedUpdateOneWithoutResumeNestedInput;
@@ -878,6 +938,7 @@ export type ResumeCreateManyUserInput = {
   fileType: string;
   filePath: string;
   status?: string;
+  jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -889,6 +950,10 @@ export type ResumeUpdateWithoutUserInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   analysis?: Prisma.AnalysisResultUpdateOneWithoutResumeNestedInput;
@@ -902,6 +967,10 @@ export type ResumeUncheckedUpdateWithoutUserInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   analysis?: Prisma.AnalysisResultUncheckedUpdateOneWithoutResumeNestedInput;
@@ -915,6 +984,10 @@ export type ResumeUncheckedUpdateManyWithoutUserInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
   status?: Prisma.StringFieldUpdateOperationsInput | string;
+  jobDescription?:
+    | Prisma.NullableStringFieldUpdateOperationsInput
+    | string
+    | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -931,6 +1004,7 @@ export type ResumeSelect<
     fileType?: boolean;
     filePath?: boolean;
     status?: boolean;
+    jobDescription?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -952,6 +1026,7 @@ export type ResumeSelectCreateManyAndReturn<
     fileType?: boolean;
     filePath?: boolean;
     status?: boolean;
+    jobDescription?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -971,6 +1046,7 @@ export type ResumeSelectUpdateManyAndReturn<
     fileType?: boolean;
     filePath?: boolean;
     status?: boolean;
+    jobDescription?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -986,6 +1062,7 @@ export type ResumeSelectScalar = {
   fileType?: boolean;
   filePath?: boolean;
   status?: boolean;
+  jobDescription?: boolean;
   createdAt?: boolean;
   updatedAt?: boolean;
 };
@@ -1001,6 +1078,7 @@ export type ResumeOmit<
   | 'fileType'
   | 'filePath'
   | 'status'
+  | 'jobDescription'
   | 'createdAt'
   | 'updatedAt',
   ExtArgs['result']['resume']
@@ -1045,6 +1123,7 @@ export type $ResumePayload<
       fileType: string;
       filePath: string;
       status: string;
+      jobDescription: string | null;
       createdAt: Date;
       updatedAt: Date;
     },
@@ -1686,6 +1765,7 @@ export interface ResumeFieldRefs {
   readonly fileType: Prisma.FieldRef<'Resume', 'String'>;
   readonly filePath: Prisma.FieldRef<'Resume', 'String'>;
   readonly status: Prisma.FieldRef<'Resume', 'String'>;
+  readonly jobDescription: Prisma.FieldRef<'Resume', 'String'>;
   readonly createdAt: Prisma.FieldRef<'Resume', 'DateTime'>;
   readonly updatedAt: Prisma.FieldRef<'Resume', 'DateTime'>;
 }

@@ -26,6 +26,8 @@ interface AnalyzingProcessProps {
 const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
   const { progress, step, status, duration, data, jobId, retryJob, cancelJob } =
     useJobProgress(resumeId);
+
+  console.log({ data });
   const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore();
 
   const [showResult, setShowResult] = useState<boolean>(false);
@@ -89,6 +91,7 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
               suggestions: data?.suggestions || [],
               strengths: data?.strengths || [],
             }}
+            matchSummary={data?.matchSummary}
           />
         </div>
       )}

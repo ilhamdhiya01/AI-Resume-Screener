@@ -78,6 +78,7 @@ export const GET = async (request: NextRequest) => {
           criticalHighlights: true,
           suggestions: true,
           score: true,
+          matchSummary: true,
         },
       });
 

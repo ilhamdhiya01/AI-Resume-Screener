@@ -16,7 +16,10 @@ const useUpload = () => {
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
 
-  const uploadResume = async (file: File): Promise<UploadResponse | null> => {
+  const uploadResume = async (
+    file: File,
+    jobDescription?: string
+  ): Promise<UploadResponse | null> => {
     setIsUploading(true);
     setError(null);
     setProgress(0);
@@ -24,6 +27,9 @@ const useUpload = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
+      if (jobDescription) {
+        formData.append('jobDescription', jobDescription);
+      }
 
       const response = await axiosInstance.post('/upload/resume', formData, {
         headers: {

@@ -8,11 +8,13 @@ import { supabaseAdmin } from '../supabase-admin';
  * @description Upload file ke Supabase Storage bucket "resumes" (PRIVATE)
  * @param file - File object dari input
  * @param userId - ID user yang upload
+ * @param jobDescription - Optional job description for better analysis
  * @returns Promise dengan signed URL (expires in 1 hour)
  */
 export const uploadResumeToSupabaseStorage = async (
   file: File,
-  userId: string
+  userId: string,
+  jobDescription?: string
 ): Promise<{ signedUrl: string; path: string; resumeId: string }> => {
   const uuidV4 = uuidv4();
 
@@ -50,6 +52,7 @@ export const uploadResumeToSupabaseStorage = async (
       fileType: file.type,
       filePath: data.path,
       status: 'PENDING',
+      jobDescription: jobDescription || null,
     },
   });
 

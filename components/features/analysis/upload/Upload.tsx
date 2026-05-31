@@ -2,9 +2,12 @@ import { Upload } from '.';
 
 const UploadRoot = () => {
   return (
-    <section className="flex flex-col items-center justify-between gap-8">
+    <section className="flex flex-col items-center gap-6">
       <Upload.Header />
-      <Upload.FileUpload />
+      <div className="flex w-full gap-6">
+        <Upload.FileUpload />
+        <Upload.JobDescription />
+      </div>
       <Upload.Footer />
     </section>
   );

@@ -1181,6 +1181,7 @@ export const ResumeScalarFieldEnum = {
   fileType: 'fileType',
   filePath: 'filePath',
   status: 'status',
+  jobDescription: 'jobDescription',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
@@ -1208,6 +1209,7 @@ export const AnalysisResultScalarFieldEnum = {
   suggestions: 'suggestions',
   typoDetails: 'typoDetails',
   atsRecommendations: 'atsRecommendations',
+  matchSummary: 'matchSummary',
   deepAnalysisRaw: 'deepAnalysisRaw',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
