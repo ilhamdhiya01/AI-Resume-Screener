@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -29,15 +29,40 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     step,
     status,
     durations,
+    completedSteps,
     data,
     jobId,
+    isCancelled,
+    failedReason,
     retryJob,
     cancelJob,
   } = useJobProgress(resumeId);
+
+  // Pisahkan jenis kegagalan: cancel by user vs error teknis.
+  const isTechnicalError = status === 'failed' && !isCancelled;
   const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore();
 
   const [showResult, setShowResult] = useState<boolean>(false);
   const hasTriggeredSkeleton = useRef<boolean>(false);
+
+  // Stabilize object reference untuk prevent unnecessary re-render di SideContent
+  const items = useMemo(
+    () => ({
+      criticals: data?.criticals || [],
+      suggestions: data?.suggestions || [],
+      strengths: data?.strengths || [],
+    }),
+    [data?.criticals, data?.suggestions, data?.strengths]
+  );
+
+  // Stabilize criticalHighlights array untuk prevent Preview re-render
+  const criticalHighlights = useMemo(
+    () => data?.criticalHighlights || [],
+    [data?.criticalHighlights]
+  );
+
+  // Stabilize durations object untuk prevent SideContent re-render
+  const stableDurations = useMemo(() => durations || {}, [durations]);
 
   const router = useRouter();
 
@@ -70,13 +95,15 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     }
   };
 
-  // Skeleton only when completed + waiting for transition
+  // Skeleton only when completed + waiting for transition.
+  // Saat error teknis, JANGAN tampilkan skeleton biar step tracker yang
+  // nandain step gagal (icon X) tetap kelihatan.
   const showSkeleton =
     progress === 100 && status === 'completed' && !showResult;
 
   return (
     <>
-      {showSkeleton || status === 'failed' ? (
+      {showSkeleton ? (
         <SkelatonPreview />
       ) : (
         <div className="flex h-[calc(100vh-64px)] w-full">
@@ -84,52 +111,23 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             progress={progress}
             fileName={data?.resume.fileName}
             fileUrl={data?.resume.filePath}
-            criticalHighlights={data?.criticalHighlights || []}
+            criticalHighlights={criticalHighlights}
           />
           <SideContent
             progress={progress}
             step={step as string}
             status={status}
-            durations={durations || {}}
+            durations={stableDurations}
+            completedSteps={completedSteps}
             score={data?.score || 0}
-            items={{
-              criticals: data?.criticals || [],
-              suggestions: data?.suggestions || [],
-              strengths: data?.strengths || [],
-            }}
+            items={items}
             matchSummary={data?.matchSummary}
+            isCancelled={isCancelled}
+            failedReason={failedReason}
+            onRetry={handleRetryJob}
           />
         </div>
       )}
-      <Modal isOpen={status === 'failed'}>
-        <div className="flex flex-col items-center justify-center gap-2 text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-red-200">
-            <Icon icon="TbAlertCircle" size={30} className="text-red-700" />
-          </div>
-          <h1 className="text-xl font-bold">Analysis Failed</h1>
-          <p>
-            A system error occurred while processing the document. The AI engine
-            was unable to extract and classify the data in your resume.
-          </p>
-          <div className="flex gap-4">
-            <Button
-              preffixIcon="TbRefresh"
-              label="Retry Analysis"
-              className="mt-3"
-              onClick={handleRetryJob}
-            />
-            <Button
-              variant="outlined"
-              preffixIcon="TbUpload"
-              label="Upload New Resume"
-              className="mt-3"
-              onClick={() => {
-                router.replace(ANALYSIS_PATH);
-              }}
-            />
-          </div>
-        </div>
-      </Modal>
       <Modal
         isOpen={modalCancelProcess}
         onClose={() => setModalCancelProcess(false)}
@@ -157,6 +155,32 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
           </div>
         </div>
       </Modal>
+      {/* <Modal isOpen={!!isCancelled}>
+        <div className="flex flex-col items-center justify-center gap-2 text-center">
+          <div className="flex size-14 items-center justify-center rounded-full bg-amber-100">
+            <Icon icon="TbCircleX" size={30} className="text-amber-600" />
+          </div>
+          <h1 className="text-xl font-bold">Process Cancelled</h1>
+          <p>Proses analisis telah dibatalkan oleh pengguna.</p>
+          <div className="flex gap-4">
+            <Button
+              preffixIcon="TbRefresh"
+              label="Retry Analysis"
+              className="mt-3"
+              onClick={handleRetryJob}
+            />
+            <Button
+              variant="outlined"
+              preffixIcon="TbUpload"
+              label="Upload New Resume"
+              className="mt-3"
+              onClick={() => {
+                router.replace(ANALYSIS_PATH);
+              }}
+            />
+          </div>
+        </div>
+      </Modal> */}
     </>
   );
 };

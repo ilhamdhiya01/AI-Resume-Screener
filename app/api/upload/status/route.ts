@@ -59,6 +59,40 @@ export const GET = async (request: NextRequest) => {
           {}
         : {};
 
+    // Bedain cancel (user) vs technical error. Worker throw pesan khusus
+    // 'Proses dibatalkan oleh user' saat cancel, jadi bisa dideteksi via regex.
+    const failedReason = state === 'failed' ? job.failedReason : undefined;
+    const isCancelled =
+      state === 'failed' && /dibatalkan|cancel/i.test(failedReason || '');
+
+    // Checkpoint = progress AI yang udah tersimpan dari run sebelumnya.
+    // Dipakai biar UI bisa nampilin step yang udah kelar (centang hijau)
+    // langsung saat resume/retry tanpa nunggu worker jalan ulang.
+    const checkpoint = await prisma.analysisCheckpoint.findUnique({
+      where: { resumeId },
+      select: {
+        extractionResult: true,
+        scoringResult: true,
+        synthesisResult: true,
+        durations: true,
+      },
+    });
+
+    // Derive step mana yang udah beres dari hasil yang tersimpan.
+    const completedSteps: string[] = [];
+    if (checkpoint) {
+      completedSteps.push('extracting_text_metadata');
+      if (checkpoint.extractionResult)
+        completedSteps.push('analyzing_competencies');
+      if (checkpoint.scoringResult) completedSteps.push('mapping_timeline');
+      if (checkpoint.synthesisResult) completedSteps.push('calculating_score');
+    }
+
+    // Gabungkan durasi dari job progress (live) dengan checkpoint (persisted).
+    const checkpointDurations =
+      (checkpoint?.durations as Record<string, number>) || {};
+    const mergedDurations = { ...checkpointDurations, ...durations };
+
     let analysisData = null;
     let fileUrl = '';
 
@@ -91,7 +125,10 @@ export const GET = async (request: NextRequest) => {
       status: state,
       progress: progressValue,
       step: step,
-      durations: durations,
+      durations: mergedDurations,
+      completedSteps,
+      failedReason: failedReason || null,
+      isCancelled,
       data: analysisData
         ? {
             resume: {

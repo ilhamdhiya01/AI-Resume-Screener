@@ -86,8 +86,10 @@ const FilePreview = ({ open }: FilePreviewProps) => {
             )}
           </div>
 
-          <div className="space-y-2 text-center">
-            <h2 className="text-2xl font-semibold">{file?.name}</h2>
+          <div className="min-w-0 space-y-2 text-center">
+            <h2 className="max-w-lg truncate text-2xl font-semibold">
+              {file?.name}
+            </h2>
             <div className="flex justify-center gap-3">
               <span className="bg-secondary-100 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm">
                 <Image

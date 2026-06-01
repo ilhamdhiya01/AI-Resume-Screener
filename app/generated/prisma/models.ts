@@ -14,5 +14,5 @@ export type * from './models/Profile';
 export type * from './models/VerificationRequest';
 export type * from './models/Resume';
 export type * from './models/AnalysisResult';
-export type * from './models/ExtractedText';
+export type * from './models/AnalysisCheckpoint';
 export type * from './commonInputTypes';

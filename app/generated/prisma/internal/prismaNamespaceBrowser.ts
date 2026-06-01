@@ -61,7 +61,7 @@ export const ModelName = {
   VerificationRequest: 'VerificationRequest',
   Resume: 'Resume',
   AnalysisResult: 'AnalysisResult',
-  ExtractedText: 'ExtractedText',
+  AnalysisCheckpoint: 'AnalysisCheckpoint',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -198,16 +198,20 @@ export const AnalysisResultScalarFieldEnum = {
 export type AnalysisResultScalarFieldEnum =
   (typeof AnalysisResultScalarFieldEnum)[keyof typeof AnalysisResultScalarFieldEnum];
 
-export const ExtractedTextScalarFieldEnum = {
+export const AnalysisCheckpointScalarFieldEnum = {
   id: 'id',
   resumeId: 'resumeId',
   text: 'text',
+  extractionResult: 'extractionResult',
+  scoringResult: 'scoringResult',
+  synthesisResult: 'synthesisResult',
+  durations: 'durations',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
 
-export type ExtractedTextScalarFieldEnum =
-  (typeof ExtractedTextScalarFieldEnum)[keyof typeof ExtractedTextScalarFieldEnum];
+export type AnalysisCheckpointScalarFieldEnum =
+  (typeof AnalysisCheckpointScalarFieldEnum)[keyof typeof AnalysisCheckpointScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',
@@ -222,6 +226,14 @@ export const JsonNullValueInput = {
 
 export type JsonNullValueInput =
   (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput];
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+} as const;
+
+export type NullableJsonNullValueInput =
+  (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput];
 
 export const QueryMode = {
   default: 'default',

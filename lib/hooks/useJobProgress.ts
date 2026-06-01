@@ -21,15 +21,18 @@ interface JobStatus {
   progress: number;
   jobId?: string;
   step?:
-    | 'parsing'
-    | 'extracting_skills'
+    | 'extracting_text_metadata'
+    | 'analyzing_competencies'
     | 'mapping_timeline'
     | 'calculating_score'
     | 'completed'
     | 'failed'
     | 'unknown';
   durations?: Record<string, number>;
+  completedSteps?: string[];
   data?: ResumeData;
+  failedReason?: string | null;
+  isCancelled?: boolean;
 }
 
 export const useJobProgress = (resumeId: string | null) => {
@@ -142,35 +145,17 @@ export const useJobProgress = (resumeId: string | null) => {
     };
   }, [resumeId, startPolling, stopPolling, jobStatus.status]);
 
-  // useEffect(() => {
-  //   if (!resumeId) return;
-
-  //   // Listen for visibility change
-  //   const handleVisibilityChange = () => {
-  //     if (document.hidden) {
-  //       stopPolling();
-  //     } else {
-  //       intervalRef.current = setInterval(poll, 3000);
-  //     }
-  //   };
-
-  //   document.addEventListener('visibilitychange', handleVisibilityChange);
-
-  //   // Poll immediately, then every 3 seconds
-  //   poll();
-  //   intervalRef.current = setInterval(poll, 3000);
-  //   return () => {
-  //     stopPolling();
-  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
-  //   };
-  // }, [resumeId, stopPolling]);
-
   const retryJob = async (jobId: string): Promise<string | null> => {
     try {
       // Catatan: Pastikan endpoint ini di backend bertugas me-retry job ke BullMQ, ya!
       const response = await axiosInstance.get(
         `/upload/status/${jobId}?retry=true`
       );
+
+      // 🎯 Reset flag first-poll: polling pertama setelah retry akan set
+      // displayProgress LANGSUNG ke posisi step yang gagal (resume),
+      // bukan animasi merangkak dari 0% lagi.
+      isFirstPoll.current = true;
 
       // 🎯 KUNCI UTAMA: Hidupkan kembali polling setelah hit API retry sukses
       startPolling();
@@ -195,8 +180,14 @@ export const useJobProgress = (resumeId: string | null) => {
       console.log({ data });
 
       if (data?.success) {
+        // Optimistic update: tandai cancelled langsung biar UI gak nampilin
+        // modal technical error sebelum poll berikutnya kebaca.
+        setJobStatus((prev) => ({
+          ...prev,
+          status: 'failed',
+          isCancelled: true,
+        }));
         startPolling();
-        // router.push(ANALYSIS_PATH);
       }
 
       return data;

@@ -35,10 +35,27 @@ interface StepRootProps {
   step: string;
   status: string;
   durations: Record<string, number>;
+  completedSteps?: string[];
+  isCancelled?: boolean;
+  failedReason?: string | null;
+  onRetry?: () => void;
 }
 
-const StepRoot = ({ progress, step, status, durations }: StepRootProps) => {
+const StepRoot = ({
+  progress,
+  step,
+  status,
+  durations,
+  completedSteps = [],
+  isCancelled,
+  failedReason,
+  onRetry,
+}: StepRootProps) => {
   const { setModalCancelProcess } = useAnalysisStore();
+
+  // Technical error = failed TAPI bukan cancel by user.
+  const isTechnicalError = status === 'failed' && !isCancelled;
+
   const getStepStatus = (targetKey: string) => {
     const stepOder = STEPS.map((step) => step.key);
     const currentIndex = stepOder.indexOf(step || '');
@@ -46,6 +63,27 @@ const StepRoot = ({ progress, step, status, durations }: StepRootProps) => {
 
     if (progress >= 100 || status === 'completed') {
       return 'completed';
+    }
+
+    // Step yang hasilnya udah tersimpan di checkpoint = selalu completed.
+    // Menjamin centang hijau langsung muncul saat resume/retry, bahkan
+    // di window singkat ketika worker belum sempat update step pointer.
+    if (completedSteps.includes(targetKey)) {
+      return 'completed';
+    }
+
+    // Saat gagal teknis: step yang lagi diproses ditandai 'error',
+    // step sebelumnya 'completed', sisanya 'pending'.
+    if (isTechnicalError) {
+      if (targetIndex === currentIndex) return 'error';
+      if (targetIndex < currentIndex) return 'completed';
+      return 'pending';
+    }
+
+    if (isCancelled) {
+      if (targetIndex === currentIndex) return 'error';
+      if (targetIndex < currentIndex) return 'completed';
+      return 'pending';
     }
 
     if (currentIndex === -1) return 'pending';
@@ -68,18 +106,28 @@ const StepRoot = ({ progress, step, status, durations }: StepRootProps) => {
             stepIndex={index}
             isActive={getStepStatus(item.key) === 'active'}
             isCompleted={getStepStatus(item.key) === 'completed'}
+            isError={getStepStatus(item.key) === 'error'}
+            errorMessage={
+              getStepStatus(item.key) === 'error'
+                ? failedReason ||
+                  'Terjadi kesalahan teknis saat memproses tahap ini.'
+                : undefined
+            }
+            onRetry={onRetry}
             stepKey={item.key}
             durations={durations}
           />
         ))}
       </div>
-      <Button
-        variant="outlined"
-        fullWidth
-        label="Batalkan Proses"
-        preffixIcon="TbCircleX"
-        onClick={() => setModalCancelProcess(true)}
-      />
+      {!isTechnicalError && !isCancelled && (
+        <Button
+          variant="outlined"
+          fullWidth
+          label="Batalkan Proses"
+          preffixIcon="TbCircleX"
+          onClick={() => setModalCancelProcess(true)}
+        />
+      )}
     </div>
   );
 };

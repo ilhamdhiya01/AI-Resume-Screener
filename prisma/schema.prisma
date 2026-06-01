@@ -107,7 +107,8 @@ model Resume {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   analysis AnalysisResult?
-  extractedText ExtractedText?
+  // extractedText ExtractedText?
+  checkpoint AnalysisCheckpoint?
 }
 
 model AnalysisResult {
@@ -143,15 +144,34 @@ model AnalysisResult {
   resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }
 
-model ExtractedText {
+// model ExtractedText {
+//   id        String @id @default(cuid())
+//   resumeId  String @unique
+  
+//   text      String   @db.Text
+  
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+ 
+//   resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+// }
+
+// Checkpoint hasil tiap AI stage. Memungkinkan retry melanjutkan dari
+// stage yang gagal tanpa mengulang AI call yang sudah sukses.
+// Tiap kolom nullable -> bisa di-save partial. Dihapus setelah COMPLETED.
+model AnalysisCheckpoint {
   id        String @id @default(cuid())
   resumeId  String @unique
-  
-  text      String   @db.Text
-  
+
+  text             String?  @db.Text       // text PDF (stage 1)
+  extractionResult Json?                   // hasil AI stage 2 (analyzing_competencies)
+  scoringResult    Json?                   // hasil AI stage 3 (mapping_timeline)
+  synthesisResult  Json?                   // hasil AI stage 4 (calculating_score)
+  durations        Json     @default("{}") // durasi nyata tiap step (ms)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- 
+
   resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }
 

@@ -265,9 +265,9 @@ export type ResumeWhereInput = {
     Prisma.AnalysisResultNullableScalarRelationFilter,
     Prisma.AnalysisResultWhereInput
   > | null;
-  extractedText?: Prisma.XOR<
-    Prisma.ExtractedTextNullableScalarRelationFilter,
-    Prisma.ExtractedTextWhereInput
+  checkpoint?: Prisma.XOR<
+    Prisma.AnalysisCheckpointNullableScalarRelationFilter,
+    Prisma.AnalysisCheckpointWhereInput
   > | null;
 };
 
@@ -284,7 +284,7 @@ export type ResumeOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder;
   user?: Prisma.UserOrderByWithRelationInput;
   analysis?: Prisma.AnalysisResultOrderByWithRelationInput;
-  extractedText?: Prisma.ExtractedTextOrderByWithRelationInput;
+  checkpoint?: Prisma.AnalysisCheckpointOrderByWithRelationInput;
 };
 
 export type ResumeWhereUniqueInput = Prisma.AtLeast<
@@ -307,9 +307,9 @@ export type ResumeWhereUniqueInput = Prisma.AtLeast<
       Prisma.AnalysisResultNullableScalarRelationFilter,
       Prisma.AnalysisResultWhereInput
     > | null;
-    extractedText?: Prisma.XOR<
-      Prisma.ExtractedTextNullableScalarRelationFilter,
-      Prisma.ExtractedTextWhereInput
+    checkpoint?: Prisma.XOR<
+      Prisma.AnalysisCheckpointNullableScalarRelationFilter,
+      Prisma.AnalysisCheckpointWhereInput
     > | null;
   },
   'id'
@@ -368,7 +368,7 @@ export type ResumeCreateInput = {
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutResumesInput;
   analysis?: Prisma.AnalysisResultCreateNestedOneWithoutResumeInput;
-  extractedText?: Prisma.ExtractedTextCreateNestedOneWithoutResumeInput;
+  checkpoint?: Prisma.AnalysisCheckpointCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeUncheckedCreateInput = {
@@ -383,7 +383,7 @@ export type ResumeUncheckedCreateInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   analysis?: Prisma.AnalysisResultUncheckedCreateNestedOneWithoutResumeInput;
-  extractedText?: Prisma.ExtractedTextUncheckedCreateNestedOneWithoutResumeInput;
+  checkpoint?: Prisma.AnalysisCheckpointUncheckedCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeUpdateInput = {
@@ -401,7 +401,7 @@ export type ResumeUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutResumesNestedInput;
   analysis?: Prisma.AnalysisResultUpdateOneWithoutResumeNestedInput;
-  extractedText?: Prisma.ExtractedTextUpdateOneWithoutResumeNestedInput;
+  checkpoint?: Prisma.AnalysisCheckpointUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeUncheckedUpdateInput = {
@@ -419,7 +419,7 @@ export type ResumeUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   analysis?: Prisma.AnalysisResultUncheckedUpdateOneWithoutResumeNestedInput;
-  extractedText?: Prisma.ExtractedTextUncheckedUpdateOneWithoutResumeNestedInput;
+  checkpoint?: Prisma.AnalysisCheckpointUncheckedUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeCreateManyInput = {
@@ -640,29 +640,29 @@ export type ResumeUpdateOneRequiredWithoutAnalysisNestedInput = {
   >;
 };
 
-export type ResumeCreateNestedOneWithoutExtractedTextInput = {
+export type ResumeCreateNestedOneWithoutCheckpointInput = {
   create?: Prisma.XOR<
-    Prisma.ResumeCreateWithoutExtractedTextInput,
-    Prisma.ResumeUncheckedCreateWithoutExtractedTextInput
+    Prisma.ResumeCreateWithoutCheckpointInput,
+    Prisma.ResumeUncheckedCreateWithoutCheckpointInput
   >;
-  connectOrCreate?: Prisma.ResumeCreateOrConnectWithoutExtractedTextInput;
+  connectOrCreate?: Prisma.ResumeCreateOrConnectWithoutCheckpointInput;
   connect?: Prisma.ResumeWhereUniqueInput;
 };
 
-export type ResumeUpdateOneRequiredWithoutExtractedTextNestedInput = {
+export type ResumeUpdateOneRequiredWithoutCheckpointNestedInput = {
   create?: Prisma.XOR<
-    Prisma.ResumeCreateWithoutExtractedTextInput,
-    Prisma.ResumeUncheckedCreateWithoutExtractedTextInput
+    Prisma.ResumeCreateWithoutCheckpointInput,
+    Prisma.ResumeUncheckedCreateWithoutCheckpointInput
   >;
-  connectOrCreate?: Prisma.ResumeCreateOrConnectWithoutExtractedTextInput;
-  upsert?: Prisma.ResumeUpsertWithoutExtractedTextInput;
+  connectOrCreate?: Prisma.ResumeCreateOrConnectWithoutCheckpointInput;
+  upsert?: Prisma.ResumeUpsertWithoutCheckpointInput;
   connect?: Prisma.ResumeWhereUniqueInput;
   update?: Prisma.XOR<
     Prisma.XOR<
-      Prisma.ResumeUpdateToOneWithWhereWithoutExtractedTextInput,
-      Prisma.ResumeUpdateWithoutExtractedTextInput
+      Prisma.ResumeUpdateToOneWithWhereWithoutCheckpointInput,
+      Prisma.ResumeUpdateWithoutCheckpointInput
     >,
-    Prisma.ResumeUncheckedUpdateWithoutExtractedTextInput
+    Prisma.ResumeUncheckedUpdateWithoutCheckpointInput
   >;
 };
 
@@ -677,7 +677,7 @@ export type ResumeCreateWithoutUserInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   analysis?: Prisma.AnalysisResultCreateNestedOneWithoutResumeInput;
-  extractedText?: Prisma.ExtractedTextCreateNestedOneWithoutResumeInput;
+  checkpoint?: Prisma.AnalysisCheckpointCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeUncheckedCreateWithoutUserInput = {
@@ -691,7 +691,7 @@ export type ResumeUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   analysis?: Prisma.AnalysisResultUncheckedCreateNestedOneWithoutResumeInput;
-  extractedText?: Prisma.ExtractedTextUncheckedCreateNestedOneWithoutResumeInput;
+  checkpoint?: Prisma.AnalysisCheckpointUncheckedCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeCreateOrConnectWithoutUserInput = {
@@ -762,7 +762,7 @@ export type ResumeCreateWithoutAnalysisInput = {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutResumesInput;
-  extractedText?: Prisma.ExtractedTextCreateNestedOneWithoutResumeInput;
+  checkpoint?: Prisma.AnalysisCheckpointCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeUncheckedCreateWithoutAnalysisInput = {
@@ -776,7 +776,7 @@ export type ResumeUncheckedCreateWithoutAnalysisInput = {
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
-  extractedText?: Prisma.ExtractedTextUncheckedCreateNestedOneWithoutResumeInput;
+  checkpoint?: Prisma.AnalysisCheckpointUncheckedCreateNestedOneWithoutResumeInput;
 };
 
 export type ResumeCreateOrConnectWithoutAnalysisInput = {
@@ -821,7 +821,7 @@ export type ResumeUpdateWithoutAnalysisInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutResumesNestedInput;
-  extractedText?: Prisma.ExtractedTextUpdateOneWithoutResumeNestedInput;
+  checkpoint?: Prisma.AnalysisCheckpointUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeUncheckedUpdateWithoutAnalysisInput = {
@@ -838,10 +838,10 @@ export type ResumeUncheckedUpdateWithoutAnalysisInput = {
     | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-  extractedText?: Prisma.ExtractedTextUncheckedUpdateOneWithoutResumeNestedInput;
+  checkpoint?: Prisma.AnalysisCheckpointUncheckedUpdateOneWithoutResumeNestedInput;
 };
 
-export type ResumeCreateWithoutExtractedTextInput = {
+export type ResumeCreateWithoutCheckpointInput = {
   id?: string;
   fileName: string;
   fileSize: number;
@@ -855,7 +855,7 @@ export type ResumeCreateWithoutExtractedTextInput = {
   analysis?: Prisma.AnalysisResultCreateNestedOneWithoutResumeInput;
 };
 
-export type ResumeUncheckedCreateWithoutExtractedTextInput = {
+export type ResumeUncheckedCreateWithoutCheckpointInput = {
   id?: string;
   userId: string;
   fileName: string;
@@ -869,35 +869,35 @@ export type ResumeUncheckedCreateWithoutExtractedTextInput = {
   analysis?: Prisma.AnalysisResultUncheckedCreateNestedOneWithoutResumeInput;
 };
 
-export type ResumeCreateOrConnectWithoutExtractedTextInput = {
+export type ResumeCreateOrConnectWithoutCheckpointInput = {
   where: Prisma.ResumeWhereUniqueInput;
   create: Prisma.XOR<
-    Prisma.ResumeCreateWithoutExtractedTextInput,
-    Prisma.ResumeUncheckedCreateWithoutExtractedTextInput
+    Prisma.ResumeCreateWithoutCheckpointInput,
+    Prisma.ResumeUncheckedCreateWithoutCheckpointInput
   >;
 };
 
-export type ResumeUpsertWithoutExtractedTextInput = {
+export type ResumeUpsertWithoutCheckpointInput = {
   update: Prisma.XOR<
-    Prisma.ResumeUpdateWithoutExtractedTextInput,
-    Prisma.ResumeUncheckedUpdateWithoutExtractedTextInput
+    Prisma.ResumeUpdateWithoutCheckpointInput,
+    Prisma.ResumeUncheckedUpdateWithoutCheckpointInput
   >;
   create: Prisma.XOR<
-    Prisma.ResumeCreateWithoutExtractedTextInput,
-    Prisma.ResumeUncheckedCreateWithoutExtractedTextInput
+    Prisma.ResumeCreateWithoutCheckpointInput,
+    Prisma.ResumeUncheckedCreateWithoutCheckpointInput
   >;
   where?: Prisma.ResumeWhereInput;
 };
 
-export type ResumeUpdateToOneWithWhereWithoutExtractedTextInput = {
+export type ResumeUpdateToOneWithWhereWithoutCheckpointInput = {
   where?: Prisma.ResumeWhereInput;
   data: Prisma.XOR<
-    Prisma.ResumeUpdateWithoutExtractedTextInput,
-    Prisma.ResumeUncheckedUpdateWithoutExtractedTextInput
+    Prisma.ResumeUpdateWithoutCheckpointInput,
+    Prisma.ResumeUncheckedUpdateWithoutCheckpointInput
   >;
 };
 
-export type ResumeUpdateWithoutExtractedTextInput = {
+export type ResumeUpdateWithoutCheckpointInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   fileName?: Prisma.StringFieldUpdateOperationsInput | string;
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
@@ -914,7 +914,7 @@ export type ResumeUpdateWithoutExtractedTextInput = {
   analysis?: Prisma.AnalysisResultUpdateOneWithoutResumeNestedInput;
 };
 
-export type ResumeUncheckedUpdateWithoutExtractedTextInput = {
+export type ResumeUncheckedUpdateWithoutCheckpointInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   userId?: Prisma.StringFieldUpdateOperationsInput | string;
   fileName?: Prisma.StringFieldUpdateOperationsInput | string;
@@ -957,7 +957,7 @@ export type ResumeUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   analysis?: Prisma.AnalysisResultUpdateOneWithoutResumeNestedInput;
-  extractedText?: Prisma.ExtractedTextUpdateOneWithoutResumeNestedInput;
+  checkpoint?: Prisma.AnalysisCheckpointUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeUncheckedUpdateWithoutUserInput = {
@@ -974,7 +974,7 @@ export type ResumeUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   analysis?: Prisma.AnalysisResultUncheckedUpdateOneWithoutResumeNestedInput;
-  extractedText?: Prisma.ExtractedTextUncheckedUpdateOneWithoutResumeNestedInput;
+  checkpoint?: Prisma.AnalysisCheckpointUncheckedUpdateOneWithoutResumeNestedInput;
 };
 
 export type ResumeUncheckedUpdateManyWithoutUserInput = {
@@ -1009,7 +1009,7 @@ export type ResumeSelect<
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
     analysis?: boolean | Prisma.Resume$analysisArgs<ExtArgs>;
-    extractedText?: boolean | Prisma.Resume$extractedTextArgs<ExtArgs>;
+    checkpoint?: boolean | Prisma.Resume$checkpointArgs<ExtArgs>;
   },
   ExtArgs['result']['resume']
 >;
@@ -1089,7 +1089,7 @@ export type ResumeInclude<
 > = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
   analysis?: boolean | Prisma.Resume$analysisArgs<ExtArgs>;
-  extractedText?: boolean | Prisma.Resume$extractedTextArgs<ExtArgs>;
+  checkpoint?: boolean | Prisma.Resume$checkpointArgs<ExtArgs>;
 };
 export type ResumeIncludeCreateManyAndReturn<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
@@ -1112,7 +1112,7 @@ export type $ResumePayload<
   objects: {
     user: Prisma.$UserPayload<ExtArgs>;
     analysis: Prisma.$AnalysisResultPayload<ExtArgs> | null;
-    extractedText: Prisma.$ExtractedTextPayload<ExtArgs> | null;
+    checkpoint: Prisma.$AnalysisCheckpointPayload<ExtArgs> | null;
   };
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -1703,11 +1703,11 @@ export interface Prisma__ResumeClient<
     ExtArgs,
     GlobalOmitOptions
   >;
-  extractedText<T extends Prisma.Resume$extractedTextArgs<ExtArgs> = {}>(
-    args?: Prisma.Subset<T, Prisma.Resume$extractedTextArgs<ExtArgs>>
-  ): Prisma.Prisma__ExtractedTextClient<
+  checkpoint<T extends Prisma.Resume$checkpointArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.Resume$checkpointArgs<ExtArgs>>
+  ): Prisma.Prisma__AnalysisCheckpointClient<
     runtime.Types.Result.GetResult<
-      Prisma.$ExtractedTextPayload<ExtArgs>,
+      Prisma.$AnalysisCheckpointPayload<ExtArgs>,
       T,
       'findUniqueOrThrow',
       GlobalOmitOptions
@@ -2250,25 +2250,25 @@ export type Resume$analysisArgs<
 };
 
 /**
- * Resume.extractedText
+ * Resume.checkpoint
  */
-export type Resume$extractedTextArgs<
+export type Resume$checkpointArgs<
   ExtArgs extends runtime.Types.Extensions.InternalArgs =
     runtime.Types.Extensions.DefaultArgs,
 > = {
   /**
-   * Select specific fields to fetch from the ExtractedText
+   * Select specific fields to fetch from the AnalysisCheckpoint
    */
-  select?: Prisma.ExtractedTextSelect<ExtArgs> | null;
+  select?: Prisma.AnalysisCheckpointSelect<ExtArgs> | null;
   /**
-   * Omit specific fields from the ExtractedText
+   * Omit specific fields from the AnalysisCheckpoint
    */
-  omit?: Prisma.ExtractedTextOmit<ExtArgs> | null;
+  omit?: Prisma.AnalysisCheckpointOmit<ExtArgs> | null;
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ExtractedTextInclude<ExtArgs> | null;
-  where?: Prisma.ExtractedTextWhereInput;
+  include?: Prisma.AnalysisCheckpointInclude<ExtArgs> | null;
+  where?: Prisma.AnalysisCheckpointWhereInput;
 };
 
 /**

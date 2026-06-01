@@ -1,8 +1,11 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import classNames from 'classnames';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 
+import Button from '@/components/ui/button';
 import Icon, { IconProps } from '@/components/ui/icon';
+import { ANALYSIS_PATH } from '@/routes';
 
 import ProgressBar from './ProgressBar';
 
@@ -10,6 +13,9 @@ interface ItemProps {
   isLast: boolean;
   isActive: boolean;
   isCompleted: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+  onRetry?: () => void;
   title: string;
   description: string;
   stepIndex: number;
@@ -21,24 +27,29 @@ const Item = ({
   isLast,
   isActive,
   isCompleted,
+  isError = false,
+  errorMessage,
+  onRetry,
   title,
   description,
   stepIndex,
   stepKey,
   durations,
 }: ItemProps) => {
-  const isPending = !isActive && !isCompleted;
+  const isPending = !isActive && !isCompleted && !isError;
   const [elapsedTime, setElapsedTime] = useState(0);
+  const router = useRouter();
 
   // Durasi NYATA hasil pengukuran backend (ms) untuk step ini.
   const finalMs = durations[stepKey] ?? 0;
 
   const icon: IconProps['icon'] = useMemo(() => {
+    if (isError) return 'TbX';
     if (isActive) return 'FiActivity';
     if (isCompleted) return 'TbCheck';
 
     return `TbNumber${stepIndex + 1}` as IconProps['icon'];
-  }, [isActive, isCompleted, stepIndex]);
+  }, [isError, isActive, isCompleted, stepIndex]);
 
   // Bar fill saat step aktif. Durasi total nggak diketahui di awal,
   // jadi pakai easing asimptotik biar bar tetap gerak (mendekati 95%)
@@ -77,6 +88,7 @@ const Item = ({
             {
               'bg-secondary-700': isCompleted,
               'bg-primary-700': isActive,
+              'bg-red-600': isError,
               'border border-slate-300': isPending,
             }
           )}
@@ -85,13 +97,20 @@ const Item = ({
             icon={icon}
             className={classNames('shrink-0 stroke-3', {
               'animate-pulse text-white': isActive,
-              'text-white': isCompleted,
+              'text-white': isCompleted || isError,
               'text-slate-400': isPending,
             })}
             size={20}
           />
         </div>
-        {!isLast && <div className="h-20 w-0.5 bg-slate-300" />}
+        {!isLast && (
+          <div
+            className={classNames('min-h-20 w-0.5 flex-1', {
+              'bg-red-300': isError,
+              'bg-slate-300': !isError,
+            })}
+          />
+        )}
       </div>
       <div className="space-y-3">
         <span
@@ -111,6 +130,38 @@ const Item = ({
         >
           {description}
         </p>
+        {isError && (
+          <div className="space-y-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+            <div className="flex items-start gap-2">
+              <Icon
+                icon="TbAlertTriangle"
+                size={16}
+                className="mt-0.5 shrink-0 text-red-600"
+              />
+              <p className="text-sm font-medium text-red-700">{errorMessage}</p>
+            </div>
+            {onRetry && (
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  color="danger"
+                  variant="outlined"
+                  preffixIcon="TbRefresh"
+                  label="Retry"
+                  onClick={onRetry}
+                />
+                <Button
+                  size="sm"
+                  color="danger"
+                  variant="outlined"
+                  preffixIcon="TbFileUpload"
+                  label="Upload Resume"
+                  onClick={() => router.replace(ANALYSIS_PATH)}
+                />
+              </div>
+            )}
+          </div>
+        )}
         {(isActive || isCompleted) && (
           <div className="space-y-1">
             {isActive && <ProgressBar progress={progressPercentage} />}

@@ -82,7 +82,7 @@ export type Resume = Prisma.ResumeModel;
  */
 export type AnalysisResult = Prisma.AnalysisResultModel;
 /**
- * Model ExtractedText
+ * Model AnalysisCheckpoint
  *
  */
-export type ExtractedText = Prisma.ExtractedTextModel;
+export type AnalysisCheckpoint = Prisma.AnalysisCheckpointModel;

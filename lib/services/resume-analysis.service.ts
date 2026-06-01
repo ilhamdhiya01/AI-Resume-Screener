@@ -1,5 +1,6 @@
 import { PDFParse, VerbosityLevel } from 'pdf-parse';
 
+import { Prisma } from '@/app/generated/prisma/client';
 import {
   EXTRACTION_SYSTEM_PROMPT,
   SCORING_SYSTEM_PROMPT,
@@ -17,7 +18,43 @@ const updateResumeStatus = async (resumeId: string, status: string) => {
   });
 };
 
-const extractTextFromPdf = async (file: Blob | null, resumeId: string) => {
+// Tipe hasil tiap stage AI (longgar, karena bentuknya JSON dari model).
+type StageResult = Record<string, unknown>;
+
+// Ambil checkpoint yang tersimpan (kalau ada) untuk resume ini.
+const loadCheckpoint = async (resumeId: string) => {
+  return prisma.analysisCheckpoint.findUnique({ where: { resumeId } });
+};
+
+// Upsert checkpoint secara partial. Cuma field yang dikirim yang ke-update.
+const saveCheckpoint = async (
+  resumeId: string,
+  data: {
+    text?: string;
+    extractionResult?: StageResult;
+    scoringResult?: StageResult;
+    synthesisResult?: StageResult;
+    durations?: Record<string, number>;
+  }
+) => {
+  await prisma.analysisCheckpoint.upsert({
+    where: { resumeId },
+    create: {
+      resumeId,
+      ...data,
+    } as Prisma.AnalysisCheckpointUncheckedCreateInput,
+    update: { ...data } as Prisma.AnalysisCheckpointUncheckedUpdateInput,
+  });
+};
+
+// Hapus checkpoint setelah analisis final tersimpan (cleanup).
+const clearCheckpoint = async (resumeId: string) => {
+  await prisma.analysisCheckpoint
+    .delete({ where: { resumeId } })
+    .catch(() => null); // abaikan kalau memang gak ada
+};
+
+const extractTextFromPdf = async (file: Blob | null) => {
   if (!file) {
     throw new Error('File is null');
   }
@@ -30,13 +67,6 @@ const extractTextFromPdf = async (file: Blob | null, resumeId: string) => {
   });
   const data = await parser.getText();
   await parser.destroy();
-
-  await prisma.extractedText.create({
-    data: {
-      resumeId,
-      text: data.text,
-    },
-  });
 
   return data.text;
 };
@@ -63,7 +93,7 @@ const aiAnalyze = async (
           { role: 'user', content },
         ],
         response_format: { type: 'json_object' },
-        // max_tokens: 700,
+        max_tokens: 50, // Commented: biarkan model decide, atau set ke angka reasonable (e.g., 4000+)
         temperature: 0.2,
       },
       {
@@ -77,7 +107,9 @@ const aiAnalyze = async (
     clearTimeout(timeout);
     console.timeEnd(`⏱️  ${model} Analysis`);
 
-    const result = JSON.parse(response.choices[0].message.content!);
+    const message = response.choices[0].message;
+
+    const result = JSON.parse(message.content!);
     console.log(`✅ ${model} completed successfully`);
 
     return result;
@@ -85,12 +117,10 @@ const aiAnalyze = async (
     clearTimeout(timeout);
     console.timeEnd(`⏱️  ${model} Analysis`);
 
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(`${model} analysis timeout after ${timeoutMs}ms`);
-    }
-
-    console.error(`❌ ${model} analysis failed:`, error);
-    throw error;
+    // Fallback untuk error yang gak ketangkep
+    throw new Error(
+      'Terjadi kesalahan pada saat analisis AI. Coba lagi atau upload resume lain.'
+    );
   }
 };
 
@@ -111,9 +141,15 @@ export const analyzeResume = async (
     // Update to PROCESSING
     await updateResumeStatus(resumeId, 'PROCESSING');
 
+    // Load checkpoint hasil run sebelumnya (kalau ini retry).
+    const checkpoint = await loadCheckpoint(resumeId);
+
     // Akumulasi durasi NYATA tiap stage (ms). Dikirim ulang tiap emit
     // biar polling yang kelewat tetap dapet snapshot lengkap.
-    const durations: Record<string, number> = {};
+    // Seed dari checkpoint biar step yang sudah selesai tetap nampilin durasi asli.
+    const durations: Record<string, number> = {
+      ...((checkpoint?.durations as Record<string, number>) || {}),
+    };
     const report = async (progress: number, step: string) => {
       if (onProgress) {
         await onProgress({
@@ -132,12 +168,11 @@ export const analyzeResume = async (
     });
     const jobDescription = resume?.jobDescription || '';
 
-    let resumeText;
-    const existingExtractedText = await prisma.extractedText.findUnique({
-      where: {
-        resumeId,
-      },
-    });
+    // const existingExtractedText = await prisma.extractedText.findUnique({
+    //   where: {
+    //     resumeId,
+    //   },
+    // });
 
     // === STAGE 1: Ekstraksi teks PDF (0 -> 25%) ===
     await report(0, 'extracting_text_metadata');
@@ -147,16 +182,21 @@ export const analyzeResume = async (
       throw new Error('Proses dibatalkan oleh user');
     }
 
-    if (!existingExtractedText?.text) {
+    let resumeText: string;
+    if (checkpoint?.text) {
+      resumeText = checkpoint.text;
+      // durations.extracting_text_metadata = 0;
+    } else {
       const extractStart = Date.now();
       const { data: fileData } = await supabaseAdmin.storage
         .from('resumes')
         .download(filePath);
-      resumeText = await extractTextFromPdf(fileData, resumeId);
+      resumeText = await extractTextFromPdf(fileData);
       durations.extracting_text_metadata = Date.now() - extractStart;
-    } else {
-      resumeText = existingExtractedText.text;
-      durations.extracting_text_metadata = 0;
+      await saveCheckpoint(resumeId, {
+        text: resumeText,
+        durations,
+      });
     }
 
     // === STAGE 2: AI Ekstraksi fakta (analyzing_competencies, 25 -> 50%) ===
@@ -166,15 +206,27 @@ export const analyzeResume = async (
       throw new Error('Proses dibatalkan oleh user');
     }
 
-    const extractStart = Date.now();
-    const extraction = await aiAnalyze(
-      EXTRACTION_SYSTEM_PROMPT,
-      'kimi-k2.6',
-      `## Resume Text:\n${resumeText}`,
-      60000,
-      signal
-    );
-    durations.analyzing_competencies = Date.now() - extractStart;
+    let extraction: StageResult;
+    if (checkpoint?.extractionResult) {
+      // ✅ Checkpoint hit: pakai hasil yang sudah ada, skip AI call.
+      console.log('⏭️  Skip STAGE 2 (extraction) - pakai checkpoint');
+      extraction = checkpoint.extractionResult as StageResult;
+    } else {
+      const extractStart = Date.now();
+      extraction = await aiAnalyze(
+        EXTRACTION_SYSTEM_PROMPT,
+        'kimi-k2.6',
+        `## Resume Text:\n${resumeText}`,
+        60000,
+        signal
+      );
+      durations.analyzing_competencies = Date.now() - extractStart;
+      // Simpan checkpoint segera setelah stage sukses.
+      await saveCheckpoint(resumeId, {
+        extractionResult: extraction,
+        durations,
+      });
+    }
 
     // === STAGE 3: AI Penilaian & red flags (mapping_timeline, 50 -> 85%) ===
     await report(50, 'mapping_timeline');
@@ -183,17 +235,27 @@ export const analyzeResume = async (
       throw new Error('Proses dibatalkan oleh user');
     }
 
-    const scoringStart = Date.now();
-    const scoring = await aiAnalyze(
-      SCORING_SYSTEM_PROMPT,
-      'kimi-k2.6',
-      `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
-        jobDescription || '(tidak ada job description)'
-      }`,
-      60000,
-      signal
-    );
-    durations.mapping_timeline = Date.now() - scoringStart;
+    let scoring: StageResult;
+    if (checkpoint?.scoringResult) {
+      console.log('⏭️  Skip STAGE 3 (scoring) - pakai checkpoint');
+      scoring = checkpoint.scoringResult as StageResult;
+    } else {
+      const scoringStart = Date.now();
+      scoring = await aiAnalyze(
+        SCORING_SYSTEM_PROMPT,
+        'kimi-k2.6',
+        `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
+          jobDescription || '(tidak ada job description)'
+        }`,
+        60000,
+        signal
+      );
+      durations.mapping_timeline = Date.now() - scoringStart;
+      await saveCheckpoint(resumeId, {
+        scoringResult: scoring,
+        durations,
+      });
+    }
 
     // === STAGE 4: AI Sintesis naratif (calculating_score, 85 -> 100%) ===
     await report(85, 'calculating_score');
@@ -202,17 +264,30 @@ export const analyzeResume = async (
       throw new Error('Proses dibatalkan oleh user');
     }
 
-    const synthesisStart = Date.now();
-    const synthesis = await aiAnalyze(
-      SYNTHESIS_SYSTEM_PROMPT,
-      'kimi-k2.6',
-      `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
-      60000,
-      signal
-    );
+    let synthesis: StageResult;
+    if (checkpoint?.synthesisResult) {
+      console.log('⏭️  Skip STAGE 4 (synthesis) - pakai checkpoint');
+      synthesis = checkpoint.synthesisResult as StageResult;
+    } else {
+      const synthesisStart = Date.now();
+      synthesis = await aiAnalyze(
+        SYNTHESIS_SYSTEM_PROMPT,
+        'kimi-k2.6',
+        `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
+        60000,
+        signal
+      );
+      durations.calculating_score = Date.now() - synthesisStart;
+      await saveCheckpoint(resumeId, {
+        synthesisResult: synthesis,
+        durations,
+      });
+    }
 
     // Gabungkan hasil ketiga tahap jadi satu objek hasil analisis.
-    const analysisResult = { ...extraction, ...scoring, ...synthesis };
+    // Cast ke any karena isinya JSON dinamis hasil parsing dari model AI.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const analysisResult: any = { ...extraction, ...scoring, ...synthesis };
 
     // ✅ Save complete analysis result (after calculating_score step completes)
     await prisma.analysisResult.create({
@@ -240,7 +315,9 @@ export const analyzeResume = async (
       },
     });
 
-    durations.calculating_score = Date.now() - synthesisStart;
+    // ✅ Analisis final tersimpan -> checkpoint gak diperlukan lagi.
+    await clearCheckpoint(resumeId);
+
     await report(100, 'completed');
 
     console.log('💾 Analysis saved successfully');
@@ -249,10 +326,20 @@ export const analyzeResume = async (
     await updateResumeStatus(resumeId, 'COMPLETED');
     console.log(`✅ Resume ${resumeId} analyzed successfully`);
   } catch (error) {
-    console.error(`❌ Analysis failed for ${resumeId}:`, error);
+    // Log detail error untuk debugging
+    if (error instanceof Error) {
+      console.error(`❌ Analysis failed for ${resumeId}:`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
+    } else {
+      console.error(`❌ Analysis failed for ${resumeId} (unknown):`, error);
+    }
 
     await updateResumeStatus(resumeId, 'FAILED');
 
+    // Re-throw dengan preserve error message yang udah user-friendly dari aiAnalyze
     throw error;
   }
 };

@@ -419,7 +419,7 @@ export const ModelName = {
   VerificationRequest: 'VerificationRequest',
   Resume: 'Resume',
   AnalysisResult: 'AnalysisResult',
-  ExtractedText: 'ExtractedText',
+  AnalysisCheckpoint: 'AnalysisCheckpoint',
 } as const;
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
@@ -449,7 +449,7 @@ export type TypeMap<
       | 'verificationRequest'
       | 'resume'
       | 'analysisResult'
-      | 'extractedText';
+      | 'analysisCheckpoint';
     txIsolationLevel: TransactionIsolationLevel;
   };
   model: {
@@ -985,78 +985,78 @@ export type TypeMap<
         };
       };
     };
-    ExtractedText: {
-      payload: Prisma.$ExtractedTextPayload<ExtArgs>;
-      fields: Prisma.ExtractedTextFieldRefs;
+    AnalysisCheckpoint: {
+      payload: Prisma.$AnalysisCheckpointPayload<ExtArgs>;
+      fields: Prisma.AnalysisCheckpointFieldRefs;
       operations: {
         findUnique: {
-          args: Prisma.ExtractedTextFindUniqueArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload> | null;
+          args: Prisma.AnalysisCheckpointFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload> | null;
         };
         findUniqueOrThrow: {
-          args: Prisma.ExtractedTextFindUniqueOrThrowArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+          args: Prisma.AnalysisCheckpointFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>;
         };
         findFirst: {
-          args: Prisma.ExtractedTextFindFirstArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload> | null;
+          args: Prisma.AnalysisCheckpointFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload> | null;
         };
         findFirstOrThrow: {
-          args: Prisma.ExtractedTextFindFirstOrThrowArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+          args: Prisma.AnalysisCheckpointFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>;
         };
         findMany: {
-          args: Prisma.ExtractedTextFindManyArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>[];
+          args: Prisma.AnalysisCheckpointFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>[];
         };
         create: {
-          args: Prisma.ExtractedTextCreateArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+          args: Prisma.AnalysisCheckpointCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>;
         };
         createMany: {
-          args: Prisma.ExtractedTextCreateManyArgs<ExtArgs>;
+          args: Prisma.AnalysisCheckpointCreateManyArgs<ExtArgs>;
           result: BatchPayload;
         };
         createManyAndReturn: {
-          args: Prisma.ExtractedTextCreateManyAndReturnArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>[];
+          args: Prisma.AnalysisCheckpointCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>[];
         };
         delete: {
-          args: Prisma.ExtractedTextDeleteArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+          args: Prisma.AnalysisCheckpointDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>;
         };
         update: {
-          args: Prisma.ExtractedTextUpdateArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+          args: Prisma.AnalysisCheckpointUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>;
         };
         deleteMany: {
-          args: Prisma.ExtractedTextDeleteManyArgs<ExtArgs>;
+          args: Prisma.AnalysisCheckpointDeleteManyArgs<ExtArgs>;
           result: BatchPayload;
         };
         updateMany: {
-          args: Prisma.ExtractedTextUpdateManyArgs<ExtArgs>;
+          args: Prisma.AnalysisCheckpointUpdateManyArgs<ExtArgs>;
           result: BatchPayload;
         };
         updateManyAndReturn: {
-          args: Prisma.ExtractedTextUpdateManyAndReturnArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>[];
+          args: Prisma.AnalysisCheckpointUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>[];
         };
         upsert: {
-          args: Prisma.ExtractedTextUpsertArgs<ExtArgs>;
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExtractedTextPayload>;
+          args: Prisma.AnalysisCheckpointUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalysisCheckpointPayload>;
         };
         aggregate: {
-          args: Prisma.ExtractedTextAggregateArgs<ExtArgs>;
-          result: runtime.Types.Utils.Optional<Prisma.AggregateExtractedText>;
+          args: Prisma.AnalysisCheckpointAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnalysisCheckpoint>;
         };
         groupBy: {
-          args: Prisma.ExtractedTextGroupByArgs<ExtArgs>;
-          result: runtime.Types.Utils.Optional<Prisma.ExtractedTextGroupByOutputType>[];
+          args: Prisma.AnalysisCheckpointGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AnalysisCheckpointGroupByOutputType>[];
         };
         count: {
-          args: Prisma.ExtractedTextCountArgs<ExtArgs>;
+          args: Prisma.AnalysisCheckpointCountArgs<ExtArgs>;
           result:
-            | runtime.Types.Utils.Optional<Prisma.ExtractedTextCountAggregateOutputType>
+            | runtime.Types.Utils.Optional<Prisma.AnalysisCheckpointCountAggregateOutputType>
             | number;
         };
       };
@@ -1218,16 +1218,20 @@ export const AnalysisResultScalarFieldEnum = {
 export type AnalysisResultScalarFieldEnum =
   (typeof AnalysisResultScalarFieldEnum)[keyof typeof AnalysisResultScalarFieldEnum];
 
-export const ExtractedTextScalarFieldEnum = {
+export const AnalysisCheckpointScalarFieldEnum = {
   id: 'id',
   resumeId: 'resumeId',
   text: 'text',
+  extractionResult: 'extractionResult',
+  scoringResult: 'scoringResult',
+  synthesisResult: 'synthesisResult',
+  durations: 'durations',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
 } as const;
 
-export type ExtractedTextScalarFieldEnum =
-  (typeof ExtractedTextScalarFieldEnum)[keyof typeof ExtractedTextScalarFieldEnum];
+export type AnalysisCheckpointScalarFieldEnum =
+  (typeof AnalysisCheckpointScalarFieldEnum)[keyof typeof AnalysisCheckpointScalarFieldEnum];
 
 export const SortOrder = {
   asc: 'asc',
@@ -1242,6 +1246,14 @@ export const JsonNullValueInput = {
 
 export type JsonNullValueInput =
   (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput];
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+} as const;
+
+export type NullableJsonNullValueInput =
+  (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput];
 
 export const QueryMode = {
   default: 'default',
@@ -1499,7 +1511,7 @@ export type GlobalOmitConfig = {
   verificationRequest?: Prisma.VerificationRequestOmit;
   resume?: Prisma.ResumeOmit;
   analysisResult?: Prisma.AnalysisResultOmit;
-  extractedText?: Prisma.ExtractedTextOmit;
+  analysisCheckpoint?: Prisma.AnalysisCheckpointOmit;
 };
 
 /* Types for Logging */

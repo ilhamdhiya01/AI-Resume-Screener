@@ -1,61 +1,14 @@
 'use client';
 
 import classNames from 'classnames';
-import React, { useCallback, useEffect } from 'react';
-import { FileRejection, useDropzone } from 'react-dropzone';
 
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import useGlobalSropZone from '@/lib/hooks/useGlobalSropZone';
 
 import FilePreview from './FilePreview';
 
 const FileUpload = () => {
-  const {
-    setFile,
-    setUploadTime,
-    setFileRejections,
-    setIsDragReject,
-    setIsDragActive,
-    fileRejections,
-    setOpenFileDialog,
-    open: openDialog,
-    file,
-  } = useAnalysisStore();
-
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFile(acceptedFiles[0]);
-    setUploadTime(new Date());
-    setFileRejections([]);
-    setIsDragActive(false);
-    setIsDragReject(false);
-  }, []);
-
-  const onDropRejected = useCallback((rejections: FileRejection[]) => {
-    const rejectedFile = rejections[0]?.file;
-    setFileRejections(rejections);
-    setFile(rejectedFile);
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
-    accept: {
-      'application/pdf': ['.pdf'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx', '.doc'],
-    },
-    maxSize: 10 * 1024 * 1024,
-    multiple: false,
-    noClick: false,
-    noKeyboard: true,
-    onDrop,
-    onDropRejected,
-    onDragEnter: () => setIsDragActive(true),
-    onDragLeave: () => setIsDragActive(false),
-  });
-
-  useEffect(() => {
-    setOpenFileDialog(open);
-
-    return () => setOpenFileDialog(null);
-  }, [setOpenFileDialog]);
+  const { fileRejections, getInputProps, getRootProps, isDragActive, open } =
+    useGlobalSropZone();
 
   return (
     <section

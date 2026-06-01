@@ -6,6 +6,7 @@ interface SideContentProps {
   step: string;
   status: string;
   durations: Record<string, number>;
+  completedSteps?: string[];
   score: number;
   items: {
     criticals: string[];
@@ -13,6 +14,9 @@ interface SideContentProps {
     suggestions: string[];
   };
   matchSummary?: string;
+  isCancelled?: boolean;
+  failedReason?: string | null;
+  onRetry?: () => void;
 }
 
 const SideContent = ({
@@ -20,9 +24,13 @@ const SideContent = ({
   step,
   status,
   durations,
+  completedSteps,
   score,
   items,
   matchSummary,
+  isCancelled,
+  failedReason,
+  onRetry,
 }: SideContentProps) => {
   return (
     <aside className="flex w-full max-w-[35%] flex-col border-l border-slate-300 bg-[#f7fafc]">
@@ -38,6 +46,10 @@ const SideContent = ({
           step={step as string}
           status={status}
           durations={durations}
+          completedSteps={completedSteps}
+          isCancelled={isCancelled}
+          failedReason={failedReason}
+          onRetry={onRetry}
         />
       )}
     </aside>
