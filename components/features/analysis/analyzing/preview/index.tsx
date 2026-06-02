@@ -1,3 +1,4 @@
+import DocxPreview from './DocxPreview';
 import Header from './Header';
 import PdfPreview from './PdfPreview';
 import PercentageProgress from './PercentageProgress';
@@ -9,4 +10,5 @@ export const Preview = Object.assign(PreviewRoot, {
   Skelaton,
   Header,
   Pdf: PdfPreview,
+  Docx: DocxPreview,
 });

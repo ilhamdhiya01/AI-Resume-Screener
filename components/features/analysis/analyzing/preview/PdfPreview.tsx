@@ -7,7 +7,6 @@ import { Document, Page, pdfjs } from 'react-pdf';
 
 import Button from '@/components/ui/button';
 import { useTextHighlighter } from '@/lib/hooks/useTextHighlighter';
-import { ResumeData } from '@/lib/types/resume-analysis.types';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -16,37 +15,6 @@ const pdfOptions = {
   cMapPacked: true,
   standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
 };
-
-const DUMMY_HIGHLIGHTS = [
-  {
-    id: 1,
-    type: 'critical',
-    text: 'Missing quantifiable achievements',
-    page: 1,
-    boundingBox: { x: 154, y: 405, width: 700, height: 40 },
-  },
-  {
-    id: 2,
-    type: 'strength',
-    text: 'Strong technical skills',
-    page: 1,
-    boundingBox: { x: 102, y: 383, width: 220, height: 20 },
-  },
-  {
-    id: 3,
-    type: 'critical',
-    text: 'Vague job description',
-    page: 1,
-    boundingBox: { x: 154, y: 574, width: 710, height: 40 },
-  },
-  {
-    id: 4,
-    type: 'strength',
-    text: 'Relevant experience',
-    page: 1,
-    boundingBox: { x: 102, y: 551, width: 280, height: 20 },
-  },
-];
 
 interface PdfPreviewProps {
   fileUrl: string;
@@ -79,8 +47,6 @@ const PdfPreview = ({
     pageNumber,
     scale
   );
-
-  console.log({ activeHighlights });
 
   const onResize = useCallback<ResizeObserverCallback>((entries) => {
     const [entry] = entries;
@@ -135,14 +101,7 @@ const PdfPreview = ({
           options={pdfOptions}
           externalLinkTarget="_blank"
           onLoadSuccess={({ numPages: nextNumPages }) => {
-            console.log('✅ PDF Loaded successfully');
-            console.log('Total pages:', nextNumPages);
             setNumPages(nextNumPages);
-          }}
-          onLoadError={(error) => {
-            console.error('❌ PDF Load Error:', error);
-            console.error('Error message:', error.message);
-            console.error('File URL:', fileUrl);
           }}
           loading={
             <div className="flex h-96 items-center justify-center">
@@ -194,12 +153,6 @@ const PdfPreview = ({
                 width={
                   containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth
                 }
-                onLoadSuccess={(page) => {
-                  console.log('Page loaded:', page.width, 'x', page.height);
-                }}
-                onLoadError={(error) => {
-                  console.error('❌ Page Load Error:', error);
-                }}
               />
             </div>
 
@@ -214,8 +167,8 @@ const PdfPreview = ({
                   width: `${highlight.width}px`,
                   height: `${highlight.height}px`,
                   backgroundColor: 'rgba(239, 68, 68, 0.2)', // red-500/20
-                  border: '2px solid rgb(239, 68, 68)', // red-500
-                  borderRadius: '4px',
+                  borderBottom: '2px solid rgb(239, 68, 68)', // red-500
+                  borderRadius: '2px',
                   zIndex: 9999,
                 }}
               >

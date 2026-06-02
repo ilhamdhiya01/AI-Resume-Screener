@@ -64,8 +64,6 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
   // Stabilize durations object untuk prevent SideContent re-render
   const stableDurations = useMemo(() => durations || {}, [durations]);
 
-  const router = useRouter();
-
   console.log({ progress, step, status });
 
   useEffect(() => {
@@ -155,32 +153,6 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
           </div>
         </div>
       </Modal>
-      {/* <Modal isOpen={!!isCancelled}>
-        <div className="flex flex-col items-center justify-center gap-2 text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-amber-100">
-            <Icon icon="TbCircleX" size={30} className="text-amber-600" />
-          </div>
-          <h1 className="text-xl font-bold">Process Cancelled</h1>
-          <p>Proses analisis telah dibatalkan oleh pengguna.</p>
-          <div className="flex gap-4">
-            <Button
-              preffixIcon="TbRefresh"
-              label="Retry Analysis"
-              className="mt-3"
-              onClick={handleRetryJob}
-            />
-            <Button
-              variant="outlined"
-              preffixIcon="TbUpload"
-              label="Upload New Resume"
-              className="mt-3"
-              onClick={() => {
-                router.replace(ANALYSIS_PATH);
-              }}
-            />
-          </div>
-        </div>
-      </Modal> */}
     </>
   );
 };

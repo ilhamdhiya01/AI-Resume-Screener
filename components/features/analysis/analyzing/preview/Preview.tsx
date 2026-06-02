@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { ResumeData } from '@/lib/types/resume-analysis.types';
-
 import { Preview } from '.';
 
 interface PreviewRootProps {
@@ -38,7 +36,10 @@ const PreviewRoot = ({
     setScale(ZOOM_CONFIG.default);
   };
 
-  console.log({ criticalHighlights });
+  const isDocx = (fileName || fileUrl || '')
+    .toLowerCase()
+    .split('?')[0]
+    .endsWith('.docx');
 
   return (
     <div className="relative flex w-full max-w-[65%] flex-col">
@@ -60,6 +61,15 @@ const PreviewRoot = ({
               fileName={fileName}
             />
           </div>
+        ) : isDocx ? (
+          <Preview.Docx
+            fileUrl={fileUrl}
+            scale={scale}
+            setScale={setScale}
+            minScale={ZOOM_CONFIG.min}
+            maxScale={ZOOM_CONFIG.max}
+            criticalHighlights={criticalHighlights}
+          />
         ) : (
           <Preview.Pdf
             fileUrl={fileUrl}

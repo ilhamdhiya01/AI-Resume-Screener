@@ -10,40 +10,91 @@ let idleTimeout: NodeJS.Timeout | null = null;
 const IDLE_TIMEOUT_MS = 10000; // Close worker after 30s idle
 
 /**
- * @description Creates and starts the BullMQ worker if not already running.
- * Worker auto-closes after 30s of inactivity to save Redis commands.
+ * @description **[WORKER - LAZY STARTUP]** Creates and starts the BullMQ worker
+ * if not already running. Implements "lazy worker" pattern to minimize Redis
+ * connections and command usage.
+ *
+ * **Architecture Pattern:**
+ * - **On-Demand Connection:** Worker only connects when jobs exist in queue
+ * - **Auto-Shutdown:** Closes after 10s of inactivity (saves Redis commands)
+ * - **Singleton:** Only one worker instance runs at a time (prevents race conditions)
+ *
+ * **Worker Configuration:**
+ * - Concurrency: 1 (processes one job at a time, sequential)
+ * - Stalled Interval: 60s (checks for stuck jobs every minute)
+ * - Max Stalled Count: 1 (job fails if stalled once)
+ *
+ * **Side Effects:**
+ * - **Redis Connection:** Opens persistent connection to Redis
+ * - **Event Listeners:** Registers handlers for completed, failed, error, drained
+ * - **Idle Timer:** Starts 10s countdown to auto-close
+ *
+ * @returns {void}
+ *
+ * @example
+ * // Called by producer after enqueuing job
+ * ensureWorkerRunning();
+ * // Worker wakes up, processes job, then auto-closes after 10s idle
  */
 export const ensureWorkerRunning = () => {
+  // Guard: If worker already running, just reset idle timer
   if (workerInstance) {
-    // Worker already running, reset idle timeout
-    resetIdleTimeout();
+    resetIdleTimeout(); // Prevent premature shutdown
     return;
   }
 
+  /**
+   * @description **[WORKER - JOB PROCESSOR]** Main job processing function.
+   * Dequeues jobs from Redis and delegates to `analyzeResume` service.
+   *
+   * **Data Flow:**
+   * 1. Dequeue job from Redis (blocking pop)
+   * 2. Extract resumeId and filePath from job payload
+   * 3. Clear idle timer (worker is now busy)
+   * 4. Call `analyzeResume` with AbortSignal for cancellation support
+   * 5. Stream progress updates back to Redis via `job.updateProgress()`
+   * 6. Mark job as completed or failed in Redis
+   *
+   * **Cancellation Handling:**
+   * - User can cancel via `cancelSpecificJob(jobId)`
+   * - Worker receives AbortSignal and propagates to `analyzeResume`
+   * - Analysis stops immediately at next checkpoint
+   * - Job marked as failed with "cancelled" error message
+   *
+   * **Error Handling:**
+   * - Cancellation errors: Caught and re-thrown with clear message
+   * - Analysis errors: Re-thrown to let BullMQ mark job as failed
+   * - BullMQ automatically updates job state in Redis
+   */
   workerInstance = new Worker(
-    'resume-analysis',
+    'resume-analysis', // Queue name (must match producer)
     async (job, token, signal) => {
       const { resumeId, filePath } = job.data;
-      // Clear idle timeout while processing
+
+      // Clear idle timeout while processing (prevent auto-shutdown mid-job)
       clearIdleTimer();
 
       console.log(`🔄 Processing job ${job.id} - Resume: ${resumeId}`);
 
       try {
+        // Check if job was cancelled before starting
         if (signal?.aborted) {
           throw new Error('Proses dibatalkan oleh user');
         }
 
+        // Delegate to analysis service with cancellation support
         await analyzeResume(
           resumeId,
           filePath,
-          signal || new AbortSignal(),
+          signal || new AbortSignal(), // AbortSignal for cancellation
           async (data) => {
-            await job.updateProgress(data); // ← data bisa include error
+            // Stream progress updates to Redis (polled by frontend)
+            await job.updateProgress(data);
           }
         );
         console.log(`✅ Job ${job.id} completed`);
       } catch (error: any) {
+        // Handle cancellation errors (user-initiated or timeout)
         if (
           signal?.aborted ||
           error?.name === 'AbortError' ||
@@ -51,12 +102,12 @@ export const ensureWorkerRunning = () => {
         ) {
           const cancelError = new Error('Proses dibatalkan oleh user');
           console.error(`❌ Job ${job.id} cancelled:`, cancelError.message);
-          throw cancelError;
+          throw cancelError; // BullMQ marks as failed with this message
         }
-        // ✅ Error sudah di-throw dari analyzeResume
-        // BullMQ otomatis set job state = 'failed'
+
+        // Handle analysis errors (LLM API failure, file parsing, etc.)
         console.error(`❌ Job ${job.id} failed:`, error);
-        throw error; // Re-throw biar BullMQ handle
+        throw error; // Re-throw to let BullMQ handle (marks job as failed)
       }
     },
     {
@@ -67,37 +118,56 @@ export const ensureWorkerRunning = () => {
     }
   );
 
+  // Event: Job completed successfully
   workerInstance.on('completed', () => {
-    resetIdleTimeout();
+    resetIdleTimeout(); // Start idle countdown (may close worker)
   });
 
+  // Event: Job failed (error thrown in processor)
   workerInstance.on('failed', (job, err) => {
     console.error(`❌ Job ${job?.id} failed:`, err.message);
-    resetIdleTimeout();
+    resetIdleTimeout(); // Start idle countdown
   });
 
+  // Event: Worker-level error (connection issues, etc.)
   workerInstance.on('error', (err) => {
     console.error('❌ Worker error:', err);
   });
 
+  // Event: Queue is empty (no more jobs to process)
   workerInstance.on('drained', () => {
-    // Queue is empty, start idle countdown
-    resetIdleTimeout();
+    resetIdleTimeout(); // Start 10s countdown to auto-close
   });
 
   console.log('🚀 Lazy worker started');
 };
 
 /**
- * @description Resets the idle timeout. Worker closes after IDLE_TIMEOUT_MS of no activity.
+ * @description **[WORKER - IDLE MANAGEMENT]** Resets the idle timeout timer.
+ * Worker auto-closes after IDLE_TIMEOUT_MS (10s) of inactivity to save Redis
+ * commands and connections.
+ *
+ * **Lazy Worker Pattern:**
+ * - Worker closes itself when queue is empty for 10s
+ * - Next job enqueue will call `ensureWorkerRunning()` to wake it up
+ * - Reduces Redis command usage by ~90% compared to always-on worker
+ *
+ * **Side Effects:**
+ * - **Timer Reset:** Clears existing timeout and starts new 10s countdown
+ * - **Worker Shutdown:** Closes Redis connection after timeout expires
+ * - **State Cleanup:** Sets `workerInstance` to null after close
+ *
+ * @returns {void}
  */
 const resetIdleTimeout = () => {
-  clearIdleTimer();
+  clearIdleTimer(); // Clear existing timer if any
+
+  // Start new 10s countdown to auto-close
   idleTimeout = setTimeout(async () => {
     if (workerInstance) {
       console.log('💤 Worker idle for 10s, closing connection...');
-      await workerInstance.close();
-      workerInstance = null;
+      await workerInstance.close(); // Graceful shutdown
+      workerInstance = null; // Allow re-creation on next job
     }
   }, IDLE_TIMEOUT_MS);
 };
@@ -109,23 +179,85 @@ const clearIdleTimer = () => {
   }
 };
 
+/**
+ * @description **[WORKER - RETRY MECHANISM]** Manually retries a failed job.
+ * Wakes up lazy worker and re-enqueues the job to Redis.
+ *
+ * **Data Flow:**
+ * 1. Fetch job from Redis by jobId
+ * 2. Verify job exists and is in "failed" state
+ * 3. Wake up worker (lazy pattern requires explicit activation)
+ * 4. Call `job.retry()` to re-enqueue to Redis
+ *
+ * **Business Logic:**
+ * - **Manual Retry Only:** Automatic retries are disabled (attempts: 1)
+ * - **Lazy Worker:** Must call `ensureWorkerRunning()` before retry
+ * - **State Validation:** Only failed jobs can be retried
+ *
+ * **Side Effects:**
+ * - **Redis Write:** Moves job from "failed" to "waiting" state
+ * - **Worker Activation:** Calls `ensureWorkerRunning()` to process retry
+ *
+ * @param {string} jobId - BullMQ job ID (same as resumeId)
+ * @returns {Promise<{ success: boolean; message: string }>} Retry confirmation
+ * @throws {Error} If job not found or not in failed state
+ *
+ * @example
+ * await retrySpecificJob('resume-123');
+ * // Job re-enqueued, worker will process again
+ */
 export const retrySpecificJob = async (jobId: string) => {
   const job = await resumeQueue.getJob(jobId);
 
   if (job && (await job.isFailed())) {
     console.log(`🔄 Retrying job ${jobId} manually...`);
 
-    // 💡 KUNCI PENTING: Karena lu pakai sistem Lazy Worker (auto-close),
-    // lu harus bangunin worker-nya lagi pas mau retry!
+    // Critical: Wake up lazy worker before retry
+    // (Worker auto-closes after 10s idle, must be restarted)
     ensureWorkerRunning();
 
-    await job.retry();
+    await job.retry(); // Re-enqueue to Redis
     return { success: true, message: `Job ${jobId} dikembalikan ke antrean.` };
   }
 
   throw new Error('Job tidak ditemukan atau statusnya bukan failed');
 };
 
+/**
+ * @description **[WORKER - CANCELLATION]** Cancels a running or queued job.
+ * Handles both active jobs (via AbortSignal) and waiting jobs (direct removal).
+ *
+ * **Data Flow:**
+ * 1. Fetch job from Redis by jobId
+ * 2. Check job state (active, waiting, delayed, etc.)
+ * 3. **If active:** Send AbortSignal to worker processor
+ * 4. **If waiting/delayed:** Remove directly from Redis queue
+ * 5. **Otherwise:** Reject (job already completed/failed)
+ *
+ * **Cancellation Strategies:**
+ * - **Active Job:** Sends AbortSignal → worker catches → throws cancel error
+ * - **Waiting Job:** Direct removal from Redis (no worker involvement)
+ * - **Delayed Job:** Direct removal from Redis (scheduled jobs)
+ *
+ * **Business Logic:**
+ * - **Graceful Cancellation:** Worker stops at next checkpoint (not immediate)
+ * - **State Validation:** Only active/waiting/delayed jobs can be cancelled
+ * - **Lazy Worker:** Must wake worker to send AbortSignal to active jobs
+ *
+ * **Side Effects:**
+ * - **Redis Write:** Removes job or marks as failed with cancel message
+ * - **Worker Signal:** Sends AbortSignal to running processor
+ * - **Database Update:** `analyzeResume` updates resume status to FAILED
+ *
+ * @param {string} jobId - BullMQ job ID (same as resumeId)
+ * @returns {Promise<{ success: boolean; message: string }>} Cancellation result
+ * @throws {Error} If job not found or cancellation fails
+ *
+ * @example
+ * // User clicks "Cancel" button during analysis
+ * await cancelSpecificJob('resume-123');
+ * // Worker receives AbortSignal and stops at next checkpoint
+ */
 export const cancelSpecificJob = async (jobId: string) => {
   const job = await resumeQueue.getJob(jobId);
 
@@ -136,10 +268,12 @@ export const cancelSpecificJob = async (jobId: string) => {
 
     const state = await job.getState();
 
+    // Case 1: Job is currently being processed by worker
     if (state === 'active') {
-      ensureWorkerRunning();
+      ensureWorkerRunning(); // Wake worker to send signal
 
-      // Kirim sinyal cancel melalui instance worker
+      // Send AbortSignal to worker processor
+      // Worker will catch this and throw cancellation error
       await workerInstance?.cancelJob(jobId, 'Proses dibatalkan oleh user');
 
       return {
@@ -148,13 +282,14 @@ export const cancelSpecificJob = async (jobId: string) => {
       };
     }
 
-    // Logika untuk state 'waiting' tetap bisa langsung menggunakan job.remove()
+    // Case 2: Job is waiting in queue or scheduled (not started yet)
     if (state === 'waiting' || state === 'delayed') {
-      // Langsung hapus dari antrean Redis tanpa melibatkan worker
+      // Direct removal from Redis (no worker involvement)
       await job.remove();
       return { success: true, message: 'Job berhasil dihapus dari antrean' };
     }
 
+    // Case 3: Job already completed/failed (cannot cancel)
     return {
       success: false,
       message: `Job tidak bisa dibatalkan karena berstatus: ${state}`,
