@@ -73,7 +73,7 @@ const extractTextFromPdf = async (file: Blob | null) => {
 
 const aiAnalyze = async (
   prompt: string,
-  model: 'kimi-k2.6',
+  model: 'deepseek-v4-flash' | 'kimi-k2.6',
   content: string,
   timeoutMs: number = 60000,
   signal?: AbortSignal
@@ -93,7 +93,7 @@ const aiAnalyze = async (
           { role: 'user', content },
         ],
         response_format: { type: 'json_object' },
-        max_tokens: 50, // Commented: biarkan model decide, atau set ke angka reasonable (e.g., 4000+)
+        // max_tokens: 50, // Commented: biarkan model decide, atau set ke angka reasonable (e.g., 4000+)
         temperature: 0.2,
       },
       {
@@ -215,7 +215,7 @@ export const analyzeResume = async (
       const extractStart = Date.now();
       extraction = await aiAnalyze(
         EXTRACTION_SYSTEM_PROMPT,
-        'kimi-k2.6',
+        'deepseek-v4-flash',
         `## Resume Text:\n${resumeText}`,
         60000,
         signal
@@ -243,7 +243,7 @@ export const analyzeResume = async (
       const scoringStart = Date.now();
       scoring = await aiAnalyze(
         SCORING_SYSTEM_PROMPT,
-        'kimi-k2.6',
+        'deepseek-v4-flash',
         `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
           jobDescription || '(tidak ada job description)'
         }`,

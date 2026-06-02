@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import Button from '@/components/ui/button';
 import { useAuth } from '@/lib/hooks';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { ANALYSIS_PATH } from '@/routes';
 
 const Footer = () => {
   const { logout } = useAuth();
@@ -17,7 +17,7 @@ const Footer = () => {
         label="Upload Resume"
         fullWidth
         onClick={() => {
-          router.push('/analysis');
+          router.replace(ANALYSIS_PATH);
         }}
       />
       <div className="space-y-2 rounded-md border border-slate-300 bg-white p-4">

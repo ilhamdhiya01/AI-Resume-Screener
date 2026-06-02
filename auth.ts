@@ -4,7 +4,7 @@ import NextAuth from 'next-auth';
 import authConfig from './auth.config';
 import prisma from './lib/db';
 import { getUserById } from './lib/services/auth.service';
-import { authRoutes, ROOT_AUTH_PATH } from './routes';
+import { authRoutes } from './routes';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   trustHost: true,
