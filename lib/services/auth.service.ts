@@ -7,7 +7,7 @@ import {
   InvalidPasswordError,
   UnverifiedEmailError,
 } from '../errors/auth.error';
-import { sendVerificationEmail } from '../resend';
+import { sendVerificationEmail } from '../smpt';
 import { LoginInput, RegisterInput } from '../types/auth.types';
 
 /**
