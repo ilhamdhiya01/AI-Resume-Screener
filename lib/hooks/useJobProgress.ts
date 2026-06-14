@@ -97,8 +97,8 @@ export const useJobProgress = (resumeId: string | null) => {
   }, [resumeId, stopPolling]);
 
   const startPolling = useCallback(() => {
-    stopPolling(); // Bersihkan interval lama jika ada
-    poll(); // Jalankan sekali langsung tanpa nunggu 3 detik
+    stopPolling(); // Clear old interval if exists
+    poll(); // Run once immediately without waiting 3 seconds
     intervalRef.current = setInterval(poll, 1000);
     console.log('🚀 Polling started/resumed');
   }, [poll, stopPolling]);
@@ -115,7 +115,7 @@ export const useJobProgress = (resumeId: string | null) => {
     };
   }, [displayProgress, jobStatus.progress]);
 
-  // Handle siklus polling utama & visibility change
+  // Handle main polling lifecycle & visibility change
   useEffect(() => {
     if (!resumeId) return;
 
@@ -125,7 +125,7 @@ export const useJobProgress = (resumeId: string | null) => {
       if (document.hidden) {
         stopPolling();
       } else {
-        // Nyalakan kembali kalau tab dibuka lagi dan status belum kelar/gagal
+        // Resume polling when tab becomes visible and status is not done/failed
         if (jobStatus.status !== 'completed' && jobStatus.status !== 'failed') {
           startPolling();
         }
@@ -143,17 +143,16 @@ export const useJobProgress = (resumeId: string | null) => {
   const retryJob = useCallback(
     async (jobId: string): Promise<string | null> => {
       try {
-        // Catatan: Pastikan endpoint ini di backend bertugas me-retry job ke BullMQ, ya!
+        // Note: Make sure the backend endpoint handles retrying the job to BullMQ
         const response = await axiosInstance.get(
           `/upload/status/${jobId}?retry=true`
         );
 
-        // 🎯 Reset flag first-poll: polling pertama setelah retry akan set
-        // displayProgress LANGSUNG ke posisi step yang gagal (resume),
-        // bukan animasi merangkak dari 0% lagi.
+        // 🎯 Reset first-poll flag: first poll after retry sets displayProgress DIRECTLY to the failed step position,
+        // instead of crawling from 0% again.
         isFirstPoll.current = true;
 
-        // 🎯 KUNCI UTAMA: Hidupkan kembali polling setelah hit API retry sukses
+        // 🎯 KEY: Resume polling after successful retry API call
         startPolling();
 
         return response.data;
@@ -171,7 +170,7 @@ export const useJobProgress = (resumeId: string | null) => {
         const response = await axiosInstance.get(
           `/upload/status/${jobId}?cancel=true`
         );
-        // 🎯 KUNCI UTAMA: Hidupkan kembali polling setelah hit API cancel sukses
+        // 🎯 KEY: Resume polling after successful cancel API call
         // startPolling();
 
         const data = response.data;
@@ -179,8 +178,8 @@ export const useJobProgress = (resumeId: string | null) => {
         console.log({ data });
 
         if (data?.success) {
-          // Optimistic update: tandai cancelled langsung biar UI gak nampilin
-          // modal technical error sebelum poll berikutnya kebaca.
+          // Optimistic update: mark as cancelled immediately so UI doesn't show
+          // technical error modal before next poll reads it.
           setJobStatus((prev) => ({
             ...prev,
             status: 'failed',

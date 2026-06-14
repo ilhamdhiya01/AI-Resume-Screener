@@ -19,15 +19,15 @@ const updateResumeStatus = async (resumeId: string, status: string) => {
   });
 };
 
-// Tipe hasil tiap stage AI (longgar, karena bentuknya JSON dari model).
+// Loose type for each AI stage result (dynamic JSON from model).
 type StageResult = Record<string, unknown>;
 
-// Ambil checkpoint yang tersimpan (kalau ada) untuk resume ini.
+// Load saved checkpoint (if any) for this resume.
 const loadCheckpoint = async (resumeId: string) => {
   return prisma.analysisCheckpoint.findUnique({ where: { resumeId } });
 };
 
-// Upsert checkpoint secara partial. Cuma field yang dikirim yang ke-update.
+// Partial upsert checkpoint. Only sent fields get updated.
 const saveCheckpoint = async (
   resumeId: string,
   data: {
@@ -48,14 +48,14 @@ const saveCheckpoint = async (
   });
 };
 
-// Hapus checkpoint setelah analisis final tersimpan (cleanup).
+// Clear checkpoint after final analysis is saved (cleanup).
 const clearCheckpoint = async (resumeId: string) => {
   await prisma.analysisCheckpoint
     .delete({ where: { resumeId } })
-    .catch(() => null); // abaikan kalau memang gak ada
+    .catch(() => null); // ignore if it doesn't exist
 };
 
-// Mimetype yang didukung untuk ekstraksi teks resume.
+// Supported mimetypes for resume text extraction.
 const SUPPORTED_MIMETYPES = {
   PDF: 'application/pdf',
   DOCX: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -64,7 +64,7 @@ const SUPPORTED_MIMETYPES = {
 type SupportedMimetype =
   (typeof SUPPORTED_MIMETYPES)[keyof typeof SUPPORTED_MIMETYPES];
 
-// Rapikan whitespace berlebih agar teks siap dikirim ke LLM.
+// Trim excess whitespace so text is ready to send to LLM.
 const normalizeText = (text: string): string =>
   text
     .replace(/\r\n/g, '\n')
@@ -72,7 +72,7 @@ const normalizeText = (text: string): string =>
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 
-// Ekstraksi teks dari PDF menggunakan pdf-parse.
+// Extract text from PDF using pdf-parse.
 const extractFromPdf = async (buffer: Buffer): Promise<string> => {
   const parser = new PDFParse({
     data: buffer,
@@ -86,17 +86,17 @@ const extractFromPdf = async (buffer: Buffer): Promise<string> => {
   }
 };
 
-// Ekstraksi teks dari DOCX menggunakan mammoth.
+// Extract text from DOCX using mammoth.
 const extractFromDocx = async (buffer: Buffer): Promise<string> => {
   const result = await mammoth.extractRawText({ buffer });
   return result.value;
 };
 
 /**
- * @description Ekstraksi teks murni dari file resume (PDF atau DOCX).
- * @param {Buffer} buffer - Isi file dalam bentuk Buffer.
- * @param {string} mimetype - MIME type file (mis. 'application/pdf').
- * @returns {Promise<string>} Teks bersih yang siap diproses LLM.
+ * @description Extract raw text from resume file (PDF or DOCX).
+ * @param {Buffer} buffer - File content as Buffer.
+ * @param {string} mimetype - File MIME type (e.g., 'application/pdf').
+ * @returns {Promise<string>} Clean text ready for LLM processing.
  */
 /**
  * @description **[ANALYSIS PROCESS - TEXT EXTRACTION]** Unified text extraction
@@ -231,7 +231,7 @@ const aiAnalyze = async (
           { role: 'user', content },
         ],
         response_format: { type: 'json_object' },
-        // max_tokens: 50, // Commented: biarkan model decide, atau set ke angka reasonable (e.g., 4000+)
+        // max_tokens: 50, // Commented: let model decide, or set to a reasonable number (e.g., 4000+)
         temperature: 0.2,
       },
       {
@@ -255,7 +255,7 @@ const aiAnalyze = async (
     clearTimeout(timeout);
     console.timeEnd(`⏱️  ${model} Analysis`);
 
-    // Fallback untuk error yang gak ketangkep
+    // Fallback for uncaught errors
     throw new Error(
       'Terjadi kesalahan pada saat analisis AI. Coba lagi atau upload resume lain.'
     );
@@ -526,8 +526,8 @@ export const analyzeResume = async (
       });
     }
 
-    // Gabungkan hasil ketiga tahap jadi satu objek hasil analisis.
-    // Cast ke any karena isinya JSON dinamis hasil parsing dari model AI.
+    // Merge results from all three stages into a single analysis result object.
+    // Cast to any because content is dynamic JSON from AI model parsing.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const analysisResult: any = { ...extraction, ...scoring, ...synthesis };
 
@@ -557,7 +557,7 @@ export const analyzeResume = async (
       },
     });
 
-    // ✅ Analisis final tersimpan -> checkpoint gak diperlukan lagi.
+    // ✅ Final analysis saved -> checkpoint no longer needed.
     await clearCheckpoint(resumeId);
 
     await report(100, 'completed');
@@ -568,7 +568,7 @@ export const analyzeResume = async (
     await updateResumeStatus(resumeId, 'COMPLETED');
     console.log(`✅ Resume ${resumeId} analyzed successfully`);
   } catch (error) {
-    // Log detail error untuk debugging
+    // Log error details for debugging
     if (error instanceof Error) {
       console.error(`❌ Analysis failed for ${resumeId}:`, {
         name: error.name,
@@ -581,7 +581,7 @@ export const analyzeResume = async (
 
     await updateResumeStatus(resumeId, 'FAILED');
 
-    // Re-throw dengan preserve error message yang udah user-friendly dari aiAnalyze
+    // Re-throw preserving the user-friendly error message from aiAnalyze
     throw error;
   }
 };

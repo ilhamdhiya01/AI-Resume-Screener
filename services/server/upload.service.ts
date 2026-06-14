@@ -123,9 +123,9 @@ export const uploadResumeToSupabaseStorage = async (
 };
 
 /**
- * @description Generate signed URL untuk file yang sudah ada di storage
- * @param filePath - Path file di storage (e.g., "user_123/1683456789.pdf")
- * @param expiresIn - Durasi URL valid (dalam detik), default 1 hour
+ * @description Generate signed URL for an existing file in storage
+ * @param filePath - File path in storage (e.g., "user_123/1683456789.pdf")
+ * @param expiresIn - URL validity duration (in seconds), default 1 hour
  * @returns Signed URL
  */
 export const getSignedUrl = async (
