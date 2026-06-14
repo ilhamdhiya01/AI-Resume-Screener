@@ -1,20 +1,19 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import Modal from '@/components/ui/Modal/Modal';
 import { useJobProgress } from '@/lib/hooks/useJobProgress';
-import { ANALYSIS_PATH } from '@/routes';
 import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
 import SideContent from './side-content/SideContent';
 import SkelatonPreview from './SkelatonPreview';
 
-// ✅ Disable SSR for Preview to avoid DOMMatrix error from pdf.js
+// Disable SSR for Preview to avoid DOMMatrix error from pdf.js
 const Preview = dynamic(() => import('./preview').then((mod) => mod.Preview), {
   ssr: false,
 });
@@ -39,8 +38,12 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
   } = useJobProgress(resumeId);
 
   // Pisahkan jenis kegagalan: cancel by user vs error teknis.
-  const isTechnicalError = status === 'failed' && !isCancelled;
-  const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore();
+  const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore(
+    useShallow((state) => ({
+      setModalCancelProcess: state.setModalCancelProcess,
+      modalCancelProcess: state.modalCancelProcess,
+    }))
+  );
 
   const [showResult, setShowResult] = useState<boolean>(false);
   const hasTriggeredSkeleton = useRef<boolean>(false);
@@ -80,11 +83,11 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     }
   }, [progress, status]);
 
-  const handleRetryJob = async () => {
+  const handleRetryJob = useCallback(async () => {
     if (jobId) {
       await retryJob(jobId);
     }
-  };
+  }, [jobId, retryJob]);
 
   const handleCancelJob = async () => {
     if (jobId) {

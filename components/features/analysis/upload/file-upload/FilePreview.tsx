@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -13,7 +14,15 @@ interface FilePreviewProps {
 
 const FilePreview = ({ open }: FilePreviewProps) => {
   const { file, isDragActive, uploadTime, clearFile, fileRejections } =
-    useAnalysisStore();
+    useAnalysisStore(
+      useShallow((state) => ({
+        file: state.file,
+        isDragActive: state.isDragActive,
+        uploadTime: state.uploadTime,
+        clearFile: state.clearFile,
+        fileRejections: state.fileRejections,
+      }))
+    );
 
   const [, setTick] = useState(0);
 

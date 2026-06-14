@@ -9,9 +9,10 @@ export const metadata: Metadata = {
 
 const AnalysisPage = () => {
   return (
-    <div className="p-12">
-      <Upload />
-    </div>
+    <Upload.Layout>
+      <Upload.FileUpload />
+      <Upload.JobDescription />
+    </Upload.Layout>
   );
 };
 

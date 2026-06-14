@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
+import { useShallow } from 'zustand/shallow';
 
 import { useAnalysisStore } from '../../stores/global/useAnalysisStore';
 
@@ -13,7 +14,16 @@ const useGlobalSropZone = () => {
     setIsDragReject,
     setIsDragActive,
     fileRejections,
-  } = useAnalysisStore();
+  } = useAnalysisStore(
+    useShallow((state) => ({
+      setFile: state.setFile,
+      setUploadTime: state.setUploadTime,
+      setFileRejections: state.setFileRejections,
+      setIsDragReject: state.setIsDragReject,
+      setIsDragActive: state.setIsDragActive,
+      fileRejections: state.fileRejections,
+    }))
+  );
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFile(acceptedFiles[0]);

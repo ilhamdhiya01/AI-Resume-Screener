@@ -2,21 +2,30 @@
 
 import classNames from 'classnames';
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { TbArrowRight } from 'react-icons/tb';
+import { useShallow } from 'zustand/shallow';
 
 import Icon from '@/components/ui/icon';
 import { useUpload } from '@/lib/hooks';
 import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
-const Footer = () => {
+const Footer = React.memo(() => {
   const { fileRejections, file, setFile, jobDescription, setJobDescription } =
-    useAnalysisStore();
+    useAnalysisStore(
+      useShallow((state) => ({
+        fileRejections: state.fileRejections,
+        file: state.file,
+        setFile: state.setFile,
+        jobDescription: state.jobDescription,
+        setJobDescription: state.setJobDescription,
+      }))
+    );
   const { uploadResume, isUploading } = useUpload();
 
   const router = useRouter();
 
-  // ✅ Check apakah button harus disabled
+  // Check apakah button harus disabled
   const isDisabled = useMemo(() => {
     // Disabled kalo ada error
     if (fileRejections.length > 0) return true;
@@ -84,6 +93,8 @@ const Footer = () => {
       </div>
     </>
   );
-};
+});
+
+Footer.displayName = 'Footer';
 
 export default Footer;

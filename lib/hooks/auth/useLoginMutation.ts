@@ -1,11 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import toast from 'react-hot-toast';
 
 import { getAuthErrorMessage } from '@/lib/errors/auth.error';
 import { LoginRequest } from '@/lib/types/auth.types';
+import { ROOT_PATH } from '@/routes';
 
 export const useLoginMutation = () => {
+  const router = useRouter();
   const loginmMutation = useMutation({
     mutationFn: (payload: LoginRequest) =>
       signIn('credentials', {
@@ -21,6 +24,7 @@ export const useLoginMutation = () => {
       }
 
       toast.success('Login successful');
+      router.replace(ROOT_PATH);
     },
     onError: (error) => {
       toast.error(error.message);

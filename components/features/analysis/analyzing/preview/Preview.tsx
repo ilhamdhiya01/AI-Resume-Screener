@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Preview } from '.';
 
@@ -24,17 +24,17 @@ const PreviewRoot = ({
 }: PreviewRootProps) => {
   const [scale, setScale] = useState<number>(ZOOM_CONFIG.default);
 
-  const zoomIn = () => {
+  const zoomIn = useCallback(() => {
     setScale((prev) => Math.min(prev + ZOOM_CONFIG.step, ZOOM_CONFIG.max));
-  };
+  }, []);
 
-  const zoomOut = () => {
+  const zoomOut = useCallback(() => {
     setScale((prev) => Math.max(prev - ZOOM_CONFIG.step, ZOOM_CONFIG.min));
-  };
+  }, []);
 
-  const resetZoom = () => {
+  const resetZoom = useCallback(() => {
     setScale(ZOOM_CONFIG.default);
-  };
+  }, []);
 
   const isDocx = (fileName || fileUrl || '')
     .toLowerCase()

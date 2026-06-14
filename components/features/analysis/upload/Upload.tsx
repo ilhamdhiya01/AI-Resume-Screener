@@ -1,14 +1,12 @@
-import { Upload } from '.';
+import Footer from './Footer';
+import Header from './Header';
 
-const UploadRoot = () => {
+const UploadRoot = ({ children }: { children: React.ReactNode }) => {
   return (
-    <section className="flex flex-col items-center gap-6">
-      <Upload.Header />
-      <div className="flex w-full gap-6">
-        <Upload.FileUpload />
-        <Upload.JobDescription />
-      </div>
-      <Upload.Footer />
+    <section className="flex flex-col items-center gap-6 p-12">
+      <Header />
+      <div className="flex w-full gap-6">{children}</div>
+      <Footer />
     </section>
   );
 };

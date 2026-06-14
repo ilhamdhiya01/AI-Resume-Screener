@@ -2,11 +2,17 @@
 
 import classNames from 'classnames';
 import React from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
-const JobDescription = () => {
-  const { jobDescription, setJobDescription } = useAnalysisStore();
+const JobDescription = React.memo(() => {
+  const { jobDescription, setJobDescription } = useAnalysisStore(
+    useShallow((state) => ({
+      jobDescription: state.jobDescription,
+      setJobDescription: state.setJobDescription,
+    }))
+  );
 
   return (
     <div
@@ -37,6 +43,8 @@ const JobDescription = () => {
       </div>
     </div>
   );
-};
+});
+
+JobDescription.displayName = 'JobDescription';
 
 export default JobDescription;

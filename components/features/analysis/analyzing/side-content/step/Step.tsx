@@ -51,7 +51,9 @@ const StepRoot = ({
   failedReason,
   onRetry,
 }: StepRootProps) => {
-  const { setModalCancelProcess } = useAnalysisStore();
+  const setModalCancelProcess = useAnalysisStore(
+    (state) => state.setModalCancelProcess
+  );
 
   // Technical error = failed TAPI bukan cancel by user.
   const isTechnicalError = status === 'failed' && !isCancelled;
@@ -114,8 +116,7 @@ const StepRoot = ({
                 : undefined
             }
             onRetry={onRetry}
-            stepKey={item.key}
-            durations={durations}
+            duration={durations[item.key]}
           />
         ))}
       </div>
