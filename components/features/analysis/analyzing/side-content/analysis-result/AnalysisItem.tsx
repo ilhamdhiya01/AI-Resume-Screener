@@ -11,14 +11,14 @@ interface AnalysisItemProps {
   items: string[];
 }
 
-const AnalysisItem = React.memo(
+const AnalysisItem = React.memo<AnalysisItemProps>(
   ({
     isCritical = false,
     isSuggestions = false,
     isStrengths = false,
     title,
     items,
-  }: AnalysisItemProps) => {
+  }) => {
     const icon: IconProps['icon'] = useMemo(() => {
       if (isCritical) return 'TbAlertHexagonFilled';
       if (isSuggestions) return 'FaLightbulb';

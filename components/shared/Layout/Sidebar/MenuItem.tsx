@@ -13,7 +13,7 @@ interface MenuItemProps {
   name: string;
 }
 
-const MenuItem = React.memo(({ path, icon, name }: MenuItemProps) => {
+const MenuItem = React.memo<MenuItemProps>(({ path, icon, name }) => {
   const pathName = usePathname();
 
   const isActive = useMemo(() => {

@@ -21,7 +21,7 @@ interface ItemProps {
   duration?: number;
 }
 
-const Item = React.memo(
+const Item = React.memo<ItemProps>(
   ({
     isLast,
     isActive,
@@ -33,7 +33,7 @@ const Item = React.memo(
     description,
     stepIndex,
     duration,
-  }: ItemProps) => {
+  }) => {
     const isPending = !isActive && !isCompleted && !isError;
     const [elapsedTime, setElapsedTime] = useState(0);
     const router = useRouter();
