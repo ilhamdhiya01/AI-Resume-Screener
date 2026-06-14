@@ -1,5 +1,5 @@
 import Button from '@/components/ui/button';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
 import { Step } from '.';
 

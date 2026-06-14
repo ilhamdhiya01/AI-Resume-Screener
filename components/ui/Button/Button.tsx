@@ -287,8 +287,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         className={buttonClasses}
-        disabled={disabled}
-        // style={customStyle}
+        disabled={disabled || isLoading}
         {...props}
       >
         {iconButton ? (

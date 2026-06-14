@@ -27,9 +27,7 @@ const buildConfirmLink = (email: string, token: string): string => {
     ''
   );
 
-  return `${baseUrl}/verify-request?token=${encodeURIComponent(
-    token
-  )}&email=${encodeURIComponent(email)}`;
+  return `${baseUrl}/verify-request?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
 };
 
 /**

@@ -2,7 +2,7 @@ import type { NextAuthConfig } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
-import { getUserById, verifyCredentials } from '@/lib/services/auth.service';
+import { getUserById, verifyCredentials } from '@/services/server/auth.service';
 
 import { MissingCredentialsError } from './lib/errors/auth.error';
 import { LOGIN_PATH } from './routes';

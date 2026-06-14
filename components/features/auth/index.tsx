@@ -1,8 +1,11 @@
-import Layout from './AuthLayout';
-import AuthMessage from './AuthMessage';
 import Header from './Header';
+import Layout from './Layout';
+import LoginForm from './LoginForm';
+import RegisterForm from './RegisterForm';
 
-export const Auth = Object.assign(Layout, {
-  Message: AuthMessage,
+export const Auth = {
+  Layout,
+  Login: LoginForm,
+  Register: RegisterForm,
   Header,
-});
+};

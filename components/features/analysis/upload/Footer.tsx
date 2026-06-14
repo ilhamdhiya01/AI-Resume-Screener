@@ -7,7 +7,7 @@ import { TbArrowRight } from 'react-icons/tb';
 
 import Icon from '@/components/ui/icon';
 import { useUpload } from '@/lib/hooks';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
 const Footer = () => {
   const { fileRejections, file, setFile, jobDescription, setJobDescription } =

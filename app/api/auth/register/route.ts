@@ -1,28 +1,21 @@
 import { NextRequest } from 'next/server';
 import z from 'zod';
 
-import { registerUser } from '@/lib/services/auth.service';
-import { RegisterInput } from '@/lib/types/auth.types';
+import { RegisterRequest } from '@/lib/types/auth.types';
 import { errorResponse, successResponse } from '@/lib/utils/api-response';
-import { verifyTurnstileToken } from '@/lib/utils/turnstile';
-import { registerSchema } from '@/lib/validations/auth.validation';
+import { registerSchema } from '@/schemas/auth.schemas';
+import { registerUser } from '@/services/server/auth.service';
 
 export const POST = async (request: NextRequest) => {
   try {
-    const body: RegisterInput = await request.json();
-
-    if (!body.turnstileToken) {
-      return errorResponse('Captcha verification required', 400);
-    }
-
-    const isValidCaptcha = await verifyTurnstileToken(body.turnstileToken);
-    if (!isValidCaptcha) {
-      return errorResponse('Invalid captcha', 400);
-    }
+    const body: RegisterRequest = await request.json();
 
     const validatedData = registerSchema.parse(body);
 
-    const { user, verificationToken } = await registerUser(validatedData);
+    const { user, verificationToken } = await registerUser({
+      ...validatedData,
+      turnstileToken: body.turnstileToken,
+    });
 
     return successResponse(
       'Confirmation email sent. Please check your email.',

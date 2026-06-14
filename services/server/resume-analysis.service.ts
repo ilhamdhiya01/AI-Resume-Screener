@@ -8,9 +8,9 @@ import {
   SYNTHESIS_SYSTEM_PROMPT,
 } from '@/const/prompt-system';
 
-import prisma from '../db';
-import { openai } from '../open-ai';
-import { supabaseAdmin } from '../supabase-admin';
+import prisma from '../../lib/db';
+import { openai } from '../../lib/open-ai';
+import { supabaseAdmin } from '../../lib/supabase-admin';
 
 const updateResumeStatus = async (resumeId: string, status: string) => {
   await prisma.resume.update({

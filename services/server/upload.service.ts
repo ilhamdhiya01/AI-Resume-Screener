@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import prisma from '../db';
-import { ensureWorkerRunning, resumeQueue } from '../queue';
-import { supabaseAdmin } from '../supabase-admin';
+import prisma from '../../lib/db';
+import { ensureWorkerRunning, resumeQueue } from '../../lib/queue';
+import { supabaseAdmin } from '../../lib/supabase-admin';
 
 /**
  * @description **[REDIS QUEUE - PRODUCER]** Orchestrates file upload, database

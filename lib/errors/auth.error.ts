@@ -72,6 +72,7 @@ export const getAuthErrorMessage = (errorCode: string): string => {
     invalid_credentials: 'Invalid email or password',
     AccessDenied: 'Email is not verified',
     email_already_exists: 'Email is already registered',
+    email_unverified: 'Email is not verified',
   };
 
   return errorMessages[errorCode] || 'An error occurred. Please try again.';

@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 import Button from '@/components/ui/button';
 import { useAuth } from '@/lib/hooks';
@@ -9,6 +10,8 @@ import { ANALYSIS_PATH } from '@/routes';
 
 const Footer = () => {
   const { logout } = useAuth();
+  const { data: session } = useSession();
+  console.log({ session });
   const router = useRouter();
   return (
     <div className="shrink-0 space-y-3 border-t border-slate-300 p-4">

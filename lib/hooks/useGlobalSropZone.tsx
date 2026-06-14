@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 
-import { useAnalysisStore } from '../stores/global/useAnalysisStore';
+import { useAnalysisStore } from '../../stores/global/useAnalysisStore';
 
 const useGlobalSropZone = () => {
   const {

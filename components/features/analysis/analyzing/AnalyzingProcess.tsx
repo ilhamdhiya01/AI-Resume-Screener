@@ -8,8 +8,8 @@ import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import Modal from '@/components/ui/Modal/Modal';
 import { useJobProgress } from '@/lib/hooks/useJobProgress';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
 import { ANALYSIS_PATH } from '@/routes';
+import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
 import SideContent from './side-content/SideContent';
 import SkelatonPreview from './SkelatonPreview';

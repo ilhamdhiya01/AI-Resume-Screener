@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import React from 'react';
 
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
 const JobDescription = () => {
   const { jobDescription, setJobDescription } = useAnalysisStore();

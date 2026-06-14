@@ -3,8 +3,8 @@ import { NextRequest } from 'next/server';
 
 import prisma from '@/lib/db';
 import { resumeQueue } from '@/lib/queue';
-import { getSignedUrl } from '@/lib/services/upload.service';
 import { errorResponse, successResponse } from '@/lib/utils/api-response';
+import { getSignedUrl } from '@/services/server/upload.service';
 
 export const GET = async (request: NextRequest) => {
   try {

@@ -1,14 +1,17 @@
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import prisma from '../db';
+import { errorResponse } from '@/lib/utils/api-response';
+import { verifyTurnstileToken } from '@/lib/utils/turnstile';
+
+import prisma from '../../lib/db';
 import {
   EmailNotFoundError,
   InvalidPasswordError,
   UnverifiedEmailError,
-} from '../errors/auth.error';
-import { sendVerificationEmail } from '../smpt';
-import { LoginInput, RegisterInput } from '../types/auth.types';
+} from '../../lib/errors/auth.error';
+import { sendVerificationEmail } from '../../lib/smpt';
+import { LoginInput, RegisterRequest } from '../../lib/types/auth.types';
 
 /**
  * @description **[AUTH FLOW - REGISTRATION]** Orchestrates complete user registration
@@ -45,19 +48,30 @@ import { LoginInput, RegisterInput } from '../types/auth.types';
  * });
  * // User created, verification email sent to inbox
  */
-export const registerUser = async (request: RegisterInput) => {
-  // Step 1: Prevent duplicate email registration
+export const registerUser = async (request: RegisterRequest) => {
+  // Step 1: Verify captcha is required
+  if (!request.turnstileToken) {
+    throw new Error('Captcha verification required');
+  }
+  // Step 2: Prevent duplicate email registration
   const existingUser = await getUserByEmail(request.email);
-
   if (existingUser) {
     throw new Error('User already exists');
   }
 
-  // Step 2: Hash password with bcrypt (10 salt rounds = 2^10 iterations)
+  // Step 3: Verify captcha
+  const isValidCaptcha = await verifyTurnstileToken(
+    request.turnstileToken || ''
+  );
+  if (!isValidCaptcha) {
+    throw new Error('Invalid captcha');
+  }
+
+  // Step 4: Hash password with bcrypt (10 salt rounds = 2^10 iterations)
   // Never store plain text passwords for security
   const hashedPassword = await bcrypt.hash(request.password, 10);
 
-  // Step 3: Persist user to database with unverified email status
+  // Step 5: Persist user to database with unverified email status
   const user = await prisma.user.create({
     data: {
       email: request.email,
@@ -73,12 +87,12 @@ export const registerUser = async (request: RegisterInput) => {
     },
   });
 
-  // Step 4: Generate time-limited verification token (UUID v4)
+  // Step 6: Generate time-limited verification token (UUID v4)
   const verificationToken = await generateVerificationTokenByEmail(
     request.email
   );
 
-  // Step 5: Dispatch verification email asynchronously via SMTP
+  // Step 7: Dispatch verification email asynchronously via SMTP
   // Email contains magic link: /verify-request?token=xxx&email=yyy
   await sendVerificationEmail(
     verificationToken.identifier,
@@ -178,6 +192,7 @@ export const getUserById = async (id: string) => {
       image: true,
       emailVerified: true,
       createdAt: true,
+      role: true,
     },
   });
 
@@ -256,7 +271,8 @@ export const generateVerificationTokenByEmail = async (email: string) => {
   const token = uuidv4();
 
   // Step 2: Set expiry to 15 minutes from now (security measure)
-  const expires = new Date(new Date().getTime() + 15 * 60 * 1000);
+  // const expires = new Date(new Date().getTime() + 15 * 60 * 1000);
+  const expires = new Date(new Date().getTime() + 30 * 1000);
 
   // Step 3: Check for existing token (implements token rotation)
   const existingToken = await getVerificationTokenByEmail(email);

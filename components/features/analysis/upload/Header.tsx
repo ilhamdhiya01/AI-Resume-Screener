@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { ErrorCode } from 'react-dropzone';
 
 import Icon from '@/components/ui/icon';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
 const Header = () => {
   const { fileRejections, file } = useAnalysisStore();

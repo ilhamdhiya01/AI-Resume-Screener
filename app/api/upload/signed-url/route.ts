@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
 
 import { auth } from '@/auth';
-import { getSignedUrl } from '@/lib/services/upload.service';
 import { errorResponse, successResponse } from '@/lib/utils/api-response';
+import { getSignedUrl } from '@/services/server/upload.service';
 
 export const POST = async (request: NextRequest) => {
   try {

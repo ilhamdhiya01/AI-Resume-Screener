@@ -1,5 +1,6 @@
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { signIn, signOut } from 'next-auth/react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 import {
@@ -20,6 +21,7 @@ const useAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { data: session } = useSession();
 
   const clearError = () => setError(null);
   const clearSuccess = () => setSuccess(null);
@@ -52,6 +54,20 @@ const useAuth = () => {
       setIsLoading(false);
     }
   };
+
+  const loginmMutation = useMutation({
+    mutationFn: (payload: LoginInput) =>
+      signIn('credentials', {
+        ...payload,
+        redirect: false,
+      }),
+    onSuccess: (response, variables) => {
+      console.log({ session });
+    },
+    onError: (error) => {
+      // toast.error(error.response?.data?.message || error.message);
+    },
+  });
 
   const loginWithOAuth = async (provider: 'google' | 'github') => {
     setIsLoading(true);
@@ -185,6 +201,7 @@ const useAuth = () => {
     verifyEmail,
     resendVerificationEmail,
     logout,
+    loginmMutation,
   };
 };
 

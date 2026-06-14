@@ -1,9 +1,8 @@
 import './globals.css';
 
 import { Inter } from 'next/font/google';
-import { Toaster } from 'react-hot-toast';
 
-import { SessionProviderClient } from './providers';
+import { QueryProvider } from '../components/providers';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -22,13 +21,7 @@ const RootLayout = ({
       <body
         className={`${inter.className} flex min-h-full flex-col bg-[#f0f5ff]`}
       >
-        <SessionProviderClient>{children}</SessionProviderClient>
-        <Toaster
-          toastOptions={{
-            position: 'top-center',
-            duration: 3000,
-          }}
-        />
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
