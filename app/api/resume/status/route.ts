@@ -15,7 +15,7 @@ export const GET = async (request: NextRequest) => {
       return errorResponse(`resumeId is required`, 404);
     }
 
-    // ✅ Query Resume first (always exists)
+    //  Query Resume first (always exists)
     const resume = await prisma.resume.findUnique({
       where: {
         id: resumeId,
@@ -31,7 +31,7 @@ export const GET = async (request: NextRequest) => {
       return errorResponse('Resume not found', 404);
     }
 
-    // ✅ Direct lookup by ID (1 HGETALL) instead of getJobs() (N commands)
+    // Direct lookup by ID (1 HGETALL) instead of getJobs() (N commands)
     const job = await Job.fromId(resumeQueue, resumeId);
 
     if (!job) {

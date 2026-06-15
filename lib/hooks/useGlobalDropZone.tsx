@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { useAnalysisStore } from '../../stores/global/useAnalysisStore';
 
-const useGlobalSropZone = () => {
+const useGlobalDropZone = () => {
   const {
     setFile,
     setUploadTime,
@@ -64,4 +64,4 @@ const useGlobalSropZone = () => {
   };
 };
 
-export default useGlobalSropZone;
+export default useGlobalDropZone;

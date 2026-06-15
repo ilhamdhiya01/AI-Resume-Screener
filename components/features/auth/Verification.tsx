@@ -102,7 +102,7 @@ const Verification = ({ token, email }: VerificationProps) => {
     }
 
     signIn('magic-link', {
-      userId: data.data.userId,
+      userId: data?.data?.userId,
       redirect: false,
     });
 

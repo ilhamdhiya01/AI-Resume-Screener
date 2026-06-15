@@ -3,8 +3,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import axiosInstance from '../axios';
-import { ResumeData } from '../types/resume-analysis.types';
+import axiosInstance from '../../axios';
+import { ResumeData } from '../../types/resume-analysis.types';
 
 interface JobStatus {
   status:
@@ -49,20 +49,6 @@ export const useJobProgress = (resumeId: string | null) => {
     }
   }, []);
 
-  useEffect(() => {
-    const target = jobStatus.progress as number;
-
-    if (displayProgress < target) {
-      animationRef.current = setTimeout(() => {
-        setDisplayProgress((prev) => prev + 1);
-      }, 100); // 100ms per 1%
-    }
-
-    return () => {
-      if (animationRef.current) clearTimeout(animationRef.current);
-    };
-  }, [displayProgress, jobStatus.progress]);
-
   const poll = useCallback(async () => {
     //  Skip if tab hidden
     if (document.hidden) return;
@@ -100,7 +86,7 @@ export const useJobProgress = (resumeId: string | null) => {
     stopPolling(); // Clear old interval if exists
     poll(); // Run once immediately without waiting 3 seconds
     intervalRef.current = setInterval(poll, 1000);
-    console.log('🚀 Polling started/resumed');
+    console.log('Polling started/resumed');
   }, [poll, stopPolling]);
 
   useEffect(() => {
@@ -148,11 +134,11 @@ export const useJobProgress = (resumeId: string | null) => {
           `/upload/status/${jobId}?retry=true`
         );
 
-        // 🎯 Reset first-poll flag: first poll after retry sets displayProgress DIRECTLY to the failed step position,
+        // Reset first-poll flag: first poll after retry sets displayProgress DIRECTLY to the failed step position,
         // instead of crawling from 0% again.
         isFirstPoll.current = true;
 
-        // 🎯 KEY: Resume polling after successful retry API call
+        // Resume polling after successful retry API call
         startPolling();
 
         return response.data;
@@ -170,12 +156,10 @@ export const useJobProgress = (resumeId: string | null) => {
         const response = await axiosInstance.get(
           `/upload/status/${jobId}?cancel=true`
         );
-        // 🎯 KEY: Resume polling after successful cancel API call
+        // KEY: Resume polling after successful cancel API call
         // startPolling();
 
         const data = response.data;
-
-        console.log({ data });
 
         if (data?.success) {
           // Optimistic update: mark as cancelled immediately so UI doesn't show

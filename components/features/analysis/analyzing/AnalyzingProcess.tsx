@@ -7,7 +7,7 @@ import { useShallow } from 'zustand/shallow';
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import Modal from '@/components/ui/Modal/Modal';
-import { useJobProgress } from '@/lib/hooks/useJobProgress';
+import { useJobProgress } from '@/lib/hooks/analyzing/useJobProgress';
 import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
 
 import SideContent from './side-content/SideContent';
@@ -33,6 +33,7 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     jobId,
     isCancelled,
     failedReason,
+    isCancelling,
     retryJob,
     cancelJob,
   } = useJobProgress(resumeId);
@@ -66,8 +67,6 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
 
   // Stabilize durations object untuk prevent SideContent re-render
   const stableDurations = useMemo(() => durations || {}, [durations]);
-
-  console.log({ progress, step, status });
 
   useEffect(() => {
     if (
@@ -151,6 +150,7 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
               preffixIcon="TbCancel"
               label="Cancel Process"
               className="mt-3"
+              isLoading={isCancelling}
               onClick={handleCancelJob}
             />
           </div>

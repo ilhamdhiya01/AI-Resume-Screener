@@ -18,6 +18,13 @@ enum Role {
   FREE
 }
 
+enum UploadStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -99,7 +106,7 @@ model Resume {
   fileSize   Int
   fileType   String
   filePath   String
-  status     String   @default("PENDING")
+  status     UploadStatus @default(PENDING)
   jobDescription String?  @db.Text
 
   createdAt  DateTime @default(now())

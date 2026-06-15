@@ -2,13 +2,13 @@
 
 import classNames from 'classnames';
 
-import useGlobalSropZone from '@/lib/hooks/useGlobalSropZone';
+import useGlobalDropZone from '@/lib/hooks/useGlobalDropZone';
 
 import FilePreview from './FilePreview';
 
 const FileUpload = () => {
   const { fileRejections, getInputProps, getRootProps, isDragActive, open } =
-    useGlobalSropZone();
+    useGlobalDropZone();
 
   return (
     <section

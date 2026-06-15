@@ -16,13 +16,6 @@ export const register = async (data: RegisterRequest) => {
   return response.data;
 };
 
-// export const verifyEmail = async (token: string) => {
-//   const response = await axiosInstance.post(API_AUTH_VERIFY_REQUEST, {
-//     token,
-//   });
-//   return response.data;
-// };
-
 export const verifyEmail = async (
   token: string
 ): Promise<ApiResponse<VerifyEmailResponse>> => {
