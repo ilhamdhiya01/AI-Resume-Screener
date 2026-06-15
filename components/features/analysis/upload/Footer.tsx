@@ -7,7 +7,7 @@ import { useShallow } from 'zustand/shallow';
 
 import Icon from '@/components/ui/icon';
 import { useUploadResume } from '@/lib/hooks/upload/useUpload';
-import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores';
 
 const Footer = React.memo(() => {
   const { fileRejections, file, jobDescription } = useAnalysisStore(

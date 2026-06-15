@@ -1,23 +1,34 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import { getJobStatus } from '@/services/client/resume-analysis.service';
+import { useJobProgressStore } from '@/stores/analyzing/useJobProgressStore';
 
-import { ResumeJobStatus } from '../../types/resume-analysis.types';
 import { useCancelJob } from './useCancelJob';
 import { useRetryJob } from './useRetryJob';
 
 export const useJobProgress = (resumeId: string | null) => {
-  const [jobStatus, setJobStatus] = useState<ResumeJobStatus>({
-    status: 'idle',
-    progress: 0,
-  });
-  const [displayProgress, setDisplayProgress] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const isFirstPoll = useRef(true);
+
+  const {
+    status,
+    progress,
+    displayProgress,
+    setDisplayProgress,
+    setJobStatus,
+  } = useJobProgressStore(
+    useShallow((state) => ({
+      status: state.status,
+      progress: state.progress,
+      displayProgress: state.displayProgress,
+      setDisplayProgress: state.setDisplayProgress,
+      setJobStatus: state.setJobStatus,
+    }))
+  );
 
   const stopPolling = useCallback(() => {
     if (intervalRef.current) {
@@ -41,21 +52,17 @@ export const useJobProgress = (resumeId: string | null) => {
           setDisplayProgress(data.progress);
         }
 
-        setJobStatus({ ...data });
+        setJobStatus(data);
 
         // Stop polling when condition
-        if (
-          data.status === 'completed' ||
-          data.status === 'failed' ||
-          jobStatus.status === 'failed'
-        ) {
+        if (data.status === 'completed' || data.status === 'failed') {
           stopPolling();
         }
       }
     } catch (error) {
       console.error('Polling error:', error);
     }
-  }, [resumeId, stopPolling]);
+  }, [resumeId, stopPolling, setJobStatus, setDisplayProgress]);
 
   const startPolling = useCallback(() => {
     stopPolling(); // Clear old interval if exists
@@ -65,7 +72,7 @@ export const useJobProgress = (resumeId: string | null) => {
   }, [poll, stopPolling]);
 
   useEffect(() => {
-    const target = jobStatus.progress;
+    const target = progress;
     if (displayProgress < target) {
       animationRef.current = setTimeout(() => {
         setDisplayProgress((prev) => prev + 1);
@@ -74,7 +81,7 @@ export const useJobProgress = (resumeId: string | null) => {
     return () => {
       if (animationRef.current) clearTimeout(animationRef.current);
     };
-  }, [displayProgress, jobStatus.progress]);
+  }, [displayProgress, progress, setDisplayProgress]);
 
   // Handle main polling lifecycle & visibility change
   useEffect(() => {
@@ -87,7 +94,7 @@ export const useJobProgress = (resumeId: string | null) => {
         stopPolling();
       } else {
         // Resume polling when tab becomes visible and status is not done/failed
-        if (jobStatus.status !== 'completed' && jobStatus.status !== 'failed') {
+        if (status !== 'completed' && status !== 'failed') {
           startPolling();
         }
       }
@@ -99,7 +106,7 @@ export const useJobProgress = (resumeId: string | null) => {
       stopPolling();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [resumeId, startPolling, stopPolling, jobStatus.status]);
+  }, [resumeId, startPolling, stopPolling, status]);
 
   const { mutateAsync: retryJob, isPending: isRetrying } = useRetryJob({
     onRetrySuccess: () => {
@@ -110,14 +117,10 @@ export const useJobProgress = (resumeId: string | null) => {
 
   const { mutateAsync: cancelJob, isPending: isCancelling } = useCancelJob({
     onCancelSuccess: () => {
-      setJobStatus((prev) => ({
-        ...prev,
-        status: 'failed',
-        isCancelled: true,
-      }));
+      setJobStatus({ status: 'failed', isCancelled: true });
       startPolling();
     },
   });
 
-  return { ...jobStatus, retryJob, cancelJob, isRetrying, isCancelling };
+  return { retryJob, cancelJob, isRetrying, isCancelling };
 };

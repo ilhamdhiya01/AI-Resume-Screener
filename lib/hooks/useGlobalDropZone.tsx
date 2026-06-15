@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import { useShallow } from 'zustand/shallow';
 
-import { useAnalysisStore } from '../../stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores';
 
 const useGlobalDropZone = () => {
   const {

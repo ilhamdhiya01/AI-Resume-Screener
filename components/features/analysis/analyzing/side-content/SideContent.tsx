@@ -1,14 +1,12 @@
 import React from 'react';
+import { useShallow } from 'zustand/shallow';
+
+import { useJobProgressStore } from '@/stores/analyzing/useJobProgressStore';
 
 import { AnalysisResult } from './analysis-result';
 import { Step } from './step';
 
 interface SideContentProps {
-  progress: number;
-  step: string;
-  status: string;
-  durations: Record<string, number>;
-  completedSteps?: string[];
   score: number;
   items: {
     criticals: string[];
@@ -16,25 +14,18 @@ interface SideContentProps {
     suggestions: string[];
   };
   matchSummary?: string;
-  isCancelled?: boolean;
-  failedReason?: string | null;
   onRetry?: () => void;
 }
 
 const SideContent = React.memo<SideContentProps>(
-  ({
-    progress,
-    step,
-    status,
-    durations,
-    completedSteps,
-    score,
-    items,
-    matchSummary,
-    isCancelled,
-    failedReason,
-    onRetry,
-  }) => {
+  ({ score, items, matchSummary, onRetry }) => {
+    const { progress, status } = useJobProgressStore(
+      useShallow((state) => ({
+        progress: state.progress,
+        status: state.status,
+      }))
+    );
+
     return (
       <aside className="flex w-full max-w-[35%] flex-col border-l border-slate-300 bg-[#f7fafc]">
         {progress === 100 && status === 'completed' ? (
@@ -44,16 +35,7 @@ const SideContent = React.memo<SideContentProps>(
             matchSummary={matchSummary}
           />
         ) : (
-          <Step
-            progress={progress}
-            step={step as string}
-            status={status}
-            durations={durations}
-            completedSteps={completedSteps}
-            isCancelled={isCancelled}
-            failedReason={failedReason}
-            onRetry={onRetry}
-          />
+          <Step onRetry={onRetry} />
         )}
       </aside>
     );

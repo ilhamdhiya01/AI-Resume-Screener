@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/shallow';
 import { UploadResumeRequest } from '@/lib/types/upload-resume.type';
 import { ANALYSIS_PATH } from '@/routes';
 import { uploadResume } from '@/services/client/upload.service';
-import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores';
 
 export const useUploadResume = () => {
   const router = useRouter();

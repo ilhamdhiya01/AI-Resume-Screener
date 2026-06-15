@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { useShallow } from 'zustand/shallow';
 
-import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores';
 
 const JobDescription = React.memo(() => {
   const { jobDescription, setJobDescription } = useAnalysisStore(

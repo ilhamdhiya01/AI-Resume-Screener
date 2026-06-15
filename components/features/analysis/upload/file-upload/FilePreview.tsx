@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/shallow';
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { formatFileSize, getRelativeTime } from '@/lib/helpers';
-import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores';
 
 interface FilePreviewProps {
   open: () => void;

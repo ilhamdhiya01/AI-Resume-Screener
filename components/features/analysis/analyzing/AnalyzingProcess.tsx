@@ -8,7 +8,7 @@ import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import Modal from '@/components/ui/Modal/Modal';
 import { useJobProgress } from '@/lib/hooks/analyzing/useJobProgress';
-import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
+import { useAnalysisStore, useJobProgressStore } from '@/stores';
 
 import SideContent from './side-content/SideContent';
 import SkelatonPreview from './SkelatonPreview';
@@ -23,20 +23,16 @@ interface AnalyzingProcessProps {
 }
 
 const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
-  const {
-    progress,
-    step,
-    status,
-    durations,
-    completedSteps,
-    data,
-    jobId,
-    isCancelled,
-    failedReason,
-    isCancelling,
-    retryJob,
-    cancelJob,
-  } = useJobProgress(resumeId);
+  const { retryJob, cancelJob, isCancelling } = useJobProgress(resumeId);
+
+  const { progress, status, data, jobId } = useJobProgressStore(
+    useShallow((state) => ({
+      progress: state.progress,
+      status: state.status,
+      data: state.data,
+      jobId: state.jobId,
+    }))
+  );
 
   // Pisahkan jenis kegagalan: cancel by user vs error teknis.
   const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore(
@@ -64,9 +60,6 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     () => data?.criticalHighlights || [],
     [data?.criticalHighlights]
   );
-
-  // Stabilize durations object untuk prevent SideContent re-render
-  const stableDurations = useMemo(() => durations || {}, [durations]);
 
   useEffect(() => {
     if (
@@ -114,16 +107,9 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             criticalHighlights={criticalHighlights}
           />
           <SideContent
-            progress={progress}
-            step={step as string}
-            status={status}
-            durations={stableDurations}
-            completedSteps={completedSteps}
             score={data?.score || 0}
             items={items}
             matchSummary={data?.matchSummary}
-            isCancelled={isCancelled}
-            failedReason={failedReason}
             onRetry={handleRetryJob}
           />
         </div>

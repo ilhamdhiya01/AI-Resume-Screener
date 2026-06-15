@@ -5,7 +5,7 @@ import { ErrorCode } from 'react-dropzone';
 import { useShallow } from 'zustand/shallow';
 
 import Icon from '@/components/ui/icon';
-import { useAnalysisStore } from '@/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores';
 
 const Header = React.memo(() => {
   const { fileRejections, file } = useAnalysisStore(

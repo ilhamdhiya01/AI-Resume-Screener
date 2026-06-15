@@ -1,8 +1,6 @@
 import { ErrorCode, FileRejection } from 'react-dropzone';
 import { create } from 'zustand';
 
-type Modal = Record<string, { isOpen: boolean; onClose: () => void }> | null;
-
 interface AnalysisState {
   file: File | null;
   uploadTime: Date | null;
