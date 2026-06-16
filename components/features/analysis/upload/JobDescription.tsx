@@ -19,7 +19,7 @@ const JobDescription = React.memo(() => {
       className={classNames(
         'group card',
         'flex h-70 w-full flex-col gap-4 p-6',
-        'border-primary-50 rounded-2xl border',
+        'border-primary-200 rounded-2xl border',
         'bg-white transition-colors duration-300'
       )}
     >

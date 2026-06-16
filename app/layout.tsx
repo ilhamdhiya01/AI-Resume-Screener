@@ -2,7 +2,7 @@ import './globals.css';
 
 import { Inter } from 'next/font/google';
 
-import { QueryProvider } from '../components/providers';
+import { QueryProvider } from '@/components/providers';
 
 const inter = Inter({
   variable: '--font-inter',
