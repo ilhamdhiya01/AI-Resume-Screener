@@ -49,6 +49,7 @@ const PreviewRoot = ({
           zoomIn={zoomIn}
           zoomOut={zoomOut}
           resetZoom={resetZoom}
+          isDocx={isDocx}
         />
       )}
       <div className="scrollbar-auto flex-1 overflow-auto">

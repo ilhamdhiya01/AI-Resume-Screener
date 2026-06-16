@@ -12,14 +12,14 @@ export const metadata: Metadata = {
 const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <main className="flex min-h-screen w-full">
-      {/* Sidebar: Kasih lebar fix dan biarkan dia fixed/sticky */}
+      {/* Sidebar: fixed width, let it stay sticky */}
       <Sidebar />
 
-      {/* Konten Utama */}
+      {/* Main Content */}
       <div className="flex w-[70%] flex-1 flex-col">
         <Navbar />
 
-        {/* Area Konten */}
+        {/* Content Area */}
         <section className="flex-1">{children}</section>
       </div>
     </main>

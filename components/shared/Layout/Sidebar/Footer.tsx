@@ -4,30 +4,34 @@ import { startCase } from 'lodash';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
+import React, { useCallback } from 'react';
 
 import Button from '@/components/ui/button';
 import { ANALYSIS_PATH, LOGIN_PATH } from '@/routes';
 
-const Footer = () => {
+const Footer = React.memo(() => {
   const router = useRouter();
 
   const session = useSession();
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await signOut({
       redirect: false,
     });
     router.replace(LOGIN_PATH);
-  };
+  }, [router]);
+
+  const handleNavigateToAnalysis = useCallback(() => {
+    router.replace(ANALYSIS_PATH);
+  }, [router]);
+
   return (
     <div className="shrink-0 space-y-3 border-t border-slate-300 p-4">
       <Button
         preffixIcon="TbFileUpload"
         label="Upload Resume"
         fullWidth
-        onClick={() => {
-          router.replace(ANALYSIS_PATH);
-        }}
+        onClick={handleNavigateToAnalysis}
       />
       <div className="space-y-2 rounded-md border border-slate-300 bg-white p-4">
         <div className="flex items-center gap-2">
@@ -61,6 +65,8 @@ const Footer = () => {
       </div>
     </div>
   );
-};
+});
+
+Footer.displayName = 'Footer';
 
 export default Footer;

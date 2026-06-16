@@ -1,7 +1,7 @@
 import mammoth from 'mammoth';
 import { PDFParse, VerbosityLevel } from 'pdf-parse';
 
-import { Prisma } from '@/app/generated/prisma/client';
+import { Prisma, UploadStatus } from '@/app/generated/prisma/client';
 import {
   EXTRACTION_SYSTEM_PROMPT,
   SCORING_SYSTEM_PROMPT,
@@ -12,7 +12,7 @@ import prisma from '../../lib/db';
 import { openai } from '../../lib/open-ai';
 import { supabaseAdmin } from '../../lib/supabase-admin';
 
-const updateResumeStatus = async (resumeId: string, status: string) => {
+const updateResumeStatus = async (resumeId: string, status: UploadStatus) => {
   await prisma.resume.update({
     where: { id: resumeId },
     data: { status },
