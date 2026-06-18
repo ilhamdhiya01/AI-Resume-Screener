@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import Button from '@/components/ui/button';
@@ -25,12 +25,13 @@ interface AnalyzingProcessProps {
 const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
   const { retryJob, cancelJob, isCancelling } = useJobProgress(resumeId);
 
-  const { progress, status, data, jobId } = useJobProgressStore(
+  const { progress, status, data, jobId, reset } = useJobProgressStore(
     useShallow((state) => ({
       progress: state.progress,
       status: state.status,
       data: state.data,
       jobId: state.jobId,
+      reset: state.reset,
     }))
   );
 
@@ -43,7 +44,14 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
   );
 
   const [showResult, setShowResult] = useState<boolean>(false);
-  const hasTriggeredSkeleton = useRef<boolean>(false);
+
+  // Reset store when mounting a new resume analysis to prevent stale state leak.
+  useEffect(() => {
+    reset();
+    return () => {
+      reset();
+    };
+  }, [resumeId, reset]);
 
   // Stabilize object reference untuk prevent unnecessary re-render di SideContent
   const items = useMemo(
@@ -62,18 +70,13 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
   );
 
   useEffect(() => {
-    if (
-      progress === 100 &&
-      status === 'completed' &&
-      !hasTriggeredSkeleton.current
-    ) {
-      hasTriggeredSkeleton.current = true;
+    if (progress === 100 && status === 'completed' && !showResult) {
       const timer = setTimeout(() => {
         setShowResult(true);
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [progress, status]);
+  }, [progress, status, showResult]);
 
   const handleRetryJob = useCallback(async () => {
     if (jobId) {

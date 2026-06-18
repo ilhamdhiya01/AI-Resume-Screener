@@ -221,10 +221,15 @@ const DatePicker = ({
                 weekday:
                   'flex-1 text-center text-sm font-semibold text-neutral-400 uppercase',
                 weeks: 'w-full flex flex-col gap-1',
-                week: 'flex bg-primary-50 rounded-xl',
+                week: 'flex rounded-xl',
                 day: 'flex-1 flex items-center justify-center py-1',
                 day_button:
                   'w-10 h-10 flex items-center justify-center rounded-full text-base font-semibold text-primary-700 hover:bg-primary-100 transition-colors cursor-pointer',
+              }}
+              modifiersClassNames={{
+                selected:
+                  '[&>button]:!bg-primary-600 [&>button]:!text-white [&>button]:!rounded-full',
+                today: '[&>button]:!font-extrabold',
               }}
             />
           ) : (
@@ -263,10 +268,19 @@ const DatePicker = ({
                   weekday:
                     'flex-1 text-center text-sm font-semibold text-neutral-400 uppercase',
                   weeks: 'w-full flex flex-col gap-1',
-                  week: 'flex bg-primary-50 rounded-xl',
+                  week: 'flex rounded-xl',
                   day: 'flex-1 flex items-center justify-center py-1',
                   day_button:
                     'w-10 h-10 flex items-center justify-center rounded-full text-base font-semibold text-primary-700 hover:bg-primary-100 transition-colors cursor-pointer',
+                }}
+                modifiersClassNames={{
+                  range_start:
+                    '!bg-primary-200 !rounded-l-full [&>button]:!bg-primary-600 [&>button]:!text-white [&>button]:!rounded-full',
+                  range_end:
+                    '!bg-primary-200 !rounded-r-full [&>button]:!bg-primary-600 [&>button]:!text-white [&>button]:!rounded-full',
+                  range_middle:
+                    '!bg-primary-200 !rounded-none [&>button]:!bg-transparent [&>button]:!text-primary-700 [&>button]:!rounded-none',
+                  today: '[&>button]:!font-extrabold',
                 }}
               />
               <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">

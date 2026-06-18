@@ -20,7 +20,7 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
         <Navbar />
 
         {/* Content Area */}
-        <section className="container mx-auto flex flex-1 flex-col p-8">
+        <section className="container mx-auto flex flex-1 flex-col">
           {children}
         </section>
       </div>

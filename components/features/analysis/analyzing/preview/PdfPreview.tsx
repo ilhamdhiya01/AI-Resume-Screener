@@ -35,6 +35,13 @@ const PdfPreview = React.memo<PdfPreviewProps>(
     const [containerWidth, setContainerWidth] = useState<number>();
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
+    const [documentKey, setDocumentKey] = useState<number>(0);
+
+    const handleRefresh = useCallback(() => {
+      setNumPages(0);
+      setPageNumber(1);
+      setDocumentKey((prev) => prev + 1);
+    }, []);
 
     const activeHighlights = useTextHighlighter(
       criticalHighlights,
@@ -91,6 +98,7 @@ const PdfPreview = React.memo<PdfPreviewProps>(
       <div ref={setContainerRef} className="p-8">
         {fileUrl ? (
           <Document
+            key={documentKey}
             file={fileUrl}
             options={pdfOptions}
             externalLinkTarget="_blank"
@@ -110,6 +118,12 @@ const PdfPreview = React.memo<PdfPreviewProps>(
                 <p className="text-sm text-gray-600">
                   Check console for details
                 </p>
+                <Button
+                  iconButton="TbRefresh"
+                  variant="outlined"
+                  color="neutral"
+                  onClick={handleRefresh}
+                />
               </div>
             }
           >
@@ -133,6 +147,14 @@ const PdfPreview = React.memo<PdfPreviewProps>(
                     disabled={pageNumber >= numPages}
                     size="sm"
                     variant="ghost"
+                  />
+                  <div className="h-4 w-px bg-slate-200" />
+                  <Button
+                    iconButton="TbRefresh"
+                    onClick={handleRefresh}
+                    size="sm"
+                    variant="ghost"
+                    color="neutral"
                   />
                 </div>
               )}

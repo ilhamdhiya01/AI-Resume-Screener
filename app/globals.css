@@ -261,36 +261,9 @@ body {
   margin: 1em 0;
 }
 
-/* React DayPicker v10 state overrides using data-attributes from td elements */
-[data-selected='true'] button,
-[data-range-start='true'] button {
-  background-color: var(--primary-600);
-  color: white !important;
-  border-radius: 9999px;
-}
-
-[data-range-end='true'] button {
-  background-color: var(--primary-600);
-  color: white !important;
-  border-radius: 9999px;
-}
-
-[data-range-middle='true'] {
-  background-color: var(--primary-200);
-  border-radius: 0;
-}
-
-[data-range-middle='true'] button {
-  background-color: transparent !important;
-  border-radius: 0 !important;
-  color: var(--primary-700) !important;
-}
-
-[data-today='true'] button {
-  font-weight: 800;
-  color: var(--primary-900);
-}
-
+/* React DayPicker v10 state overrides using data-attributes from td elements.
+   Selection/range styling is handled via `modifiersClassNames` in DatePicker.tsx
+   because v10 does not emit data-range-* attributes. */
 [data-outside='true'] button {
   color: #d1d5db !important;
   opacity: 0.6;

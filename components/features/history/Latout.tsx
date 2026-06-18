@@ -20,7 +20,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   }>({ from: null, to: null });
 
   return (
-    <section className="flex flex-col">
+    <section className="flex flex-col p-8">
       <Header />
       <Tab
         items={[

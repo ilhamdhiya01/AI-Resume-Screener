@@ -512,7 +512,7 @@ export const analyzeResume = async (
       // Kimi excels at narrative synthesis and holistic evaluation
       synthesis = await aiAnalyze(
         SYNTHESIS_SYSTEM_PROMPT,
-        'kimi-k2.6', // Kimi for deep reasoning and narrative generation
+        'deepseek-v4-flash', // Kimi for deep reasoning and narrative generation
         `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
         60000, // 60s timeout
         signal
