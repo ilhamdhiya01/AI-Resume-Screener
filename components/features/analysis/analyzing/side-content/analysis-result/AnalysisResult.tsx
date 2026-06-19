@@ -1,6 +1,5 @@
 import { startCase } from 'lodash';
-
-import { ResumeData } from '@/lib/types/resume-analysis.types';
+import React from 'react';
 
 import { AnalysisResult } from '.';
 
@@ -12,30 +11,30 @@ interface AnalysisResultRootProps {
   matchSummary?: string;
 }
 
-const AnalysisResultRoot = ({
-  score,
-  items,
-  matchSummary,
-}: AnalysisResultRootProps) => {
-  const keys: (keyof Items)[] = Object.keys(items) as (keyof Items)[];
-  return (
-    <div className="space-y-5 overflow-auto p-10">
-      <AnalysisResult.Score progress={score} matchSummary={matchSummary} />
-      {keys.map((key) => {
-        if (items[key].length === 0) return null;
-        return (
-          <AnalysisResult.Item
-            key={key}
-            isCritical={key === 'criticals'}
-            isSuggestions={key === 'suggestions'}
-            isStrengths={key === 'strengths'}
-            title={startCase(key)}
-            items={items[key as keyof Items]}
-          />
-        );
-      })}
-    </div>
-  );
-};
+const AnalysisResultRoot = React.memo<AnalysisResultRootProps>(
+  ({ score, items, matchSummary }) => {
+    const keys: (keyof Items)[] = Object.keys(items) as (keyof Items)[];
+    return (
+      <div className="space-y-5 overflow-auto p-10">
+        <AnalysisResult.Score progress={score} matchSummary={matchSummary} />
+        {keys.map((key) => {
+          if (items[key].length === 0) return null;
+          return (
+            <AnalysisResult.Item
+              key={key}
+              isCritical={key === 'criticals'}
+              isSuggestions={key === 'suggestions'}
+              isStrengths={key === 'strengths'}
+              title={startCase(key)}
+              items={items[key as keyof Items]}
+            />
+          );
+        })}
+      </div>
+    );
+  }
+);
+
+AnalysisResultRoot.displayName = 'AnalysisResultRoot';
 
 export default AnalysisResultRoot;

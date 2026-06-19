@@ -91,109 +91,115 @@ const highlightCriticalText = (
  * @param {{ text: string; page: number }[]} [criticalHighlights] - Critical texts.
  * @returns {React.ReactElement} DOCX preview element.
  */
-const DocxPreview = ({
-  fileUrl,
-  scale,
-  setScale,
-  minScale,
-  maxScale,
-  criticalHighlights,
-}: DocxPreviewProps): React.ReactElement => {
-  const [html, setHtml] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);
+const DocxPreview = React.memo<DocxPreviewProps>(
+  ({
+    fileUrl,
+    scale,
+    setScale,
+    minScale,
+    maxScale,
+    criticalHighlights,
+  }): React.ReactElement => {
+    const [html, setHtml] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
+    useEffect(() => {
+      let isMounted = true;
 
-    const loadDocx = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+      const loadDocx = async () => {
+        try {
+          setIsLoading(true);
+          setError(null);
 
-        const response = await fetch(fileUrl);
-        if (!response.ok) {
-          throw new Error('Gagal mengunduh file DOCX.');
+          const response = await fetch(fileUrl);
+          if (!response.ok) {
+            throw new Error('Gagal mengunduh file DOCX.');
+          }
+
+          const arrayBuffer = await response.arrayBuffer();
+          const result = await mammoth.convertToHtml({ arrayBuffer });
+
+          if (isMounted) {
+            setHtml(highlightCriticalText(result.value, criticalHighlights));
+          }
+        } catch (err) {
+          if (isMounted) {
+            setError(
+              err instanceof Error ? err.message : 'Gagal memuat dokumen DOCX.'
+            );
+          }
+        } finally {
+          if (isMounted) {
+            setIsLoading(false);
+          }
         }
+      };
 
-        const arrayBuffer = await response.arrayBuffer();
-        const result = await mammoth.convertToHtml({ arrayBuffer });
+      loadDocx();
 
-        if (isMounted) {
-          setHtml(highlightCriticalText(result.value, criticalHighlights));
+      return () => {
+        isMounted = false;
+      };
+    }, [fileUrl, criticalHighlights]);
+
+    useEffect(() => {
+      const handleWheel = (e: WheelEvent) => {
+        if (e.ctrlKey) {
+          e.preventDefault();
+
+          const delta = -e.deltaY;
+          const zoomSpeed = 0.01;
+
+          setScale((prev) => {
+            const newScale = prev + delta * zoomSpeed;
+            return Math.min(Math.max(newScale, minScale), maxScale);
+          });
         }
-      } catch (err) {
-        if (isMounted) {
-          setError(
-            err instanceof Error ? err.message : 'Gagal memuat dokumen DOCX.'
-          );
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
+      };
 
-    loadDocx();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fileUrl, criticalHighlights]);
-
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      if (e.ctrlKey) {
-        e.preventDefault();
-
-        const delta = -e.deltaY;
-        const zoomSpeed = 0.01;
-
-        setScale((prev) => {
-          const newScale = prev + delta * zoomSpeed;
-          return Math.min(Math.max(newScale, minScale), maxScale);
-        });
-      }
-    };
-
-    const container = containerRef;
-    if (container) {
-      container.addEventListener('wheel', handleWheel, { passive: false });
-    }
-
-    return () => {
+      const container = containerRef;
       if (container) {
-        container.removeEventListener('wheel', handleWheel);
+        container.addEventListener('wheel', handleWheel, { passive: false });
       }
-    };
-  }, [containerRef, minScale, maxScale, setScale]);
 
-  return (
-    <div ref={setContainerRef} className="p-8">
-      {isLoading ? (
-        <div className="flex h-96 items-center justify-center">
-          <p className="text-lg">Loading DOCX...</p>
-        </div>
-      ) : error ? (
-        <div className="flex h-96 flex-col items-center justify-center gap-4">
-          <p className="text-lg font-bold text-red-600">Failed to load DOCX</p>
-          <p className="text-sm text-gray-600">{error}</p>
-        </div>
-      ) : (
-        <div
-          className="inline-block origin-top-left transition-transform duration-200"
-          style={{ transform: `scale(${scale})` }}
-        >
+      return () => {
+        if (container) {
+          container.removeEventListener('wheel', handleWheel);
+        }
+      };
+    }, [containerRef, minScale, maxScale, setScale]);
+
+    return (
+      <div ref={setContainerRef} className="p-8">
+        {isLoading ? (
+          <div className="flex h-96 items-center justify-center">
+            <p className="text-lg">Loading DOCX...</p>
+          </div>
+        ) : error ? (
+          <div className="flex h-96 flex-col items-center justify-center gap-4">
+            <p className="text-lg font-bold text-red-600">
+              Failed to load DOCX
+            </p>
+            <p className="text-sm text-gray-600">{error}</p>
+          </div>
+        ) : (
           <div
-            className="docx-content mx-auto max-w-[900px] rounded-md bg-white p-12 drop-shadow-xl"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
+            className="inline-block origin-top-left transition-transform duration-200"
+            style={{ transform: `scale(${scale})` }}
+          >
+            <div
+              className="docx-content mx-auto max-w-[900px] rounded-md bg-white p-12 drop-shadow-xl"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+);
+
+DocxPreview.displayName = 'DocxPreview';
 
 export default DocxPreview;

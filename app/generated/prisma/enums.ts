@@ -15,3 +15,12 @@ export const Role = {
 } as const;
 
 export type Role = (typeof Role)[keyof typeof Role];
+
+export const UploadStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+} as const;
+
+export type UploadStatus = (typeof UploadStatus)[keyof typeof UploadStatus];

@@ -1,40 +1,31 @@
 'use client';
 
 import classNames from 'classnames';
-import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import React from 'react';
 import { TbArrowRight } from 'react-icons/tb';
+import { useShallow } from 'zustand/shallow';
 
 import Icon from '@/components/ui/icon';
-import { useUpload } from '@/lib/hooks';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import useUploadResume from '@/lib/hooks/upload/useUpload';
+import { useAnalysisStore } from '@/stores';
 
-const Footer = () => {
-  const { fileRejections, file, setFile, jobDescription, setJobDescription } =
-    useAnalysisStore();
-  const { uploadResume, isUploading } = useUpload();
+const Footer = React.memo(() => {
+  const { fileRejections, file, jobDescription } = useAnalysisStore(
+    useShallow((state) => ({
+      fileRejections: state.fileRejections,
+      file: state.file,
+      jobDescription: state.jobDescription,
+    }))
+  );
+  const { uploadResume, isUploading } = useUploadResume();
 
-  const router = useRouter();
-
-  // ✅ Check apakah button harus disabled
-  const isDisabled = useMemo(() => {
-    // Disabled kalo ada error
-    if (fileRejections.length > 0) return true;
-
-    // Disabled kalo belum ada file
-    if (!file) return true;
-
-    return false;
-  }, [fileRejections, file]);
+  // Check if button should be disabled
+  const isDisabled = fileRejections.length > 0 || !file;
 
   const onClik = async () => {
     if (!file) return;
-    const result = await uploadResume(file, jobDescription);
-    if (result) {
-      router.push(`/analysis/${result.resumeId}`);
-      setFile(null);
-      setJobDescription('');
-    }
+    const payload = { file, jobDescription };
+    uploadResume(payload);
   };
 
   return (
@@ -84,6 +75,8 @@ const Footer = () => {
       </div>
     </>
   );
-};
+});
+
+Footer.displayName = 'Footer';
 
 export default Footer;

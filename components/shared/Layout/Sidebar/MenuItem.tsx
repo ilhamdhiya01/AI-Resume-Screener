@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import Icon, { IconProps } from '@/components/ui/icon';
 
@@ -13,18 +13,18 @@ interface MenuItemProps {
   name: string;
 }
 
-const MenuItem = ({ path, icon, name }: MenuItemProps) => {
+const MenuItem = React.memo<MenuItemProps>(({ path, icon, name }) => {
   const pathName = usePathname();
 
   const isActive = useMemo(() => {
-    // ✅ Handle static routes
+    // Handle static routes
     const exceptRoot = path.split('/')[1];
     return pathName && exceptRoot
       ? pathName.includes(exceptRoot)
       : pathName === '/';
   }, [pathName, path]);
 
-  // ✅ Replace history when navigating from dynamic route to base path
+  // Replace history when navigating from dynamic route to base path
   const shouldReplace = useMemo(() => {
     if (path === '/') return true;
 
@@ -55,6 +55,8 @@ const MenuItem = ({ path, icon, name }: MenuItemProps) => {
       <span className="font-medium">{name}</span>
     </Link>
   );
-};
+});
+
+MenuItem.displayName = 'MenuItem';
 
 export default MenuItem;

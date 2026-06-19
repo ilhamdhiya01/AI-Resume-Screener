@@ -1,13 +1,19 @@
 'use client';
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { ErrorCode } from 'react-dropzone';
+import { useShallow } from 'zustand/shallow';
 
 import Icon from '@/components/ui/icon';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores';
 
-const Header = () => {
-  const { fileRejections, file } = useAnalysisStore();
+const Header = React.memo(() => {
+  const { fileRejections, file } = useAnalysisStore(
+    useShallow((state) => ({
+      fileRejections: state.fileRejections,
+      file: state.file,
+    }))
+  );
 
   const headerMessage: Record<string, string> = useMemo(() => {
     if (fileRejections.length === 0 && file) {
@@ -77,6 +83,8 @@ const Header = () => {
       <p className="max-w-xl text-neutral-700">{headerMessage?.message}</p>
     </div>
   );
-};
+});
+
+Header.displayName = 'Header';
 
 export default Header;

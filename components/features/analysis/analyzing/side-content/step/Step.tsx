@@ -1,5 +1,7 @@
+import { useShallow } from 'zustand/shallow';
+
 import Button from '@/components/ui/button';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { useAnalysisStore, useJobProgressStore } from '@/stores';
 
 import { Step } from '.';
 
@@ -31,27 +33,33 @@ const STEPS = [
 ];
 
 interface StepRootProps {
-  progress: number;
-  step: string;
-  status: string;
-  durations: Record<string, number>;
-  completedSteps?: string[];
-  isCancelled?: boolean;
-  failedReason?: string | null;
   onRetry?: () => void;
 }
 
-const StepRoot = ({
-  progress,
-  step,
-  status,
-  durations,
-  completedSteps = [],
-  isCancelled,
-  failedReason,
-  onRetry,
-}: StepRootProps) => {
-  const { setModalCancelProcess } = useAnalysisStore();
+const StepRoot = ({ onRetry }: StepRootProps) => {
+  const {
+    progress,
+    step,
+    status,
+    durations = {},
+    completedSteps = [],
+    isCancelled,
+    failedReason,
+  } = useJobProgressStore(
+    useShallow((state) => ({
+      progress: state.progress,
+      step: state.step,
+      status: state.status,
+      durations: state.durations,
+      completedSteps: state.completedSteps,
+      isCancelled: state.isCancelled,
+      failedReason: state.failedReason,
+    }))
+  );
+
+  const setModalCancelProcess = useAnalysisStore(
+    (state) => state.setModalCancelProcess
+  );
 
   // Technical error = failed TAPI bukan cancel by user.
   const isTechnicalError = status === 'failed' && !isCancelled;
@@ -114,8 +122,7 @@ const StepRoot = ({
                 : undefined
             }
             onRetry={onRetry}
-            stepKey={item.key}
-            durations={durations}
+            duration={durations[item.key]}
           />
         ))}
       </div>

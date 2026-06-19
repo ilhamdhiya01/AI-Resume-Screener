@@ -1,2 +1,2 @@
-export { default as useAuth } from './useAuth';
-export { default as useUpload } from './useUpload';
+export { default as useGlobalDropZone } from './useGlobalDropZone';
+export { default as useTextHighlighter } from './useTextHighlighter';

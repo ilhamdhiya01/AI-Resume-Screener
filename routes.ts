@@ -5,6 +5,11 @@ export const API_AUTH_REGISTER = `/auth/register`;
 export const API_AUTH_VERIFY_REQUEST = `/auth/verify-request`;
 export const API_AUTH_RESEND_VERIFY_REQUEST = `/auth/resend-verify-request`;
 
+export const API_UPLOAD = `/upload`;
+
+export const API_RESUME = `/resume`;
+export const API_RESUME_STATUS = `${API_RESUME}/status`;
+
 export const ROOT_PATH = '/';
 export const ROOT_AUTH_PATH = '/auth';
 

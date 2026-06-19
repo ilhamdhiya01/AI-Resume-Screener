@@ -1,24 +1,37 @@
 'use client';
 
+import { startCase } from 'lodash';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react';
+import React, { useCallback } from 'react';
 
 import Button from '@/components/ui/button';
-import { useAuth } from '@/lib/hooks';
-import { ANALYSIS_PATH } from '@/routes';
+import { ANALYSIS_PATH, LOGIN_PATH } from '@/routes';
 
-const Footer = () => {
-  const { logout } = useAuth();
+const Footer = React.memo(() => {
   const router = useRouter();
+
+  const session = useSession();
+
+  const handleLogout = useCallback(async () => {
+    await signOut({
+      redirect: false,
+    });
+    router.replace(LOGIN_PATH);
+  }, [router]);
+
+  const handleNavigateToAnalysis = useCallback(() => {
+    router.replace(ANALYSIS_PATH);
+  }, [router]);
+
   return (
     <div className="shrink-0 space-y-3 border-t border-slate-300 p-4">
       <Button
         preffixIcon="TbFileUpload"
         label="Upload Resume"
         fullWidth
-        onClick={() => {
-          router.replace(ANALYSIS_PATH);
-        }}
+        onClick={handleNavigateToAnalysis}
       />
       <div className="space-y-2 rounded-md border border-slate-300 bg-white p-4">
         <div className="flex items-center gap-2">
@@ -34,9 +47,11 @@ const Footer = () => {
           </div>
           <div className="flex min-w-0 flex-col">
             <span className="truncate text-sm font-medium">
-              Ilham Dhiya Ulhaq
+              {session.data?.user?.name}
             </span>
-            <small className="text-xs text-neutral-500">Premium Member</small>
+            <small className="text-xs text-neutral-500">
+              {startCase(session.data?.user?.role?.toLowerCase())}
+            </small>
           </div>
         </div>
         <Button
@@ -45,11 +60,13 @@ const Footer = () => {
           size="sm"
           fullWidth
           variant="outlined"
-          onClick={logout}
+          onClick={handleLogout}
         />
       </div>
     </div>
   );
-};
+});
+
+Footer.displayName = 'Footer';
 
 export default Footer;

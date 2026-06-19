@@ -1,19 +1,23 @@
+'use client';
+
 import classNames from 'classnames';
 import { useRouter } from 'next/navigation';
-import { BeatLoader } from 'react-spinners';
+import { signIn } from 'next-auth/react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Icon, { IconProps } from '@/components/ui/icon';
+import {
+  useResendVerificationEmail,
+  useVerifyEmailMutation,
+} from '@/lib/hooks/auth';
 import { LOGIN_PATH, ROOT_PATH } from '@/routes';
 
-export type VerificationState =
-  | { type: 'loading' }
-  | { type: 'success'; message: string }
-  | { type: 'expired'; message: string; onResend: () => void }
-  | { type: 'error'; message: string };
+type VerificationStatus = 'loading' | 'success' | 'expired' | 'error';
 
 interface VerificationProps {
-  state: VerificationState;
+  token?: string;
+  email?: string;
 }
 
 interface StateConfig {
@@ -24,9 +28,8 @@ interface StateConfig {
   description: string;
 }
 
-const stateConfig: Record<VerificationState['type'], Partial<StateConfig>> = {
+const stateConfig: Record<VerificationStatus, Partial<StateConfig>> = {
   loading: {
-    // icon: ,
     iconBg: 'bg-secondary-100',
     title: 'Verifying...',
     description: 'Please wait while we verify your email address.',
@@ -53,53 +56,121 @@ const stateConfig: Record<VerificationState['type'], Partial<StateConfig>> = {
   },
 } as const;
 
-const Verification = ({ state }: VerificationProps) => {
-  const config = stateConfig[state?.type];
+const Verification = ({ token, email }: VerificationProps) => {
   const router = useRouter();
+  const [resent, setResent] = useState(false);
 
-  if (state?.type === 'success') {
-    setTimeout(() => {
-      router.push(ROOT_PATH);
-    }, 5000);
-    // TODO: Add redirect logic here
-  }
+  const { data, error, isLoading } = useVerifyEmailMutation(token);
+  const {
+    mutate: resendVerificationEmail,
+    isPending: resendIsLoading,
+    error: resendError,
+  } = useResendVerificationEmail();
+
+  // mapping status
+  const status: VerificationStatus = useMemo(() => {
+    if (isLoading) {
+      return 'loading';
+    }
+    if (error) {
+      return error.message?.includes('expired') ? 'expired' : 'error';
+    }
+    if (data?.success) {
+      return 'success';
+    }
+    return 'loading';
+  }, [data, error, isLoading]);
+
+  // get config by status
+  const config = stateConfig[status];
+
+  // get message by status
+  const message = useMemo(() => {
+    if (status === 'success') {
+      return data?.message || config?.title;
+    }
+    if (status === 'error' || status === 'expired') {
+      if (resent) return 'Verification email resent!\nCheck your inbox.';
+      if (resendError) return resendError.message;
+      return error?.message || config?.title;
+    }
+    return config?.title;
+  }, [status, data, error, config, resent, resendError]);
+
+  // redirect to home if success
+  useEffect(() => {
+    if (!data?.success) {
+      return;
+    }
+
+    signIn('magic-link', {
+      userId: data?.data?.userId,
+      redirect: false,
+    });
+
+    const timer = setTimeout(() => {
+      router.replace(ROOT_PATH);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [data, router]);
 
   return (
-    <div className="relative w-[448px] overflow-hidden rounded-xl bg-white p-6 text-center drop-shadow">
-      {/* Icon */}
+    <div className="relative w-[500px] overflow-hidden rounded-xl bg-white p-6 text-center drop-shadow">
       <div
         className={classNames(
           'mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full',
           config?.iconBg
         )}
       >
-        {state?.type === 'loading' ? (
-          <BeatLoader size={10} />
+        {status === 'loading' ? (
+          <div className="flex items-end gap-1.5">
+            <div
+              className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-500"
+              style={{ animationDelay: '0ms' }}
+            />
+            <div
+              className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-400"
+              style={{ animationDelay: '150ms' }}
+            />
+            <div
+              className="h-2.5 w-2.5 animate-bounce rounded-full bg-blue-300"
+              style={{ animationDelay: '300ms' }}
+            />
+          </div>
         ) : (
           <Icon
-            icon={config?.icon as IconProps['icon']}
+            icon={
+              resent
+                ? 'TbCircleCheckFilled'
+                : (config?.icon as IconProps['icon'])
+            }
             size={40}
             className={config?.iconColor}
           />
         )}
       </div>
 
-      {/* Title */}
-      <h1 className="mb-2 text-2xl font-bold text-gray-900">
-        {state?.type === 'loading' ? config?.title : state?.message}
+      <h1 className="mb-2 text-2xl font-bold whitespace-pre-line text-gray-900">
+        {message}
       </h1>
 
-      {/* Description */}
       <p className="mb-6 text-gray-600">{config?.description}</p>
 
-      {/* Actions */}
-      {state?.type === 'expired' && (
+      {status === 'expired' && (
         <div className="space-y-2">
           <Button
             preffixIcon="TbMail"
             fullWidth
-            label="Resend Verification Email"
-            onClick={state.onResend}
+            label={resent ? 'Email Resent!' : 'Resend Verification Email'}
+            onClick={() => {
+              if (!email) return;
+              resendVerificationEmail(email, {
+                onSuccess: () => setResent(true),
+              });
+            }}
+            isLoading={resendIsLoading}
+            disabled={resent}
           />
           <Button
             preffixIcon="TbArrowLeft"
@@ -111,7 +182,7 @@ const Verification = ({ state }: VerificationProps) => {
         </div>
       )}
 
-      {state?.type === 'error' && (
+      {status === 'error' && (
         <Button
           link={LOGIN_PATH}
           preffixIcon="TbArrowLeft"

@@ -1,20 +1,19 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import Modal from '@/components/ui/Modal/Modal';
-import { useJobProgress } from '@/lib/hooks/useJobProgress';
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
-import { ANALYSIS_PATH } from '@/routes';
+import useJobProgress from '@/lib/hooks/analyzing/useJobProgress';
+import { useAnalysisStore, useJobProgressStore } from '@/stores';
 
 import SideContent from './side-content/SideContent';
 import SkelatonPreview from './SkelatonPreview';
 
-// ✅ Disable SSR for Preview to avoid DOMMatrix error from pdf.js
+// Disable SSR for Preview to avoid DOMMatrix error from pdf.js
 const Preview = dynamic(() => import('./preview').then((mod) => mod.Preview), {
   ssr: false,
 });
@@ -24,26 +23,35 @@ interface AnalyzingProcessProps {
 }
 
 const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
-  const {
-    progress,
-    step,
-    status,
-    durations,
-    completedSteps,
-    data,
-    jobId,
-    isCancelled,
-    failedReason,
-    retryJob,
-    cancelJob,
-  } = useJobProgress(resumeId);
+  const { retryJob, cancelJob, isCancelling } = useJobProgress(resumeId);
+
+  const { progress, status, data, jobId, reset } = useJobProgressStore(
+    useShallow((state) => ({
+      progress: state.progress,
+      status: state.status,
+      data: state.data,
+      jobId: state.jobId,
+      reset: state.reset,
+    }))
+  );
 
   // Pisahkan jenis kegagalan: cancel by user vs error teknis.
-  const isTechnicalError = status === 'failed' && !isCancelled;
-  const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore();
+  const { setModalCancelProcess, modalCancelProcess } = useAnalysisStore(
+    useShallow((state) => ({
+      setModalCancelProcess: state.setModalCancelProcess,
+      modalCancelProcess: state.modalCancelProcess,
+    }))
+  );
 
   const [showResult, setShowResult] = useState<boolean>(false);
-  const hasTriggeredSkeleton = useRef<boolean>(false);
+
+  // Reset store when mounting a new resume analysis to prevent stale state leak.
+  useEffect(() => {
+    reset();
+    return () => {
+      reset();
+    };
+  }, [resumeId, reset]);
 
   // Stabilize object reference untuk prevent unnecessary re-render di SideContent
   const items = useMemo(
@@ -61,30 +69,20 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     [data?.criticalHighlights]
   );
 
-  // Stabilize durations object untuk prevent SideContent re-render
-  const stableDurations = useMemo(() => durations || {}, [durations]);
-
-  console.log({ progress, step, status });
-
   useEffect(() => {
-    if (
-      progress === 100 &&
-      status === 'completed' &&
-      !hasTriggeredSkeleton.current
-    ) {
-      hasTriggeredSkeleton.current = true;
+    if (progress === 100 && status === 'completed' && !showResult) {
       const timer = setTimeout(() => {
         setShowResult(true);
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [progress, status]);
+  }, [progress, status, showResult]);
 
-  const handleRetryJob = async () => {
+  const handleRetryJob = useCallback(async () => {
     if (jobId) {
       await retryJob(jobId);
     }
-  };
+  }, [jobId, retryJob]);
 
   const handleCancelJob = async () => {
     if (jobId) {
@@ -112,16 +110,9 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
             criticalHighlights={criticalHighlights}
           />
           <SideContent
-            progress={progress}
-            step={step as string}
-            status={status}
-            durations={stableDurations}
-            completedSteps={completedSteps}
             score={data?.score || 0}
             items={items}
             matchSummary={data?.matchSummary}
-            isCancelled={isCancelled}
-            failedReason={failedReason}
             onRetry={handleRetryJob}
           />
         </div>
@@ -148,6 +139,7 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
               preffixIcon="TbCancel"
               label="Cancel Process"
               className="mt-3"
+              isLoading={isCancelling}
               onClick={handleCancelJob}
             />
           </div>

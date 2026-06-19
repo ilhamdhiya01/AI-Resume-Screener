@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-// Buat interface agar tipe data jelas dan aman dari eslint any
+// Create interface so data types are clear and safe from eslint any
 interface CriticalSnippet {
   text: string;
   page: number;
@@ -14,8 +14,8 @@ interface HighlightCoord {
   text: string;
 }
 
-export const useTextHighlighter = (
-  snippets: CriticalSnippet[], // UBAH: Sekarang menerima array objek dari AI
+const useTextHighlighter = (
+  snippets: CriticalSnippet[], // CHANGED: Now receives array of objects from AI
   pageNumber: number,
   scale: number
 ) => {
@@ -23,7 +23,7 @@ export const useTextHighlighter = (
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Pastikan ada snippets sebelum memproses DOM
+      // Make sure snippets exist before processing DOM
       if (!snippets || snippets.length === 0) {
         setCoords([]);
         return;
@@ -31,7 +31,7 @@ export const useTextHighlighter = (
 
       const newCoords = snippets
         .map((snippetObj) => {
-          // ADJUSTMENT 1: Validasi objek, kecocokan halaman, dan string kosong (global issue)
+          // ADJUSTMENT 1: Validate object, page match, and empty string (global issue)
           if (
             !snippetObj ||
             snippetObj.page !== pageNumber ||
@@ -42,7 +42,7 @@ export const useTextHighlighter = (
 
           const targetText = snippetObj.text;
 
-          // ADJUSTMENT 2: Cari teks khusus di dalam container halaman yang AKTIF saja
+          // ADJUSTMENT 2: Search for specific text inside the ACTIVE page container only
           const pageContainer = document.querySelector(
             `.react-pdf__Page[data-page-number="${pageNumber}"]`
           );
@@ -54,26 +54,26 @@ export const useTextHighlighter = (
           );
           let foundRange: Range | null = null;
 
-          // Cari span yang mengandung kata kunci
-          // 2. Cari span yang mengandung kata kunci
+          // Search for span containing the keyword
+          // 2. Search for span containing the keyword
           for (const span of Array.from(textSpans)) {
             const textContent = span.textContent || '';
             const index = textContent
               .toLowerCase()
               .indexOf(targetText.toLowerCase());
 
-            // Jika teks ditemukan di dalam span ini
+            // If text is found inside this span
             if (index !== -1) {
               const range = document.createRange();
 
-              // AMAN: Cari Text Node yang tepat di dalam span, jangan tebak pakai firstChild
+              // SAFE: Find the exact Text Node inside the span, don't guess using firstChild
               let currentOffset = 0;
               let startNode: Node | null = null;
               let startOffset = 0;
               let endNode: Node | null = null;
               let endOffset = 0;
 
-              // Jalankan walker untuk memeriksa setiap serpihan text node di dalam span
+              // Run walker to inspect every text node fragment inside the span
               const textNodes: Node[] = [];
               const walk = document.createTreeWalker(
                 span,
@@ -89,13 +89,13 @@ export const useTextHighlighter = (
               for (const node of textNodes) {
                 const nodeLength = node.textContent?.length || 0;
 
-                // Tentukan posisi awal highlight
+                // Determine highlight start position
                 if (!startNode && currentOffset + nodeLength >= index) {
                   startNode = node;
                   startOffset = index - currentOffset;
                 }
 
-                // Tentukan posisi akhir highlight
+                // Determine highlight end position
                 if (
                   startNode &&
                   !endNode &&
@@ -108,7 +108,7 @@ export const useTextHighlighter = (
                 currentOffset += nodeLength;
               }
 
-              // Eksekusi Range hanya jika node penanda berhasil dipetakan dengan aman
+              // Execute Range only if marker nodes are mapped safely
               if (startNode && endNode) {
                 range.setStart(startNode, startOffset);
                 range.setEnd(endNode, endOffset);
@@ -118,7 +118,7 @@ export const useTextHighlighter = (
             }
           }
 
-          // Ambil koordinat presisi relatif terhadap page container aktif
+          // Get precise coordinates relative to active page container
           if (foundRange) {
             const rangeRect = foundRange.getBoundingClientRect();
             const containerRect = pageContainer.getBoundingClientRect();
@@ -134,7 +134,7 @@ export const useTextHighlighter = (
 
           return null;
         })
-        .filter((coord): coord is HighlightCoord => coord !== null); // Filter null dengan type guard
+        .filter((coord): coord is HighlightCoord => coord !== null); // Filter null using type guard
 
       setCoords(newCoords);
     }, 1000);
@@ -144,3 +144,5 @@ export const useTextHighlighter = (
 
   return coords;
 };
+
+export default useTextHighlighter;

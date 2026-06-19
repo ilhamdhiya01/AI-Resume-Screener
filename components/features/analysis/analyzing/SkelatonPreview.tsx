@@ -2,7 +2,7 @@ import React from 'react';
 
 import Skelaton from './preview/Skelaton';
 
-const SkelatonPreview = () => {
+const SkelatonPreview = React.memo(() => {
   return (
     <div className="flex h-[calc(100vh-64px)] w-full animate-pulse overflow-hidden">
       <div className="relative flex w-full max-w-[65%] flex-col">
@@ -114,6 +114,8 @@ const SkelatonPreview = () => {
       </aside>
     </div>
   );
-};
+});
+
+SkelatonPreview.displayName = 'SkelatonPreview';
 
 export default SkelatonPreview;

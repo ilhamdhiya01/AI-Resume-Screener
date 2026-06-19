@@ -1347,6 +1347,22 @@ export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<
 >;
 
 /**
+ * Reference to a field of type 'UploadStatus'
+ */
+export type EnumUploadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'UploadStatus'
+>;
+
+/**
+ * Reference to a field of type 'UploadStatus[]'
+ */
+export type ListEnumUploadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'UploadStatus[]'
+>;
+
+/**
  * Reference to a field of type 'Json'
  */
 export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<

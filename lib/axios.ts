@@ -11,8 +11,19 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Throw kalau API return 200 tapi success=false
+    if (response.data?.success === false) {
+      throw new Error(response.data.message || 'Request failed');
+    }
+    return response;
+  },
   (error) => {
+    // Override axios default message dengan API response message
+    if (error.response?.data?.message) {
+      error.message = error.response.data.message;
+    }
+
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         window.location.href = LOGIN_PATH;

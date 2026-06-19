@@ -41,7 +41,7 @@ export type ResumeMinAggregateOutputType = {
   fileSize: number | null;
   fileType: string | null;
   filePath: string | null;
-  status: string | null;
+  status: $Enums.UploadStatus | null;
   jobDescription: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -54,7 +54,7 @@ export type ResumeMaxAggregateOutputType = {
   fileSize: number | null;
   fileType: string | null;
   filePath: string | null;
-  status: string | null;
+  status: $Enums.UploadStatus | null;
   jobDescription: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -222,7 +222,7 @@ export type ResumeGroupByOutputType = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status: string;
+  status: $Enums.UploadStatus;
   jobDescription: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -256,7 +256,7 @@ export type ResumeWhereInput = {
   fileSize?: Prisma.IntFilter<'Resume'> | number;
   fileType?: Prisma.StringFilter<'Resume'> | string;
   filePath?: Prisma.StringFilter<'Resume'> | string;
-  status?: Prisma.StringFilter<'Resume'> | string;
+  status?: Prisma.EnumUploadStatusFilter<'Resume'> | $Enums.UploadStatus;
   jobDescription?: Prisma.StringNullableFilter<'Resume'> | string | null;
   createdAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
@@ -298,7 +298,7 @@ export type ResumeWhereUniqueInput = Prisma.AtLeast<
     fileSize?: Prisma.IntFilter<'Resume'> | number;
     fileType?: Prisma.StringFilter<'Resume'> | string;
     filePath?: Prisma.StringFilter<'Resume'> | string;
-    status?: Prisma.StringFilter<'Resume'> | string;
+    status?: Prisma.EnumUploadStatusFilter<'Resume'> | $Enums.UploadStatus;
     jobDescription?: Prisma.StringNullableFilter<'Resume'> | string | null;
     createdAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
@@ -347,7 +347,9 @@ export type ResumeScalarWhereWithAggregatesInput = {
   fileSize?: Prisma.IntWithAggregatesFilter<'Resume'> | number;
   fileType?: Prisma.StringWithAggregatesFilter<'Resume'> | string;
   filePath?: Prisma.StringWithAggregatesFilter<'Resume'> | string;
-  status?: Prisma.StringWithAggregatesFilter<'Resume'> | string;
+  status?:
+    | Prisma.EnumUploadStatusWithAggregatesFilter<'Resume'>
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.StringNullableWithAggregatesFilter<'Resume'>
     | string
@@ -362,7 +364,7 @@ export type ResumeCreateInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -378,7 +380,7 @@ export type ResumeUncheckedCreateInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -392,7 +394,9 @@ export type ResumeUpdateInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -411,7 +415,9 @@ export type ResumeUncheckedUpdateInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -429,7 +435,7 @@ export type ResumeCreateManyInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -441,7 +447,9 @@ export type ResumeUpdateManyMutationInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -457,7 +465,9 @@ export type ResumeUncheckedUpdateManyInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -614,6 +624,10 @@ export type ResumeUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.ResumeScalarWhereInput | Prisma.ResumeScalarWhereInput[];
 };
 
+export type EnumUploadStatusFieldUpdateOperationsInput = {
+  set?: $Enums.UploadStatus;
+};
+
 export type ResumeCreateNestedOneWithoutAnalysisInput = {
   create?: Prisma.XOR<
     Prisma.ResumeCreateWithoutAnalysisInput,
@@ -672,7 +686,7 @@ export type ResumeCreateWithoutUserInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -686,7 +700,7 @@ export type ResumeUncheckedCreateWithoutUserInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -745,7 +759,7 @@ export type ResumeScalarWhereInput = {
   fileSize?: Prisma.IntFilter<'Resume'> | number;
   fileType?: Prisma.StringFilter<'Resume'> | string;
   filePath?: Prisma.StringFilter<'Resume'> | string;
-  status?: Prisma.StringFilter<'Resume'> | string;
+  status?: Prisma.EnumUploadStatusFilter<'Resume'> | $Enums.UploadStatus;
   jobDescription?: Prisma.StringNullableFilter<'Resume'> | string | null;
   createdAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<'Resume'> | Date | string;
@@ -757,7 +771,7 @@ export type ResumeCreateWithoutAnalysisInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -772,7 +786,7 @@ export type ResumeUncheckedCreateWithoutAnalysisInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -813,7 +827,9 @@ export type ResumeUpdateWithoutAnalysisInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -831,7 +847,9 @@ export type ResumeUncheckedUpdateWithoutAnalysisInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -847,7 +865,7 @@ export type ResumeCreateWithoutCheckpointInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -862,7 +880,7 @@ export type ResumeUncheckedCreateWithoutCheckpointInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -903,7 +921,9 @@ export type ResumeUpdateWithoutCheckpointInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -921,7 +941,9 @@ export type ResumeUncheckedUpdateWithoutCheckpointInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -937,7 +959,7 @@ export type ResumeCreateManyUserInput = {
   fileSize: number;
   fileType: string;
   filePath: string;
-  status?: string;
+  status?: $Enums.UploadStatus;
   jobDescription?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -949,7 +971,9 @@ export type ResumeUpdateWithoutUserInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -966,7 +990,9 @@ export type ResumeUncheckedUpdateWithoutUserInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -983,7 +1009,9 @@ export type ResumeUncheckedUpdateManyWithoutUserInput = {
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number;
   fileType?: Prisma.StringFieldUpdateOperationsInput | string;
   filePath?: Prisma.StringFieldUpdateOperationsInput | string;
-  status?: Prisma.StringFieldUpdateOperationsInput | string;
+  status?:
+    | Prisma.EnumUploadStatusFieldUpdateOperationsInput
+    | $Enums.UploadStatus;
   jobDescription?:
     | Prisma.NullableStringFieldUpdateOperationsInput
     | string
@@ -1122,7 +1150,7 @@ export type $ResumePayload<
       fileSize: number;
       fileType: string;
       filePath: string;
-      status: string;
+      status: $Enums.UploadStatus;
       jobDescription: string | null;
       createdAt: Date;
       updatedAt: Date;
@@ -1764,7 +1792,7 @@ export interface ResumeFieldRefs {
   readonly fileSize: Prisma.FieldRef<'Resume', 'Int'>;
   readonly fileType: Prisma.FieldRef<'Resume', 'String'>;
   readonly filePath: Prisma.FieldRef<'Resume', 'String'>;
-  readonly status: Prisma.FieldRef<'Resume', 'String'>;
+  readonly status: Prisma.FieldRef<'Resume', 'UploadStatus'>;
   readonly jobDescription: Prisma.FieldRef<'Resume', 'String'>;
   readonly createdAt: Prisma.FieldRef<'Resume', 'DateTime'>;
   readonly updatedAt: Prisma.FieldRef<'Resume', 'DateTime'>;

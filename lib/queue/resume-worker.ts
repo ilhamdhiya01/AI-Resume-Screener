@@ -2,7 +2,7 @@
 import { Worker } from 'bullmq';
 
 import { connection, resumeQueue } from '@/lib/queue/resume-queue';
-import { analyzeResume } from '@/lib/services/resume-analysis.service';
+import { analyzeResume } from '@/services/server/resume-analysis.service';
 
 let workerInstance: Worker | null = null;
 let idleTimeout: NodeJS.Timeout | null = null;

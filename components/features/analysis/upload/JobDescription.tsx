@@ -2,18 +2,24 @@
 
 import classNames from 'classnames';
 import React from 'react';
+import { useShallow } from 'zustand/shallow';
 
-import { useAnalysisStore } from '@/lib/stores/global/useAnalysisStore';
+import { useAnalysisStore } from '@/stores';
 
-const JobDescription = () => {
-  const { jobDescription, setJobDescription } = useAnalysisStore();
+const JobDescription = React.memo(() => {
+  const { jobDescription, setJobDescription } = useAnalysisStore(
+    useShallow((state) => ({
+      jobDescription: state.jobDescription,
+      setJobDescription: state.setJobDescription,
+    }))
+  );
 
   return (
     <div
       className={classNames(
         'group card',
         'flex h-70 w-full flex-col gap-4 p-6',
-        'border-primary-50 rounded-2xl border',
+        'border-primary-200 rounded-2xl border',
         'bg-white transition-colors duration-300'
       )}
     >
@@ -37,6 +43,8 @@ const JobDescription = () => {
       </div>
     </div>
   );
-};
+});
+
+JobDescription.displayName = 'JobDescription';
 
 export default JobDescription;

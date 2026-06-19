@@ -261,6 +261,20 @@ body {
   margin: 1em 0;
 }
 
+/* React DayPicker v10 state overrides using data-attributes from td elements.
+   Selection/range styling is handled via `modifiersClassNames` in DatePicker.tsx
+   because v10 does not emit data-range-* attributes. */
+[data-outside='true'] button {
+  color: #d1d5db !important;
+  opacity: 0.6;
+}
+
+[data-disabled='true'] button {
+  color: #d1d5db !important;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Highlight teks critical issue di DOCX (sepadan dengan overlay merah PDF). */
 .docx-content mark.docx-highlight {
   background-color: rgba(239, 68, 68, 0.2); /* red-500/20 */
