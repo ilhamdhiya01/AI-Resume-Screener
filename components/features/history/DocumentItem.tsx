@@ -74,7 +74,7 @@ const DocumentItem = React.memo<DocumentItemProps>(
               'border-secondary-200 bg-secondary-50 text-secondary-600':
                 status === 'COMPLETED',
               'border-tertiary-200 bg-tertiary-50 text-tertiary-600':
-                status === 'PROCESSING',
+                status === 'PROCESSING' || status === 'PENDING',
               'border-red-200 bg-red-50 text-red-600': status === 'FAILED',
             }
           )}
@@ -82,7 +82,8 @@ const DocumentItem = React.memo<DocumentItemProps>(
           <span
             className={classNames('size-2 rounded-full', {
               'bg-secondary-600': status === 'COMPLETED',
-              'bg-tertiary-600': status === 'PROCESSING',
+              'bg-tertiary-600':
+                status === 'PROCESSING' || status === 'PENDING',
               'bg-red-600': status === 'FAILED',
             })}
           />

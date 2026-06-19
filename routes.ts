@@ -9,6 +9,7 @@ export const API_UPLOAD = `/upload`;
 
 export const API_RESUME = `/resume`;
 export const API_RESUME_STATUS = `${API_RESUME}/status`;
+export const API_RESUME_HISTORY = `${API_RESUME}/history`;
 
 export const ROOT_PATH = '/';
 export const ROOT_AUTH_PATH = '/auth';

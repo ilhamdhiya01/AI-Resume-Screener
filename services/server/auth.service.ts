@@ -1,7 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import { errorResponse } from '@/lib/utils/api-response';
 import { verifyTurnstileToken } from '@/lib/utils/turnstile';
 
 import prisma from '../../lib/db';

@@ -46,3 +46,7 @@ export type ResumeJobStatus = {
   failedReason?: string | null;
   isCancelled?: boolean;
 };
+
+export type ResumeAnalysisResult = {
+  score: number | null;
+};
