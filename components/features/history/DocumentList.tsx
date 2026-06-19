@@ -28,7 +28,7 @@ const DocumentList = React.memo<DocumentListProps>(({ page, status }) => {
   }
 
   return (
-    <div className="mt-6 max-h-[calc(100vh-400px)] space-y-4 overflow-y-auto">
+    <div className="mt-6 max-h-[calc(100vh-420px)] space-y-4 overflow-y-auto">
       {items.map((item) => (
         <DocumentItem
           key={item.id}

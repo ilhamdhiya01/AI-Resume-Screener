@@ -12,6 +12,7 @@ export const useHistory = (page: number = 1, status?: string) => {
       queryKey: ['resume-history', page, status],
       queryFn: () => getResumeHistory(page, status),
       placeholderData: keepPreviousData,
+      staleTime: 30_000, // 30 seconds
     }),
   });
 };
