@@ -8,7 +8,7 @@ import Turnstile from '@/components/shared/turnstile';
 import Button from '@/components/ui/button';
 import { IconProps } from '@/components/ui/icon';
 import Input from '@/components/ui/input';
-import { useRegisterMutation } from '@/lib/hooks/auth/useRegisterMutation';
+import useRegisterMutation from '@/lib/hooks/auth/useRegisterMutation';
 import { RegisterInput } from '@/lib/types/auth.types';
 import { registerSchema } from '@/schemas/auth.schemas';
 

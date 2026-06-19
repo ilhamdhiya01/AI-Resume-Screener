@@ -6,10 +6,10 @@ import { useShallow } from 'zustand/shallow';
 import { getJobStatus } from '@/services/client/resume-analysis.service';
 import { useJobProgressStore } from '@/stores/analyzing/useJobProgressStore';
 
-import { useCancelJob } from './useCancelJob';
-import { useRetryJob } from './useRetryJob';
+import useCancelJob from './useCancelJob';
+import useRetryJob from './useRetryJob';
 
-export const useJobProgress = (resumeId: string | null) => {
+const useJobProgress = (resumeId: string | null) => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
   const isFirstPoll = useRef(true);
@@ -124,3 +124,5 @@ export const useJobProgress = (resumeId: string | null) => {
 
   return { retryJob, cancelJob, isRetrying, isCancelling };
 };
+
+export default useJobProgress;

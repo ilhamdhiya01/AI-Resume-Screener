@@ -7,7 +7,7 @@ import { getAuthErrorMessage } from '@/lib/errors/auth.error';
 import { LoginRequest } from '@/lib/types/auth.types';
 import { ROOT_PATH } from '@/routes';
 
-export const useLoginMutation = () => {
+const useLoginMutation = () => {
   const router = useRouter();
   const loginmMutation = useMutation({
     mutationFn: (payload: LoginRequest) =>
@@ -38,3 +38,5 @@ export const useLoginMutation = () => {
     error: loginmMutation.error,
   };
 };
+
+export default useLoginMutation;

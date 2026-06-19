@@ -1,10 +1,15 @@
-import React from 'react';
-
 import { History } from '@/components/features/history';
 
-const HistoryPage = () => {
+interface HistoryPageProps {
+  searchParams: Promise<{
+    tab?: string;
+  }>;
+}
+
+const HistoryPage = async ({ searchParams }: HistoryPageProps) => {
+  const params = await searchParams;
   return (
-    <History.Layout>
+    <History.Layout tabParams={params}>
       <History.DocumentList />
     </History.Layout>
   );

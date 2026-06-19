@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import React, { Suspense, useCallback, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import TabItem from './TabItem';
 
@@ -11,16 +11,15 @@ export interface TabItemData {
 }
 
 interface TabProps {
+  searchParams: { tab?: string };
   items: TabItemData[];
 }
 
-const Tab = React.memo<TabProps>(({ items }) => {
-  const searchParams = useSearchParams();
+const Tab = React.memo<TabProps>(({ searchParams, items }) => {
   const router = useRouter();
 
   const activeTab = useMemo(() => {
-    const tab = searchParams.get('tab');
-    return tab || 'all';
+    return searchParams?.tab || 'all';
   }, [searchParams]);
 
   const [selectedTab, setSelectedTab] = useState<string>(activeTab);
@@ -28,26 +27,24 @@ const Tab = React.memo<TabProps>(({ items }) => {
   const handleTabChange = useCallback(
     (tabId: string) => {
       setSelectedTab(tabId);
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams();
       params.set('tab', tabId);
       router.replace(`/history?${params.toString()}`, { scroll: false });
     },
-    [router, searchParams]
+    [router]
   );
 
   return (
-    <Suspense>
-      <div className="my-6 flex w-full gap-8 border-b border-b-slate-300">
-        {items.map((item) => (
-          <TabItem
-            key={item.slug}
-            {...item}
-            isActive={selectedTab === item.slug}
-            onClick={handleTabChange}
-          />
-        ))}
-      </div>
-    </Suspense>
+    <div className="my-6 flex w-full gap-8 border-b border-b-slate-300">
+      {items.map((item) => (
+        <TabItem
+          key={item.slug}
+          {...item}
+          isActive={selectedTab === item.slug}
+          onClick={handleTabChange}
+        />
+      ))}
+    </div>
   );
 });
 

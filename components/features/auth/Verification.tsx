@@ -7,8 +7,10 @@ import { useEffect, useMemo, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Icon, { IconProps } from '@/components/ui/icon';
-import { useResendVerificationEmail } from '@/lib/hooks/auth/useResendVerificationEmail';
-import { useVerifyEmailMutation } from '@/lib/hooks/auth/useVerifyEmail';
+import {
+  useResendVerificationEmail,
+  useVerifyEmailMutation,
+} from '@/lib/hooks/auth';
 import { LOGIN_PATH, ROOT_PATH } from '@/routes';
 
 type VerificationStatus = 'loading' | 'success' | 'expired' | 'error';

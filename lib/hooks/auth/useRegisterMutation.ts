@@ -9,7 +9,7 @@ import { RegisterRequest } from '@/lib/types/auth.types';
 import { ROOT_CHECK_EMAIL_PATH } from '@/routes';
 import { register } from '@/services/client/auth.service';
 
-export const useRegisterMutation = () => {
+const useRegisterMutation = () => {
   const router = useRouter();
   const registerMutation = useMutation({
     mutationFn: (payload: RegisterRequest) => register(payload),
@@ -34,3 +34,5 @@ export const useRegisterMutation = () => {
     error: registerMutation.error,
   };
 };
+
+export default useRegisterMutation;

@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 import { cancelJob } from '@/services/client/resume-analysis.service';
 
-export const useCancelJob = (callbacks: {
+const useCancelJob = (callbacks: {
   onCancelSuccess: () => void; // caller: isFirstPoll.current = true; startPolling()
 }) => {
   return useMutation({
@@ -16,3 +16,5 @@ export const useCancelJob = (callbacks: {
     },
   });
 };
+
+export default useCancelJob;

@@ -7,7 +7,7 @@ import { useShallow } from 'zustand/shallow';
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import Modal from '@/components/ui/Modal/Modal';
-import { useJobProgress } from '@/lib/hooks/analyzing/useJobProgress';
+import useJobProgress from '@/lib/hooks/analyzing/useJobProgress';
 import { useAnalysisStore, useJobProgressStore } from '@/stores';
 
 import SideContent from './side-content/SideContent';

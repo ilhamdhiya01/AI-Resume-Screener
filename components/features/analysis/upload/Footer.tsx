@@ -6,7 +6,7 @@ import { TbArrowRight } from 'react-icons/tb';
 import { useShallow } from 'zustand/shallow';
 
 import Icon from '@/components/ui/icon';
-import { useUploadResume } from '@/lib/hooks/upload/useUpload';
+import useUploadResume from '@/lib/hooks/upload/useUpload';
 import { useAnalysisStore } from '@/stores';
 
 const Footer = React.memo(() => {

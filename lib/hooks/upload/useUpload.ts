@@ -8,7 +8,7 @@ import { ANALYSIS_PATH } from '@/routes';
 import { uploadResume } from '@/services/client/upload.service';
 import { useAnalysisStore } from '@/stores';
 
-export const useUploadResume = () => {
+const useUploadResume = () => {
   const router = useRouter();
   const { setFile, setJobDescription } = useAnalysisStore(
     useShallow((state) => ({
@@ -38,3 +38,5 @@ export const useUploadResume = () => {
     isUploading: loginmMutation.isPending,
   };
 };
+
+export default useUploadResume;

@@ -14,7 +14,7 @@ interface HighlightCoord {
   text: string;
 }
 
-export const useTextHighlighter = (
+const useTextHighlighter = (
   snippets: CriticalSnippet[], // CHANGED: Now receives array of objects from AI
   pageNumber: number,
   scale: number
@@ -144,3 +144,5 @@ export const useTextHighlighter = (
 
   return coords;
 };
+
+export default useTextHighlighter;

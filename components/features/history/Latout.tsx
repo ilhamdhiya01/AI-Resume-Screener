@@ -8,12 +8,17 @@ import { Select } from '@/components/ui';
 
 import Header from './Header';
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = ({
+  children,
+  tabParams,
+}: {
+  children: React.ReactNode;
+  tabParams: { tab?: string };
+}) => {
   const [selectValue, setSelectValue] = useState<{
     value: string;
     label: string;
   } | null>(null);
-  const [singleDate, setSingleDate] = useState<Date | null>(null);
   const [rangeDate, setRangeDate] = useState<{
     from: Date | null;
     to: Date | null;
@@ -23,6 +28,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <section className="flex flex-col p-8">
       <Header />
       <Tab
+        searchParams={tabParams}
         items={[
           { slug: 'all', label: 'All Work' },
           { slug: 'completed', label: 'Completed' },

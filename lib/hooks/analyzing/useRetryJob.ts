@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 
 import { retryJob } from '@/services/client/resume-analysis.service';
 
-export const useRetryJob = (callbacks: {
+const useRetryJob = (callbacks: {
   onRetrySuccess: () => void; // caller: isFirstPoll.current = true; startPolling()
 }) => {
   return useMutation({
@@ -16,3 +16,5 @@ export const useRetryJob = (callbacks: {
     },
   });
 };
+
+export default useRetryJob;

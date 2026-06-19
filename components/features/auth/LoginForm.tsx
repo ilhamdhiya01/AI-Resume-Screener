@@ -8,7 +8,7 @@ import Turnstile from '@/components/shared/turnstile';
 import Button from '@/components/ui/button';
 import { IconProps } from '@/components/ui/icon';
 import Input from '@/components/ui/input';
-import { useLoginMutation } from '@/lib/hooks/auth/useLoginMutation';
+import useLoginMutation from '@/lib/hooks/auth/useLoginMutation';
 import { LoginInput } from '@/lib/types/auth.types';
 import { loginSchema } from '@/schemas/auth.schemas';
 
