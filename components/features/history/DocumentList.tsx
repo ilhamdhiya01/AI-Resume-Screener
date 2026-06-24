@@ -1,8 +1,11 @@
 'use client';
 
-import React from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useCallback } from 'react';
 
+import Pagination from '@/components/shared/pagination/Pagination';
 import { useHistory } from '@/lib/hooks/history/useHistory';
+import { ANALYSIS_PATH, HISTORY_PATH } from '@/routes';
 
 import DocumentItem from './DocumentItem';
 
@@ -13,11 +16,28 @@ interface DocumentListProps {
 
 const DocumentList = React.memo<DocumentListProps>(({ page, status }) => {
   const { data, isPending, isError } = useHistory(page, status);
+  const router = useRouter();
+
+  const handleViewResult = useCallback((resumeId: string) => {
+    window.open(`${ANALYSIS_PATH}/${resumeId}`, '_blank');
+  }, []);
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      const params = new URLSearchParams();
+      params.set('page', String(newPage));
+      router.push(`${HISTORY_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router]
+  );
 
   if (isPending) return <div>Loading history...</div>;
   if (isError) return <div>Failed to load history</div>;
 
   const items = data?.data?.items ?? [];
+  const totalPages = data?.data?.totalPages ?? 1;
+  const totalItems = data?.data?.total ?? 0;
+  const limit = data?.data?.limit ?? 10;
 
   if (items.length === 0) {
     return (
@@ -28,18 +48,32 @@ const DocumentList = React.memo<DocumentListProps>(({ page, status }) => {
   }
 
   return (
-    <div className="mt-6 max-h-[calc(100vh-420px)] space-y-4 overflow-y-auto">
-      {items.map((item) => (
-        <DocumentItem
-          key={item.id}
-          status={item.status}
-          score={item.analysis?.score ?? 0}
-          fileName={item.fileName}
-          date={new Date(item.createdAt).toLocaleDateString()}
-          time={new Date(item.createdAt).toLocaleTimeString()}
-        />
-      ))}
-    </div>
+    <>
+      <div className="max-h-[calc(100vh-420px)] space-y-4 overflow-y-auto">
+        {items.map((item) => (
+          <DocumentItem
+            key={item.id}
+            id={item.id}
+            status={item.status}
+            score={item.analysis?.score ?? 0}
+            fileName={item.fileName}
+            date={new Date(item.createdAt).toLocaleDateString()}
+            time={new Date(item.createdAt).toLocaleTimeString()}
+            onViewResult={handleViewResult}
+            onDownload={() => {}}
+            onRemove={() => {}}
+          />
+        ))}
+      </div>
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={limit}
+        currentCount={items.length}
+        onPageChange={handlePageChange}
+      />
+    </>
   );
 });
 

@@ -91,11 +91,15 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
     }
   };
 
-  // Skeleton only when completed + waiting for transition.
+  // Skeleton shown in two cases:
+  // 1. Component just mounted, data not yet available (idle with no data)
+  // 2. Completed but waiting for transition timer before showing result
   // Saat error teknis, JANGAN tampilkan skeleton biar step tracker yang
   // nandain step gagal (icon X) tetap kelihatan.
-  const showSkeleton =
+  const isWaitingForData = status === 'idle' && !data;
+  const isTransitioning =
     progress === 100 && status === 'completed' && !showResult;
+  const showSkeleton = isWaitingForData || isTransitioning;
 
   return (
     <>

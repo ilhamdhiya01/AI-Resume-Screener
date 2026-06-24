@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useMemo, useState } from 'react';
 
+import { HISTORY_PATH } from '@/routes';
+
 import TabItem from './TabItem';
 
 export interface TabItemData {
@@ -29,7 +31,7 @@ const Tab = React.memo<TabProps>(({ searchParams, items }) => {
       setSelectedTab(tabId);
       const params = new URLSearchParams();
       params.set('tab', tabId);
-      router.replace(`/history?${params.toString()}`, { scroll: false });
+      router.replace(`${HISTORY_PATH}?${params.toString()}`, { scroll: false });
     },
     [router]
   );

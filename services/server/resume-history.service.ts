@@ -39,5 +39,6 @@ export const getUserResumeHistory = async (
     total,
     page,
     totalPages: Math.ceil(total / limit),
+    limit,
   };
 };
