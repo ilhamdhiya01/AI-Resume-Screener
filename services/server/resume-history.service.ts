@@ -7,38 +7,47 @@ export const getUserResumeHistory = async (
   userId: string,
   filters: ResumeHistoryFilters
 ): Promise<PaginatedResponse<ResumeHistoryItem>> => {
-  const page = Math.max(1, filters.page ?? 1);
-  const limit = Math.max(1, Math.min(100, filters.limit ?? 10));
-  const skip = (page - 1) * limit;
+  const requestedPage = Math.max(1, filters.page ?? 1);
+  const limit = Math.max(1, Math.min(100, filters.limit ?? 4));
 
   const where = {
     userId,
     ...(filters.status && { status: filters.status }),
-  };
-  const [items, total] = await prisma.$transaction([
-    prisma.resume.findMany({
-      where,
-      select: {
-        id: true,
-        fileName: true,
-        status: true,
-        createdAt: true,
-        analysis: {
-          select: { score: true },
-        },
+    ...(filters.search && {
+      fileName: {
+        contains: filters.search,
+        mode: 'insensitive' as const,
       },
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: limit,
     }),
-    prisma.resume.count({ where }),
-  ]);
+  };
+
+  const total = await prisma.resume.count({ where });
+  const totalPages = Math.ceil(total / limit);
+  const page = Math.min(requestedPage, totalPages || 1);
+  const skip = (page - 1) * limit;
+
+  const items = await prisma.resume.findMany({
+    where,
+    select: {
+      id: true,
+      fileName: true,
+      filePath: true,
+      status: true,
+      createdAt: true,
+      analysis: {
+        select: { score: true },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+    skip,
+    take: limit,
+  });
 
   return {
     items,
     total,
     page,
-    totalPages: Math.ceil(total / limit),
+    totalPages,
     limit,
   };
 };

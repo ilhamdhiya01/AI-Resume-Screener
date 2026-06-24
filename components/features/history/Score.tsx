@@ -23,9 +23,10 @@ const Score = ({ score = 92 }: ScoreProps) => {
             fill="none"
             strokeWidth={strokeWidth}
             className={classNames({
-              'stroke-secondary-200': score >= 70,
-              'stroke-tertiary-200': score >= 40 && score < 70,
-              'stroke-red-200': score < 40,
+              'stroke-green-200': score > 85,
+              'stroke-secondary-200': score > 70 && score <= 85,
+              'stroke-tertiary-200': score > 40 && score <= 70,
+              'stroke-red-200': score <= 40,
             })}
           />
           <circle
@@ -38,17 +39,19 @@ const Score = ({ score = 92 }: ScoreProps) => {
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
             className={classNames('transition-all duration-500 ease-in-out', {
-              'stroke-secondary-500': score >= 70,
-              'stroke-tertiary-500': score >= 40 && score < 70,
-              'stroke-red-500': score < 40,
+              'stroke-green-500': score > 85,
+              'stroke-secondary-500': score > 70 && score <= 85,
+              'stroke-tertiary-500': score > 40 && score <= 70,
+              'stroke-red-500': score <= 40,
             })}
           />
         </svg>
         <span
           className={classNames('text-xs font-bold', {
-            'text-secondary-500': score >= 70,
-            'text-tertiary-500': score >= 40 && score < 70,
-            'text-red-500': score < 40,
+            'text-green-500': score > 85,
+            'text-secondary-500': score > 70 && score <= 85,
+            'text-tertiary-500': score > 40 && score <= 70,
+            'text-red-500': score <= 40,
           })}
         >
           {score}%

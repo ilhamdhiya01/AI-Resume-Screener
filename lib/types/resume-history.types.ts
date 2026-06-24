@@ -6,11 +6,13 @@ export type ResumeHistoryFilters = Partial<{
   page: number;
   limit: number;
   status: UploadStatus;
+  search: string;
 }>;
 
 export type ResumeHistoryItem = {
   id: string;
   fileName: string;
+  filePath: string;
   status: UploadStatus;
   createdAt: Date;
   analysis?: ResumeAnalysisResult | null;

@@ -1,7 +1,7 @@
 const Navbar = () => {
   return (
-    <header className="h-16 border-b border-slate-300 bg-[#f7fafc] px-4">
-      <div className="mx-auto flex items-center justify-between">
+    <header className="flex h-16 shrink-0 items-center border-b border-slate-300 bg-[#f7fafc] px-4">
+      <div className="mx-auto flex w-full items-center justify-between">
         {/* Branding Area */}
         {/* <h1 className="text-xl font-bold tracking-tight text-slate-900">
           AI Resume Screener

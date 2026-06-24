@@ -6,11 +6,15 @@ import {
 
 import { getResumeHistory } from '@/services/client/resume-history.service';
 
-export const useHistory = (page: number = 1, status?: string) => {
+export const useHistory = (
+  page: number = 1,
+  status?: string,
+  search?: string
+) => {
   return useQuery({
     ...queryOptions({
-      queryKey: ['resume-history', page, status],
-      queryFn: () => getResumeHistory(page, status),
+      queryKey: ['resume-history', page, status, search],
+      queryFn: () => getResumeHistory(page, status, search),
       placeholderData: keepPreviousData,
       staleTime: 30_000,
       refetchOnWindowFocus: 'always',

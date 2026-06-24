@@ -24,17 +24,28 @@ interface InputProps extends Omit<
   id?: string;
   suffix?: SuffixAndPrefix['suffix'];
   prefix?: SuffixAndPrefix['prefix'];
+  className?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   (
-    { label, error, fullWidth, required, id, suffix, prefix, ...props },
+    {
+      label,
+      error,
+      fullWidth,
+      required,
+      id,
+      suffix,
+      prefix,
+      className,
+      ...props
+    },
     ref
   ) => {
     const generatedId = useId();
     const inputId = id || generatedId;
     return (
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 bg-white">
         {label && (
           <label htmlFor={inputId} className="text-sm font-medium select-none">
             {label}
@@ -63,6 +74,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             id={inputId}
             className={classNames(
               'block rounded border border-neutral-300 py-2 transition-colors duration-200 placeholder:text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-offset-0 focus:outline-none disabled:bg-gray-100 disabled:opacity-50',
+              className,
               {
                 'border-red-500 focus:border-red-500 focus:ring-red-200': error,
                 'focus:border-primary-500 focus:ring-primary-200 border-gray-300':

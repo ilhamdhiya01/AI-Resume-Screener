@@ -27,6 +27,7 @@ export const GET = async (request: NextRequest) => {
     const { searchParams } = new URL(request.url);
     const statusParam = searchParams.get('status');
     const pageParam = parseInt(searchParams.get('page') || '1', 10);
+    const searchParam = searchParams.get('search');
 
     const session = await auth();
 
@@ -41,6 +42,7 @@ export const GET = async (request: NextRequest) => {
     const resumes = await getUserResumeHistory(userId, {
       status: parsedStatus,
       page: pageParam,
+      search: searchParam || undefined,
     });
 
     return successResponse('Resume history retrieved', resumes, 200);

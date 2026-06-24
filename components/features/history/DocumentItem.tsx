@@ -3,12 +3,12 @@ import React from 'react';
 
 import { UploadStatus } from '@/app/generated/prisma/enums';
 import { Button, Icon, Input } from '@/components/ui';
+import useDownloadResume from '@/lib/hooks/history/useDownload';
 import useItemJobProgress from '@/lib/hooks/history/useItemJobProgress';
 
 import Score from './Score';
 
 interface DocumentItemActionsProps {
-  onDownload?: (id: string) => void;
   onViewResult?: (id: string) => void;
   onRemove?: (id: string) => void;
 }
@@ -17,6 +17,7 @@ interface DocumentItemProps extends DocumentItemActionsProps {
   status: UploadStatus;
   score: number;
   fileName: string;
+  filePath: string;
   date: string;
   time: string;
   id: string;
@@ -27,13 +28,14 @@ const DocumentItem = React.memo<DocumentItemProps>(
     status,
     score,
     fileName,
+    filePath,
     date,
     time,
     id,
-    onDownload,
     onViewResult,
     onRemove,
   }) => {
+    const { handleDownload, isDownloading } = useDownloadResume();
     const { progress } = useItemJobProgress(id, status);
     const isDocx = (fileName || '')
       .toLowerCase()
@@ -69,7 +71,7 @@ const DocumentItem = React.memo<DocumentItemProps>(
               size={22}
             />
           </div>
-          <div className="flex max-w-[300px] min-w-0 flex-1 flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="truncate text-base font-bold text-slate-700">
               {fileName}
             </p>
@@ -130,7 +132,8 @@ const DocumentItem = React.memo<DocumentItemProps>(
             variant="ghost"
             color="neutral"
             disabled={!isCompleted}
-            onClick={() => onDownload?.(id)}
+            isLoading={isDownloading}
+            onClick={() => handleDownload({ filePath, fileName })}
           />
           <Button
             type="button"

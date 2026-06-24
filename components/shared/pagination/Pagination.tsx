@@ -64,14 +64,12 @@ const Pagination = React.memo<PaginationProps>(
     const to = from + currentCount - 1;
 
     return (
-      <div className="flex items-center justify-between border-t border-gray-200 py-4">
-        <div>
-          <p className="text-sm text-gray-600">
-            Showing <span className="font-semibold">{from}</span> to{' '}
-            <span className="font-semibold">{to}</span> of{' '}
-            <span className="font-semibold">{totalItems}</span> entries
-          </p>
-        </div>
+      <div className="flex items-center justify-between py-4">
+        <p className="text-sm text-gray-600">
+          Showing <span className="font-semibold">{from}</span> to{' '}
+          <span className="font-semibold">{to}</span> of{' '}
+          <span className="font-semibold">{totalItems}</span> entries
+        </p>
         <div className="inline-flex gap-2">
           <Button
             type="button"
@@ -86,7 +84,7 @@ const Pagination = React.memo<PaginationProps>(
             typeof page === 'string' ? (
               <span
                 key={`ellipsis-${index}`}
-                className="flex size-9 items-center justify-center text-sm text-slate-400"
+                className="flex size-9 items-end justify-center font-bold text-slate-400"
               >
                 ...
               </span>
