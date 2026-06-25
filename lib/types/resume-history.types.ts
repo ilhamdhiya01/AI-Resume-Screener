@@ -7,6 +7,8 @@ export type ResumeHistoryFilters = Partial<{
   limit: number;
   status: UploadStatus;
   search: string;
+  dateFrom: string;
+  dateTo: string;
 }>;
 
 export type ResumeHistoryItem = {

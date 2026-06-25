@@ -2,18 +2,16 @@ import classNames from 'classnames';
 import React from 'react';
 
 import { UploadStatus } from '@/app/generated/prisma/enums';
-import { Button, Icon, Input } from '@/components/ui';
+import Button from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
+import Input from '@/components/ui/input';
+import useDeleteResume from '@/lib/hooks/history/useDeleteResume';
 import useDownloadResume from '@/lib/hooks/history/useDownload';
 import useItemJobProgress from '@/lib/hooks/history/useItemJobProgress';
 
 import Score from './Score';
 
-interface DocumentItemActionsProps {
-  onViewResult?: (id: string) => void;
-  onRemove?: (id: string) => void;
-}
-
-interface DocumentItemProps extends DocumentItemActionsProps {
+interface DocumentItemProps {
   status: UploadStatus;
   score: number;
   fileName: string;
@@ -21,21 +19,13 @@ interface DocumentItemProps extends DocumentItemActionsProps {
   date: string;
   time: string;
   id: string;
+  onViewResult?: (id: string) => void;
 }
 
 const DocumentItem = React.memo<DocumentItemProps>(
-  ({
-    status,
-    score,
-    fileName,
-    filePath,
-    date,
-    time,
-    id,
-    onViewResult,
-    onRemove,
-  }) => {
+  ({ status, score, fileName, filePath, date, time, id, onViewResult }) => {
     const { handleDownload, isDownloading } = useDownloadResume();
+    const { handleDelete, isDeleting } = useDeleteResume();
     const { progress } = useItemJobProgress(id, status);
     const isDocx = (fileName || '')
       .toLowerCase()
@@ -140,8 +130,9 @@ const DocumentItem = React.memo<DocumentItemProps>(
             iconButton="TbTrash"
             variant="ghost"
             color="neutral"
-            disabled={!isCompleted}
-            onClick={() => onRemove?.(id)}
+            disabled={!isCompleted || isDeleting}
+            isLoading={isDeleting}
+            onClick={() => handleDelete(id)}
           />
         </div>
         {showProgress && (

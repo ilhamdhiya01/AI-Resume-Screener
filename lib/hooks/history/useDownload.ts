@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
 
+import { notify } from '@/lib/utils/toast';
 import { downloadResume } from '@/services/client/resume-history.service';
 
 interface DownloadPayload {
@@ -37,7 +37,7 @@ const useDownloadResume = () => {
       return result;
     },
     onError: (error) => {
-      toast.error(error.message);
+      notify({ type: 'error', title: error.message });
     },
   });
 

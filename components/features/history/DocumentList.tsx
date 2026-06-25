@@ -13,11 +13,19 @@ interface DocumentListProps {
   page: number;
   status?: string;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 const DocumentList = React.memo<DocumentListProps>(
-  ({ page, status, search }) => {
-    const { data, isPending, isError } = useHistory(page, status, search);
+  ({ page, status, search, dateFrom, dateTo }) => {
+    const { data, isPending, isError } = useHistory(
+      page,
+      status,
+      search,
+      dateFrom,
+      dateTo
+    );
     const router = useRouter();
 
     const handleViewResult = useCallback((resumeId: string) => {
@@ -63,7 +71,6 @@ const DocumentList = React.memo<DocumentListProps>(
               date={new Date(item.createdAt).toLocaleDateString()}
               time={new Date(item.createdAt).toLocaleTimeString()}
               onViewResult={handleViewResult}
-              onRemove={() => {}}
             />
           ))}
         </div>

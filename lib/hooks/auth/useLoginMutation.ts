@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import toast from 'react-hot-toast';
 
 import { getAuthErrorMessage } from '@/lib/errors/auth.error';
 import { LoginRequest } from '@/lib/types/auth.types';
+import { notify } from '@/lib/utils/toast';
 import { ROOT_PATH } from '@/routes';
 
 const useLoginMutation = () => {
@@ -20,14 +20,22 @@ const useLoginMutation = () => {
         const errorMessage = getAuthErrorMessage(
           (response.code as string) ?? response.error
         );
-        return toast.error(errorMessage);
+        return notify({
+          type: 'error',
+          title: errorMessage,
+          description: 'Please try again with correct credentials',
+        });
       }
 
-      toast.success('Login successful');
+      notify({
+        type: 'success',
+        title: 'Login successful',
+        description: 'Welcome back!',
+      });
       router.replace(ROOT_PATH);
     },
     onError: (error) => {
-      toast.error(error.message);
+      notify({ type: 'error', title: error.message });
     },
   });
 

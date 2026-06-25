@@ -28,6 +28,8 @@ export const GET = async (request: NextRequest) => {
     const statusParam = searchParams.get('status');
     const pageParam = parseInt(searchParams.get('page') || '1', 10);
     const searchParam = searchParams.get('search');
+    const dateFromParam = searchParams.get('dateFrom');
+    const dateToParam = searchParams.get('dateTo');
 
     const session = await auth();
 
@@ -43,6 +45,8 @@ export const GET = async (request: NextRequest) => {
       status: parsedStatus,
       page: pageParam,
       search: searchParam || undefined,
+      dateFrom: dateFromParam || undefined,
+      dateTo: dateToParam || undefined,
     });
 
     return successResponse('Resume history retrieved', resumes, 200);

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button } from '@/components/ui';
+import Button from '@/components/ui/button';
 import { IconProps } from '@/components/ui/icon';
 
 interface PaginationProps {
