@@ -211,7 +211,7 @@ const extractTextFromFile = async (
  */
 const aiAnalyze = async (
   prompt: string,
-  model: 'deepseek-v4-flash' | 'kimi-k2.6',
+  model: 'deepseek-v4-flash' | 'kimi-k2.7',
   content: string,
   timeoutMs: number = 60000,
   signal?: AbortSignal
@@ -440,7 +440,7 @@ export const analyzeResume = async (
       // Call DeepSeek API for fact extraction (60s timeout)
       extraction = await aiAnalyze(
         EXTRACTION_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Fast model for structured extraction
+        'kimi-k2.7', // Fast model for structured extraction
         `## Resume Text:\n${resumeText}`,
         60000, // 60s timeout
         signal
@@ -512,7 +512,7 @@ export const analyzeResume = async (
       // Kimi excels at narrative synthesis and holistic evaluation
       synthesis = await aiAnalyze(
         SYNTHESIS_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Kimi for deep reasoning and narrative generation
+        'kimi-k2.7', // Kimi for deep reasoning and narrative generation
         `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
         60000, // 60s timeout
         signal

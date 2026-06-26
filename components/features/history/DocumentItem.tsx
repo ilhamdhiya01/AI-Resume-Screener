@@ -37,10 +37,10 @@ const DocumentItem = React.memo<DocumentItemProps>(
     const showProgress = !isCompleted && !isFailed;
     return (
       <div className="relative flex items-center gap-6 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-        <Input
+        {/* <Input
           type="checkbox"
           className="size-4 shrink-0 cursor-pointer rounded border-slate-300 accent-blue-600"
-        />
+        /> */}
 
         <div className="flex flex-1 items-center gap-4">
           <div
