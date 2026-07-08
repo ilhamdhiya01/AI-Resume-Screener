@@ -23,7 +23,6 @@ const QueryProvider = ({ children }: QueryProviderProps) => {
       <Toaster
         toastOptions={{
           position: 'top-center',
-          duration: 3000,
         }}
       />
     </QueryClientProvider>

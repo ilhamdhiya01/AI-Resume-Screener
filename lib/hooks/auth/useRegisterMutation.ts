@@ -2,10 +2,10 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
 
 import { handleApiError } from '@/lib/errors/auth.error';
 import { RegisterRequest } from '@/lib/types/auth.types';
+import { notify } from '@/lib/utils/toast';
 import { ROOT_CHECK_EMAIL_PATH } from '@/routes';
 import { register } from '@/services/client/auth.service';
 
@@ -15,7 +15,7 @@ const useRegisterMutation = () => {
     mutationFn: (payload: RegisterRequest) => register(payload),
     onSuccess: (response) => {
       if (response?.success) {
-        toast.success('Register successful');
+        notify({ type: 'success', title: 'Register successful' });
         router.replace(ROOT_CHECK_EMAIL_PATH);
       }
     },
@@ -23,7 +23,7 @@ const useRegisterMutation = () => {
       const errorMessage = handleApiError(error, {
         defaultMessage: 'Registration failed',
       });
-      toast.error(errorMessage);
+      notify({ type: 'error', title: errorMessage });
     },
   });
 

@@ -2,7 +2,12 @@ import classNames from 'classnames';
 import React from 'react';
 
 import { UploadStatus } from '@/app/generated/prisma/enums';
-import { Button, Icon, Input } from '@/components/ui';
+import Button from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
+import Input from '@/components/ui/input';
+import useDeleteResume from '@/lib/hooks/history/useDeleteResume';
+import useDownloadResume from '@/lib/hooks/history/useDownload';
+import useItemJobProgress from '@/lib/hooks/history/useItemJobProgress';
 
 import Score from './Score';
 
@@ -10,22 +15,32 @@ interface DocumentItemProps {
   status: UploadStatus;
   score: number;
   fileName: string;
+  filePath: string;
   date: string;
   time: string;
+  id: string;
+  onViewResult?: (id: string) => void;
 }
 
 const DocumentItem = React.memo<DocumentItemProps>(
-  ({ status, score, fileName, date, time }) => {
+  ({ status, score, fileName, filePath, date, time, id, onViewResult }) => {
+    const { handleDownload, isDownloading } = useDownloadResume();
+    const { handleDelete, isDeleting } = useDeleteResume();
+    const { progress } = useItemJobProgress(id, status);
     const isDocx = (fileName || '')
       .toLowerCase()
       .split('?')[0]
       .endsWith('.docx');
+
+    const isCompleted = status === 'COMPLETED';
+    const isFailed = status === 'FAILED';
+    const showProgress = !isCompleted && !isFailed;
     return (
-      <div className="flex items-center gap-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-        <Input
+      <div className="relative flex items-center gap-6 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+        {/* <Input
           type="checkbox"
           className="size-4 shrink-0 cursor-pointer rounded border-slate-300 accent-blue-600"
-        />
+        /> */}
 
         <div className="flex flex-1 items-center gap-4">
           <div
@@ -46,7 +61,7 @@ const DocumentItem = React.memo<DocumentItemProps>(
               size={22}
             />
           </div>
-          <div className="flex max-w-[300px] min-w-0 flex-1 flex-col gap-1">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="truncate text-base font-bold text-slate-700">
               {fileName}
             </p>
@@ -61,43 +76,73 @@ const DocumentItem = React.memo<DocumentItemProps>(
           </div>
         </div>
 
-        <Score score={score} />
-
-        <div className="flex max-w-40 flex-1 items-center justify-center">
-          <div className="h-10 w-px bg-slate-200" />
+        <div className="flex w-20 shrink-0 items-center justify-center">
+          <Score score={score} />
         </div>
 
-        <span
-          className={classNames(
-            'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold tracking-wide uppercase',
-            {
-              'border-secondary-200 bg-secondary-50 text-secondary-600':
-                status === 'COMPLETED',
-              'border-tertiary-200 bg-tertiary-50 text-tertiary-600':
-                status === 'PROCESSING',
-              'border-red-200 bg-red-50 text-red-600': status === 'FAILED',
-            }
-          )}
-        >
+        <div className="h-10 w-px shrink-0 bg-slate-200" />
+
+        <div className="flex w-32 shrink-0 items-center justify-center">
           <span
-            className={classNames('size-2 rounded-full', {
-              'bg-secondary-600': status === 'COMPLETED',
-              'bg-tertiary-600': status === 'PROCESSING',
-              'bg-red-600': status === 'FAILED',
-            })}
+            className={classNames(
+              'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold tracking-wide uppercase',
+              {
+                'border-secondary-200 bg-secondary-50 text-secondary-600':
+                  status === 'COMPLETED',
+                'border-tertiary-200 bg-tertiary-50 text-tertiary-600':
+                  status === 'PROCESSING' || status === 'PENDING',
+                'border-red-200 bg-red-50 text-red-600': status === 'FAILED',
+              }
+            )}
+          >
+            <span
+              className={classNames('size-2 rounded-full', {
+                'bg-secondary-600': status === 'COMPLETED',
+                'bg-tertiary-600':
+                  status === 'PROCESSING' || status === 'PENDING',
+                'bg-red-600': status === 'FAILED',
+              })}
+            />
+            {status}
+          </span>
+        </div>
+
+        <div className="h-10 w-px shrink-0 bg-slate-200" />
+
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            type="button"
+            label={status === 'COMPLETED' ? 'View Result' : 'View Details'}
+            color="secondary"
+            onClick={() => onViewResult?.(id)}
           />
-          {status}
-        </span>
-
-        <div className="flex max-w-40 flex-1 items-center justify-center">
-          <div className="h-10 w-px bg-slate-200" />
+          <Button
+            type="button"
+            iconButton="TbDownload"
+            variant="ghost"
+            color="neutral"
+            disabled={!isCompleted}
+            isLoading={isDownloading}
+            onClick={() => handleDownload({ filePath, fileName })}
+          />
+          <Button
+            type="button"
+            iconButton="TbTrash"
+            variant="ghost"
+            color="neutral"
+            disabled={!isCompleted || isDeleting}
+            isLoading={isDeleting}
+            onClick={() => handleDelete(id)}
+          />
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button label="View Result" color="secondary" />
-          <Button iconButton="TbDownload" variant="ghost" color="neutral" />
-          <Button iconButton="TbTrash" variant="ghost" color="neutral" />
-        </div>
+        {showProgress && (
+          <div className="absolute bottom-0 left-0 h-1 w-full overflow-hidden rounded-full bg-slate-200">
+            <div
+              className="bg-primary-600 h-full transition-all duration-500 ease-out"
+              style={{ width: `${Math.min(progress, 100)}%` }}
+            />
+          </div>
+        )}
       </div>
     );
   }

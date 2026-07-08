@@ -15,20 +15,20 @@
 
 ## 🛠 Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16.2.4 (App Router) + React 19.2.4 |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS v4 + tailwind-variants + tailwind-merge |
-| Auth | NextAuth v5 (beta) + Prisma adapter + Cloudflare Turnstile |
-| Database | PostgreSQL via Prisma 7 + Supabase |
-| Queue | BullMQ + Upstash Redis + ioredis |
-| AI | OpenAI SDK v6 |
-| Email | Nodemailer + Resend |
-| State | Zustand + TanStack Query |
-| Forms | react-hook-form + Zod validation |
-| PDF/DOCX | react-pdf + mammoth + pdf-parse |
-| Container | Docker (multi-stage build) + docker-compose |
+| Layer     | Technology                                                 |
+| --------- | ---------------------------------------------------------- |
+| Framework | Next.js 16.2.4 (App Router) + React 19.2.4                 |
+| Language  | TypeScript 5                                               |
+| Styling   | Tailwind CSS v4 + tailwind-variants + tailwind-merge       |
+| Auth      | NextAuth v5 (beta) + Prisma adapter + Cloudflare Turnstile |
+| Database  | PostgreSQL via Prisma 7 + Supabase                         |
+| Queue     | BullMQ + Upstash Redis + ioredis                           |
+| AI        | OpenAI SDK v6                                              |
+| Email     | Nodemailer + Resend                                        |
+| State     | Zustand + TanStack Query                                   |
+| Forms     | react-hook-form + Zod validation                           |
+| PDF/DOCX  | react-pdf + mammoth + pdf-parse                            |
+| Container | Docker (multi-stage build) + docker-compose                |
 
 ## 📁 Project Structure
 
@@ -159,16 +159,16 @@ The Dockerfile uses multi-stage build for optimized production image size.
 
 ## 📝 Scripts
 
-| Script | Description |
-|---|---|
-| `pnpm dev` | Start Next.js dev server on port 3002 |
-| `pnpm worker` | Start BullMQ worker process |
-| `pnpm dev:all` | Run dev server + worker concurrently |
-| `pnpm build` | Production build |
-| `pnpm start` | Start production server |
-| `pnpm lint` | Run ESLint |
-| `pnpm format` | Format with Prettier |
-| `pnpm prepare` | Install Husky git hooks |
+| Script         | Description                           |
+| -------------- | ------------------------------------- |
+| `pnpm dev`     | Start Next.js dev server on port 3002 |
+| `pnpm worker`  | Start BullMQ worker process           |
+| `pnpm dev:all` | Run dev server + worker concurrently  |
+| `pnpm build`   | Production build                      |
+| `pnpm start`   | Start production server               |
+| `pnpm lint`    | Run ESLint                            |
+| `pnpm format`  | Format with Prettier                  |
+| `pnpm prepare` | Install Husky git hooks               |
 
 ## 🤝 Contributing
 

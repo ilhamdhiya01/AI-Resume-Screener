@@ -38,7 +38,7 @@ const Item = React.memo<ItemProps>(
     const [elapsedTime, setElapsedTime] = useState(0);
     const router = useRouter();
 
-    // Durasi NYATA hasil pengukuran backend (ms) untuk step ini.
+    // Real duration from backend measurement (ms) for this step.
     const finalMs = duration ?? 0;
 
     const icon: IconProps['icon'] = useMemo(() => {
@@ -49,21 +49,20 @@ const Item = React.memo<ItemProps>(
       return `TbNumber${stepIndex + 1}` as IconProps['icon'];
     }, [isError, isActive, isCompleted, stepIndex]);
 
-    // Bar fill saat step aktif. Durasi total nggak diketahui di awal,
-    // jadi pakai easing asimptotik biar bar tetap gerak (mendekati 95%)
-    // dan baru penuh (100%) ketika step selesai.
+    // Bar fill during active step. Total duration is unknown at start,
+    // so use easing asymptotic to keep bar moving (approaching 95%)
+    // and only full (100%) when step completes.
     const progressPercentage = useMemo(() => {
       if (isCompleted) return 100;
       if (!isActive) return 0;
       return Math.min(95, 100 * (1 - Math.exp(-elapsedTime / 4000)));
     }, [elapsedTime, isActive, isCompleted]);
 
-    // Timer durasi yang ditampilkan: live saat aktif, freeze di durasi
-    // nyata dari backend saat selesai.
+    // Timer duration shown: live when active, freeze at actual backend duration when completed
     const displayMs = isCompleted ? finalMs : elapsedTime;
     const displaySeconds = (displayMs / 1000).toFixed(1);
 
-    // ✅ Track elapsed time real-time selama step aktif
+    // Track elapsed time real-time during active step
     useEffect(() => {
       if (!isActive) {
         setElapsedTime(0);
@@ -71,7 +70,7 @@ const Item = React.memo<ItemProps>(
       }
 
       const interval = setInterval(() => {
-        setElapsedTime((prev) => prev + 100); // tick tiap 100ms
+        setElapsedTime((prev) => prev + 100); // tick every 100ms
       }, 100);
 
       return () => clearInterval(interval);

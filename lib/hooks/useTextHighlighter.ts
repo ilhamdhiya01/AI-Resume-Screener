@@ -14,18 +14,50 @@ interface HighlightCoord {
   text: string;
 }
 
+/**
+ * Compute highlight coordinates over react-pdf rendered text spans.
+ * @description Waits for the target page's text layer to be rendered (via MutationObserver
+ * or an explicit renderReady signal) before measuring ranges, so highlights don't require
+ * a manual zoom to appear.
+ * @param {CriticalSnippet[]} snippets - Critical snippets from AI analysis.
+ * @param {number} pageNumber - Active page number displayed by react-pdf.
+ * @param {number} scale - Current PDF zoom scale.
+ * @param {boolean} [renderReady=false] - External signal that the current page has finished rendering.
+ * @returns {HighlightCoord[]} Highlight rectangles relative to the page container.
+ */
 const useTextHighlighter = (
-  snippets: CriticalSnippet[], // CHANGED: Now receives array of objects from AI
+  snippets: CriticalSnippet[],
   pageNumber: number,
-  scale: number
+  scale: number,
+  renderReady: boolean = false
 ) => {
   const [coords, setCoords] = useState<HighlightCoord[]>([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Make sure snippets exist before processing DOM
-      if (!snippets || snippets.length === 0) {
-        setCoords([]);
+    if (!snippets || snippets.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+    let observer: MutationObserver | null = null;
+
+    const findCoords = () => {
+      if (cancelled) return;
+
+      const pageContainer = document.querySelector(
+        `.react-pdf__Page[data-page-number="${pageNumber}"]`
+      );
+
+      if (!pageContainer) {
+        return;
+      }
+
+      const textSpans = pageContainer.querySelectorAll(
+        '.react-pdf__Page__textContent span'
+      );
+
+      // Text layer not ready yet — keep observing.
+      if (textSpans.length === 0) {
         return;
       }
 
@@ -41,21 +73,9 @@ const useTextHighlighter = (
           }
 
           const targetText = snippetObj.text;
-
-          // ADJUSTMENT 2: Search for specific text inside the ACTIVE page container only
-          const pageContainer = document.querySelector(
-            `.react-pdf__Page[data-page-number="${pageNumber}"]`
-          );
-
-          if (!pageContainer) return null;
-
-          const textSpans = pageContainer.querySelectorAll(
-            '.react-pdf__Page__textContent span'
-          );
           let foundRange: Range | null = null;
 
           // Search for span containing the keyword
-          // 2. Search for span containing the keyword
           for (const span of Array.from(textSpans)) {
             const textContent = span.textContent || '';
             const index = textContent
@@ -137,10 +157,43 @@ const useTextHighlighter = (
         .filter((coord): coord is HighlightCoord => coord !== null); // Filter null using type guard
 
       setCoords(newCoords);
-    }, 1000);
+    };
 
-    return () => clearTimeout(timer);
-  }, [snippets, pageNumber, scale]);
+    // Run immediately if page already reports rendered or if text layer is already present.
+    findCoords();
+
+    // Keep watching until the text layer appears (react-pdf renders it asynchronously).
+    observer = new MutationObserver(() => {
+      const spans = document.querySelectorAll(
+        `.react-pdf__Page[data-page-number="${pageNumber}"] .react-pdf__Page__textContent span`
+      );
+      if (spans.length > 0) {
+        findCoords();
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+      }
+    });
+
+    const pageContainer = document.querySelector(
+      `.react-pdf__Page[data-page-number="${pageNumber}"]`
+    );
+
+    if (pageContainer) {
+      observer.observe(pageContainer, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [snippets, pageNumber, scale, renderReady]);
 
   return coords;
 };

@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
 import { useShallow } from 'zustand/shallow';
 
 import { UploadResumeRequest } from '@/lib/types/upload-resume.type';
+import { notify } from '@/lib/utils/toast';
 import { ANALYSIS_PATH } from '@/routes';
 import { uploadResume } from '@/services/client/upload.service';
 import { useAnalysisStore } from '@/stores';
@@ -25,11 +25,11 @@ const useUploadResume = () => {
         router.replace(`${ANALYSIS_PATH}/${resumeId}`);
         setFile(null);
         setJobDescription('');
-        toast.success(response.message);
+        notify({ type: 'success', title: response.message });
       }
     },
     onError: (error) => {
-      toast.error(error.message);
+      notify({ type: 'error', title: error.message });
     },
   });
 

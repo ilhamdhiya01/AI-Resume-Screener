@@ -211,7 +211,7 @@ const extractTextFromFile = async (
  */
 const aiAnalyze = async (
   prompt: string,
-  model: 'deepseek-v4-flash' | 'kimi-k2.6',
+  model: 'deepseek-v4-flash' | 'kimi-k2.7' | 'deepseek-v4-pro',
   content: string,
   timeoutMs: number = 60000,
   signal?: AbortSignal
@@ -475,7 +475,7 @@ export const analyzeResume = async (
       // Includes: extraction data, original resume text, and job description (if provided)
       scoring = await aiAnalyze(
         SCORING_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Same model for consistency
+        'deepseek-v4-pro', // Same model for consistency
         `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
           jobDescription || '(tidak ada job description)'
         }`,
@@ -512,7 +512,7 @@ export const analyzeResume = async (
       // Kimi excels at narrative synthesis and holistic evaluation
       synthesis = await aiAnalyze(
         SYNTHESIS_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Kimi for deep reasoning and narrative generation
+        'deepseek-v4-pro', // Kimi for deep reasoning and narrative generation
         `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
         60000, // 60s timeout
         signal

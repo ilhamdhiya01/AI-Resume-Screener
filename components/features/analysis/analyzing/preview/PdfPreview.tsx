@@ -2,11 +2,30 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
 import { useResizeObserver } from '@wojtekmaj/react-hooks';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 
 import Button from '@/components/ui/button';
 import useTextHighlighter from '@/lib/hooks/useTextHighlighter';
+
+const pdfLoadingElement = (
+  <div className="flex h-96 items-center justify-center">
+    <p className="text-lg">Loading PDF...</p>
+  </div>
+);
+
+const pdfErrorElement = (
+  <div className="flex h-96 flex-col items-center justify-center gap-4">
+    <p className="text-lg font-bold text-red-600">Failed to load PDF</p>
+    <p className="text-sm text-gray-600">Check console for details</p>
+    <Button
+      iconButton="TbRefresh"
+      variant="outlined"
+      color="neutral"
+      onClick={() => window.location.reload()}
+    />
+  </div>
+);
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -27,33 +46,54 @@ interface PdfPreviewProps {
 
 const resizeObserverOptions = {};
 
+interface PdfState {
+  numPages: number;
+  pageNumber: number;
+}
+
+type PdfAction =
+  | { type: 'SET_NUM_PAGES'; payload: number }
+  | { type: 'GO_TO_PAGE'; payload: number }
+  | { type: 'GO_PREV' }
+  | { type: 'GO_NEXT' };
+
+const initialPdfState: PdfState = {
+  numPages: 0,
+  pageNumber: 1,
+};
+
+const pdfReducer = (state: PdfState, action: PdfAction): PdfState => {
+  switch (action.type) {
+    case 'SET_NUM_PAGES':
+      return { ...state, numPages: action.payload };
+    case 'GO_TO_PAGE':
+      return { ...state, pageNumber: action.payload };
+    case 'GO_PREV':
+      return { ...state, pageNumber: Math.max(state.pageNumber - 1, 1) };
+    case 'GO_NEXT':
+      return {
+        ...state,
+        pageNumber: Math.min(state.pageNumber + 1, state.numPages),
+      };
+    default:
+      return state;
+  }
+};
+
 const PdfPreview = React.memo<PdfPreviewProps>(
   ({ fileUrl, scale, setScale, minScale, maxScale, criticalHighlights }) => {
     const maxWidth = 900;
 
     const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);
     const [containerWidth, setContainerWidth] = useState<number>();
-    const [numPages, setNumPages] = useState<number>(0);
-    const [pageNumber, setPageNumber] = useState<number>(1);
-    const [documentKey, setDocumentKey] = useState<number>(0);
-
-    // Auto-remount <Document /> when fileUrl changes
-    useEffect(() => {
-      if (fileUrl) {
-        setDocumentKey((prev) => prev + 1);
-        setNumPages(0);
-        setPageNumber(1);
-      }
-    }, [fileUrl]);
-
-    const handleRefresh = useCallback(() => {
-      window.location.reload();
-    }, []);
+    const [pdfState, dispatch] = useReducer(pdfReducer, initialPdfState);
+    const [pageRendered, setPageRendered] = useState(false);
 
     const activeHighlights = useTextHighlighter(
       criticalHighlights,
-      pageNumber,
-      scale
+      pdfState.pageNumber,
+      scale,
+      pageRendered
     );
 
     const onResize = useCallback<ResizeObserverCallback>((entries) => {
@@ -67,18 +107,20 @@ const PdfPreview = React.memo<PdfPreviewProps>(
     useResizeObserver(containerRef, resizeObserverOptions, onResize);
 
     const goToPrevPage = () => {
-      setPageNumber((prev) => Math.max(prev - 1, 1));
+      dispatch({ type: 'GO_PREV' });
     };
 
     const goToNextPage = () => {
-      setPageNumber((prev) => Math.min(prev + 1, numPages));
+      dispatch({ type: 'GO_NEXT' });
     };
+
+    useEffect(() => {
+      setPageRendered(false);
+    }, [pdfState.pageNumber]);
 
     useEffect(() => {
       const handleWheel = (e: WheelEvent) => {
         if (e.ctrlKey) {
-          e.preventDefault();
-
           const delta = -e.deltaY;
           const zoomSpeed = 0.01;
 
@@ -91,7 +133,7 @@ const PdfPreview = React.memo<PdfPreviewProps>(
 
       const container = containerRef;
       if (container) {
-        container.addEventListener('wheel', handleWheel, { passive: false });
+        container.addEventListener('wheel', handleWheel, { passive: true });
       }
 
       return () => {
@@ -99,59 +141,40 @@ const PdfPreview = React.memo<PdfPreviewProps>(
           container.removeEventListener('wheel', handleWheel);
         }
       };
-    }, [containerRef, minScale, maxScale]);
+    }, [containerRef, minScale, maxScale, setScale]);
 
     return (
       <div ref={setContainerRef} className="p-8">
         {fileUrl ? (
           <Document
-            key={documentKey}
             file={fileUrl}
             options={pdfOptions}
             externalLinkTarget="_blank"
             onLoadSuccess={({ numPages: nextNumPages }) => {
-              setNumPages(nextNumPages);
+              dispatch({ type: 'SET_NUM_PAGES', payload: nextNumPages });
+              dispatch({ type: 'GO_TO_PAGE', payload: 1 });
             }}
-            loading={
-              <div className="flex h-96 items-center justify-center">
-                <p className="text-lg">Loading PDF...</p>
-              </div>
-            }
-            error={
-              <div className="flex h-96 flex-col items-center justify-center gap-4">
-                <p className="text-lg font-bold text-red-600">
-                  Failed to load PDF
-                </p>
-                <p className="text-sm text-gray-600">
-                  Check console for details
-                </p>
-                <Button
-                  iconButton="TbRefresh"
-                  variant="outlined"
-                  color="neutral"
-                  onClick={handleRefresh}
-                />
-              </div>
-            }
+            loading={pdfLoadingElement}
+            error={pdfErrorElement}
           >
             <div className="relative space-y-6">
               {/* Pagination Controls */}
-              {numPages > 1 && (
+              {pdfState.numPages > 1 && (
                 <div className="fixed bottom-5 left-[calc((100vw-20rem)/2)] z-100 inline-flex items-center justify-center gap-4 rounded-lg bg-white p-1 drop-shadow-xl transition-opacity duration-200">
                   <Button
                     iconButton="TbChevronLeft"
                     onClick={goToPrevPage}
-                    disabled={pageNumber <= 1}
+                    disabled={pdfState.pageNumber <= 1}
                     size="sm"
                     variant="ghost"
                   />
                   <span className="text-sm font-semibold">
-                    {pageNumber} of {numPages}
+                    {pdfState.pageNumber} of {pdfState.numPages}
                   </span>
                   <Button
                     iconButton="TbChevronRight"
                     onClick={goToNextPage}
-                    disabled={pageNumber >= numPages}
+                    disabled={pdfState.pageNumber >= pdfState.numPages}
                     size="sm"
                     variant="ghost"
                   />
@@ -172,7 +195,7 @@ const PdfPreview = React.memo<PdfPreviewProps>(
                 style={{ transform: `scale(${scale})` }}
               >
                 <Page
-                  pageNumber={pageNumber}
+                  pageNumber={pdfState.pageNumber}
                   renderAnnotationLayer={true}
                   renderTextLayer={true}
                   width={
@@ -180,6 +203,7 @@ const PdfPreview = React.memo<PdfPreviewProps>(
                       ? Math.min(containerWidth, maxWidth)
                       : maxWidth
                   }
+                  onRenderSuccess={() => setPageRendered(true)}
                 />
               </div>
 
@@ -187,15 +211,12 @@ const PdfPreview = React.memo<PdfPreviewProps>(
               {activeHighlights.map((highlight, idx) => (
                 <div
                   key={idx}
-                  className="group absolute cursor-pointer"
+                  className="group absolute cursor-pointer rounded-[2px] border-b-2 border-red-500 bg-red-500/20"
                   style={{
                     left: `${highlight.x}px`,
                     top: `${highlight.y}px`,
                     width: `${highlight.width}px`,
                     height: `${highlight.height}px`,
-                    backgroundColor: 'rgba(239, 68, 68, 0.2)', // red-500/20
-                    borderBottom: '2px solid rgb(239, 68, 68)', // red-500
-                    borderRadius: '2px',
                     zIndex: 9999,
                   }}
                 >

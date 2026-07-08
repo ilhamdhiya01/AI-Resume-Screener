@@ -1,5 +1,6 @@
 'use client';
 
+import { queryOptions, useQuery } from '@tanstack/react-query';
 import mammoth from 'mammoth';
 import React, { useEffect, useState } from 'react';
 
@@ -100,55 +101,34 @@ const DocxPreview = React.memo<DocxPreviewProps>(
     maxScale,
     criticalHighlights,
   }): React.ReactElement => {
-    const [html, setHtml] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);
 
-    useEffect(() => {
-      let isMounted = true;
-
-      const loadDocx = async () => {
-        try {
-          setIsLoading(true);
-          setError(null);
-
-          const response = await fetch(fileUrl);
-          if (!response.ok) {
-            throw new Error('Gagal mengunduh file DOCX.');
-          }
-
-          const arrayBuffer = await response.arrayBuffer();
-          const result = await mammoth.convertToHtml({ arrayBuffer });
-
-          if (isMounted) {
-            setHtml(highlightCriticalText(result.value, criticalHighlights));
-          }
-        } catch (err) {
-          if (isMounted) {
-            setError(
-              err instanceof Error ? err.message : 'Gagal memuat dokumen DOCX.'
-            );
-          }
-        } finally {
-          if (isMounted) {
-            setIsLoading(false);
-          }
+    const docxQuery = queryOptions({
+      queryKey: ['docx-preview', fileUrl, criticalHighlights],
+      queryFn: async ({ signal }) => {
+        const response = await fetch(fileUrl, { signal });
+        if (!response.ok) {
+          throw new Error('Gagal mengunduh file DOCX.');
         }
-      };
+        const arrayBuffer = await response.arrayBuffer();
+        const result = await mammoth.convertToHtml({ arrayBuffer });
+        return highlightCriticalText(result.value, criticalHighlights);
+      },
+      enabled: !!fileUrl,
+      staleTime: Infinity,
+    });
 
-      loadDocx();
+    const {
+      data: html,
+      isPending: isLoading,
+      error: queryError,
+    } = useQuery(docxQuery);
 
-      return () => {
-        isMounted = false;
-      };
-    }, [fileUrl, criticalHighlights]);
+    const error = queryError instanceof Error ? queryError.message : null;
 
     useEffect(() => {
       const handleWheel = (e: WheelEvent) => {
         if (e.ctrlKey) {
-          e.preventDefault();
-
           const delta = -e.deltaY;
           const zoomSpeed = 0.01;
 
@@ -161,7 +141,7 @@ const DocxPreview = React.memo<DocxPreviewProps>(
 
       const container = containerRef;
       if (container) {
-        container.addEventListener('wheel', handleWheel, { passive: false });
+        container.addEventListener('wheel', handleWheel, { passive: true });
       }
 
       return () => {
@@ -191,7 +171,7 @@ const DocxPreview = React.memo<DocxPreviewProps>(
           >
             <div
               className="docx-content mx-auto max-w-[900px] rounded-md bg-white p-12 drop-shadow-xl"
-              dangerouslySetInnerHTML={{ __html: html }}
+              dangerouslySetInnerHTML={{ __html: html ?? '' }}
             />
           </div>
         )}

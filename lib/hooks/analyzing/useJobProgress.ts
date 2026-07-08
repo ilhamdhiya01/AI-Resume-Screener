@@ -117,7 +117,11 @@ const useJobProgress = (resumeId: string | null) => {
 
   const { mutateAsync: cancelJob, isPending: isCancelling } = useCancelJob({
     onCancelSuccess: () => {
-      setJobStatus({ status: 'failed', isCancelled: true });
+      setJobStatus({
+        status: 'failed',
+        isCancelled: true,
+        step: 'failed',
+      });
       startPolling();
     },
   });

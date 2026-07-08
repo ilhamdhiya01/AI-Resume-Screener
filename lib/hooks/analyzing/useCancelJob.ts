@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
 
+import { notify } from '@/lib/utils/toast';
 import { cancelJob } from '@/services/client/resume-analysis.service';
 
 const useCancelJob = (callbacks: {
@@ -12,7 +12,7 @@ const useCancelJob = (callbacks: {
       callbacks.onCancelSuccess();
     },
     onError: (error) => {
-      toast.error(error.message);
+      notify({ type: 'error', title: error.message });
     },
   });
 };

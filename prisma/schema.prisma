@@ -114,8 +114,10 @@ model Resume {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   analysis AnalysisResult?
-  // extractedText ExtractedText?
   checkpoint AnalysisCheckpoint?
+
+  @@index([userId]) 
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 model AnalysisResult {
