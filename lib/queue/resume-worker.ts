@@ -7,7 +7,15 @@ import { analyzeResume } from '@/services/server/resume-analysis.service';
 let workerInstance: Worker | null = null;
 let idleTimeout: NodeJS.Timeout | null = null;
 
-const IDLE_TIMEOUT_MS = 10000; // Close worker after 30s idle
+/**
+ * @description Get idle timeout from env at runtime. This allows standalone
+ * startup scripts (e.g. scripts/start-worker.ts) to override the value before
+ * the worker starts processing jobs.
+ */
+const getIdleTimeoutMs = () =>
+  process.env.WORKER_IDLE_TIMEOUT_MS
+    ? parseInt(process.env.WORKER_IDLE_TIMEOUT_MS, 10)
+    : 10000; // Default 10s for lazy worker mode
 
 /**
  * @description **[WORKER - LAZY STARTUP]** Creates and starts the BullMQ worker
@@ -16,25 +24,25 @@ const IDLE_TIMEOUT_MS = 10000; // Close worker after 30s idle
  *
  * **Architecture Pattern:**
  * - **On-Demand Connection:** Worker only connects when jobs exist in queue
- * - **Auto-Shutdown:** Closes after 10s of inactivity (saves Redis commands)
+ * - **Auto-Shutdown:** Closes after configured idle timeout (default 10s, saves Redis commands)
  * - **Singleton:** Only one worker instance runs at a time (prevents race conditions)
  *
  * **Worker Configuration:**
- * - Concurrency: 1 (processes one job at a time, sequential)
+ * - Concurrency: 3 (processes up to 3 jobs concurrently)
  * - Stalled Interval: 60s (checks for stuck jobs every minute)
  * - Max Stalled Count: 1 (job fails if stalled once)
  *
  * **Side Effects:**
  * - **Redis Connection:** Opens persistent connection to Redis
  * - **Event Listeners:** Registers handlers for completed, failed, error, drained
- * - **Idle Timer:** Starts 10s countdown to auto-close
+ * - **Idle Timer:** Starts idle countdown to auto-close
  *
  * @returns {void}
  *
  * @example
  * // Called by producer after enqueuing job
  * ensureWorkerRunning();
- * // Worker wakes up, processes job, then auto-closes after 10s idle
+ * // Worker wakes up, processes job, then auto-closes after idle timeout
  */
 export const ensureWorkerRunning = () => {
   // Guard: If worker already running, just reset idle timer
@@ -112,7 +120,7 @@ export const ensureWorkerRunning = () => {
     },
     {
       connection,
-      concurrency: 1,
+      concurrency: 3,
       stalledInterval: 60000,
       maxStalledCount: 1,
     }
@@ -136,7 +144,7 @@ export const ensureWorkerRunning = () => {
 
   // Event: Queue is empty (no more jobs to process)
   workerInstance.on('drained', () => {
-    resetIdleTimeout(); // Start 10s countdown to auto-close
+    resetIdleTimeout(); // Start idle countdown to auto-close
   });
 
   console.log('🚀 Lazy worker started');
@@ -144,16 +152,16 @@ export const ensureWorkerRunning = () => {
 
 /**
  * @description **[WORKER - IDLE MANAGEMENT]** Resets the idle timeout timer.
- * Worker auto-closes after IDLE_TIMEOUT_MS (10s) of inactivity to save Redis
- * commands and connections.
+ * Worker auto-closes after `WORKER_IDLE_TIMEOUT_MS` of inactivity to save Redis
+ * commands and connections. Defaults to 10s when not configured.
  *
  * **Lazy Worker Pattern:**
- * - Worker closes itself when queue is empty for 10s
+ * - Worker closes itself when queue is empty for the configured idle timeout
  * - Next job enqueue will call `ensureWorkerRunning()` to wake it up
  * - Reduces Redis command usage by ~90% compared to always-on worker
  *
  * **Side Effects:**
- * - **Timer Reset:** Clears existing timeout and starts new 10s countdown
+ * - **Timer Reset:** Clears existing timeout and starts a new idle countdown
  * - **Worker Shutdown:** Closes Redis connection after timeout expires
  * - **State Cleanup:** Sets `workerInstance` to null after close
  *
@@ -162,14 +170,17 @@ export const ensureWorkerRunning = () => {
 const resetIdleTimeout = () => {
   clearIdleTimer(); // Clear existing timer if any
 
-  // Start new 10s countdown to auto-close
+  // Start new countdown to auto-close
+  const idleTimeoutMs = getIdleTimeoutMs();
   idleTimeout = setTimeout(async () => {
     if (workerInstance) {
-      console.log('💤 Worker idle for 10s, closing connection...');
+      console.log(
+        `💤 Worker idle for ${idleTimeoutMs}ms, closing connection...`
+      );
       await workerInstance.close(); // Graceful shutdown
       workerInstance = null; // Allow re-creation on next job
     }
-  }, IDLE_TIMEOUT_MS);
+  }, idleTimeoutMs);
 };
 
 const clearIdleTimer = () => {
