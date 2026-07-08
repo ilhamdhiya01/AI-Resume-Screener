@@ -87,11 +87,13 @@ const PdfPreview = React.memo<PdfPreviewProps>(
     const [containerRef, setContainerRef] = useState<HTMLElement | null>(null);
     const [containerWidth, setContainerWidth] = useState<number>();
     const [pdfState, dispatch] = useReducer(pdfReducer, initialPdfState);
+    const [pageRendered, setPageRendered] = useState(false);
 
     const activeHighlights = useTextHighlighter(
       criticalHighlights,
       pdfState.pageNumber,
-      scale
+      scale,
+      pageRendered
     );
 
     const onResize = useCallback<ResizeObserverCallback>((entries) => {
@@ -111,6 +113,10 @@ const PdfPreview = React.memo<PdfPreviewProps>(
     const goToNextPage = () => {
       dispatch({ type: 'GO_NEXT' });
     };
+
+    useEffect(() => {
+      setPageRendered(false);
+    }, [pdfState.pageNumber]);
 
     useEffect(() => {
       const handleWheel = (e: WheelEvent) => {
@@ -197,6 +203,7 @@ const PdfPreview = React.memo<PdfPreviewProps>(
                       ? Math.min(containerWidth, maxWidth)
                       : maxWidth
                   }
+                  onRenderSuccess={() => setPageRendered(true)}
                 />
               </div>
 
