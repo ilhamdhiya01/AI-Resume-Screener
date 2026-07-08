@@ -1,15 +1,117 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /** Primary colors */
+  --primary-50: #f7f8ff;
+  --primary-100: #f2efff;
+  --primary-200: #e2dfff;
+  --primary-300: #c3c0ff;
+  --primary-400: #a4a1ff;
+  --primary-500: #8582ff;
+  --primary-600: #6760fd;
+  --primary-700: #4d44e3;
+  --primary-800: #3323cc;
+  --primary-900: #1d00a5;
+  --primary-950: #0f0069;
+
+  /** Secondary colors */
+  --secondary-50: #f0f7ff;
+  --secondary-100: #e5f2ff;
+  --secondary-200: #c9e6ff;
+  --secondary-300: #89ceff;
+  --secondary-400: #34b5fa;
+  --secondary-500: #009ada;
+  --secondary-600: #007fb5;
+  --secondary-700: #006591;
+  --secondary-800: #004c6e;
+  --secondary-900: #00344d;
+  --secondary-950: #001e2f;
+
+  /** Tertiary colors */
+  --tertiary-50: #fff5f2;
+  --tertiary-100: #ffede6;
+  --tertiary-200: #ffdbcc;
+  --tertiary-300: #ffb695;
+  --tertiary-400: #ff8c54;
+  --tertiary-500: #e46f32;
+  --tertiary-600: #c3571a;
+  --tertiary-700: #a24000;
+  --tertiary-800: #7b2f00;
+  --tertiary-900: #571f00;
+  --tertiary-950: #351000;
+
+  /* 1. Definisikan font stack di sini */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui;
+  --font-mono: ui-monospace, SFMono-Regular;
 }
 
 @theme inline {
+  /* --- Colors --- */
+  /* Primary menggunakan Variable (agar bisa diubah via :root) */
+  --color-primary-50: var(--primary-50);
+  --color-primary-100: var(--primary-100);
+  --color-primary-200: var(--primary-200);
+  --color-primary-300: var(--primary-300);
+  --color-primary-400: var(--primary-400);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-primary-700: var(--primary-700);
+  --color-primary-800: var(--primary-800);
+  --color-primary-900: var(--primary-900);
+  --color-primary-950: var(--primary-950);
+
+  /** Secondary colors */
+  --color-secondary-50: var(--secondary-50);
+  --color-secondary-100: var(--secondary-100);
+  --color-secondary-200: var(--secondary-200);
+  --color-secondary-300: var(--secondary-300);
+  --color-secondary-400: var(--secondary-400);
+  --color-secondary-500: var(--secondary-500);
+  --color-secondary-600: var(--secondary-600);
+  --color-secondary-700: var(--secondary-700);
+  --color-secondary-800: var(--secondary-800);
+  --color-secondary-900: var(--secondary-900);
+  --color-secondary-950: var(--secondary-950);
+
+  /** Tertiary colors */
+  --color-tertiary-50: var(--tertiary-50);
+  --color-tertiary-100: var(--tertiary-100);
+  --color-tertiary-200: var(--tertiary-200);
+  --color-tertiary-300: var(--tertiary-300);
+  --color-tertiary-400: var(--tertiary-400);
+  --color-tertiary-500: var(--tertiary-500);
+  --color-tertiary-600: var(--tertiary-600);
+  --color-tertiary-700: var(--tertiary-700);
+  --color-tertiary-800: var(--tertiary-800);
+  --color-tertiary-900: var(--tertiary-900);
+  --color-tertiary-950: var(--tertiary-950);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  /* Definisikan Utility Animasi */
+  --animate-shimmer-scan: shimmer-scan 3s infinite;
+  --animate-shimmer: shimmer 2s infinite;
+}
+@keyframes shimmer-scan {
+  0% {
+    top: -75%;
+  }
+  100% {
+    top: 125%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +121,165 @@
   }
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* === DOCX preview (mammoth HTML output) === */
+/* Tailwind preflight strips default list/heading styles, so restore them
+   here to keep the converted DOCX readable. Layout won't be 100% identical
+   to the original Word file, but typography stays clean. */
+.docx-content {
+  color: #1f2937; /* slate-800 */
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.docx-content p {
+  margin: 0 0 0.6em;
+}
+
+.docx-content h1,
+.docx-content h2,
+.docx-content h3,
+.docx-content h4,
+.docx-content h5,
+.docx-content h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 1.2em 0 0.5em;
+}
+
+.docx-content h1 {
+  font-size: 1.75rem;
+}
+
+.docx-content h2 {
+  font-size: 1.4rem;
+}
+
+.docx-content h3 {
+  font-size: 1.2rem;
+}
+
+.docx-content h4,
+.docx-content h5,
+.docx-content h6 {
+  font-size: 1.05rem;
+}
+
+.docx-content strong,
+.docx-content b {
+  font-weight: 700;
+}
+
+.docx-content em,
+.docx-content i {
+  font-style: italic;
+}
+
+.docx-content u {
+  text-decoration: underline;
+}
+
+.docx-content a {
+  color: #2563eb; /* blue-600 */
+  text-decoration: underline;
+}
+
+.docx-content ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 0 0 0.8em;
+}
+
+.docx-content ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 0 0 0.8em;
+}
+
+.docx-content li {
+  margin: 0.2em 0;
+}
+
+.docx-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 0 1em;
+}
+
+.docx-content th,
+.docx-content td {
+  border: 1px solid #e2e8f0; /* slate-200 */
+  padding: 0.5em 0.75em;
+  text-align: left;
+}
+
+.docx-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.docx-content hr {
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+  margin: 1em 0;
+}
+
+/* React DayPicker v10 state overrides using data-attributes from td elements.
+   Selection/range styling is handled via `modifiersClassNames` in DatePicker.tsx
+   because v10 does not emit data-range-* attributes. */
+[data-outside='true'] button {
+  color: #d1d5db !important;
+  opacity: 0.6;
+}
+
+[data-disabled='true'] button {
+  color: #d1d5db !important;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Highlight teks critical issue di DOCX (sepadan dengan overlay merah PDF). */
+.docx-content mark.docx-highlight {
+  background-color: rgba(239, 68, 68, 0.2); /* red-500/20 */
+  border-bottom: 2px solid rgb(239, 68, 68); /* red-500 */
+  border-radius: 2px;
+  padding: 0 1px;
+  color: inherit;
 }

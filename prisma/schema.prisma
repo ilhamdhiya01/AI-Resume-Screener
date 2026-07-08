@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  PRO
+  FREE
+}
+
+enum UploadStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(FREE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  profile       Profile?
+  resumes       Resume[]
+}
+
+model Profile {
+  id            String @id @default(cuid())
+  userId        String @unique
+  phoneNumber   String?
+  bio           String?
+  totalScanned  Int    @default(0)
+  credits       Int    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationRequest {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, token])
+}
+
+model Resume {
+  id         String   @id @default(cuid())
+  userId     String
+  fileName   String
+  fileSize   Int
+  fileType   String
+  filePath   String
+  status     UploadStatus @default(PENDING)
+  jobDescription String?  @db.Text
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis AnalysisResult?
+  checkpoint AnalysisCheckpoint?
+
+  @@index([userId]) 
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model AnalysisResult {
+  id        String @id @default(cuid())
+  resumeId  String @unique
+  
+  // GLM 5.1 output (hard data)
+  score           Int              
+  yearsExperience Int?             
+  matchedSkills   Json             
+  missingSkills   Json             
+  role            String?          
+  education       String?          
+  hasTypos        Boolean  @default(false)        // ← Add default
+  typoCount       Int      @default(0)            // ← Add default
+  atsIssues       Json     @default("{}")         // ← Add default
+  hardDataRaw     Json             
+ 
+  // Kimi K2.6 output (deep analysis)
+  summary         String   @db.Text  
+  strengths       Json               
+  criticals       Json       
+  criticalHighlights Json  @default("{}")       
+  suggestions     Json               
+  typoDetails     Json     @default("[]")         // ← Add default
+  atsRecommendations Json  @default("{}")         // ← Add default
+  matchSummary    String?  @db.Text               // ← Job matching summary
+  deepAnalysisRaw Json               
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+}
+
+// model ExtractedText {
+//   id        String @id @default(cuid())
+//   resumeId  String @unique
+  
+//   text      String   @db.Text
+  
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+ 
+//   resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+// }
+
+// Checkpoint hasil tiap AI stage. Memungkinkan retry melanjutkan dari
+// stage yang gagal tanpa mengulang AI call yang sudah sukses.
+// Tiap kolom nullable -> bisa di-save partial. Dihapus setelah COMPLETED.
+model AnalysisCheckpoint {
+  id        String @id @default(cuid())
+  resumeId  String @unique
+
+  text             String?  @db.Text       // text PDF (stage 1)
+  extractionResult Json?                   // hasil AI stage 2 (analyzing_competencies)
+  scoringResult    Json?                   // hasil AI stage 3 (mapping_timeline)
+  synthesisResult  Json?                   // hasil AI stage 4 (calculating_score)
+  durations        Json     @default("{}") // durasi nyata tiap step (ms)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+}
+
