@@ -84,9 +84,31 @@ export const ensureWorkerRunning = () => {
 
       console.log(`🔄 Processing job ${job.id} - Resume: ${resumeId}`);
 
+      // Internal abort controller that can be triggered by the Redis cancel flag.
+      // The standalone worker polls Redis because BullMQ's workerInstance is not
+      // accessible from the Next.js API process.
+      const abortController = new AbortController();
+      const abortHandler = () => abortController.abort();
+      signal?.addEventListener('abort', abortHandler);
+
+      const cancelPollInterval = setInterval(async () => {
+        try {
+          const cancelFlag = await connection.get(`cancel:${job.id}`);
+          if (cancelFlag) {
+            console.log(
+              `🛑 Cancel flag detected for job ${job.id}, aborting...`
+            );
+            abortController.abort();
+            clearInterval(cancelPollInterval);
+          }
+        } catch (err) {
+          console.error('Cancel poll error:', err);
+        }
+      }, 500);
+
       try {
         // Check if job was cancelled before starting
-        if (signal?.aborted) {
+        if (abortController.signal.aborted) {
           throw new Error('Proses dibatalkan oleh user');
         }
 
@@ -94,7 +116,7 @@ export const ensureWorkerRunning = () => {
         await analyzeResume(
           resumeId,
           filePath,
-          signal || new AbortSignal(), // AbortSignal for cancellation
+          abortController.signal, // AbortSignal for cancellation
           async (data) => {
             // Stream progress updates to Redis (polled by frontend)
             await job.updateProgress(data);
@@ -104,7 +126,7 @@ export const ensureWorkerRunning = () => {
       } catch (error: any) {
         // Handle cancellation errors (user-initiated or timeout)
         if (
-          signal?.aborted ||
+          abortController.signal.aborted ||
           error?.name === 'AbortError' ||
           error?.message?.includes('cancel')
         ) {
@@ -116,6 +138,11 @@ export const ensureWorkerRunning = () => {
         // Handle analysis errors (LLM API failure, file parsing, etc.)
         console.error(`❌ Job ${job.id} failed:`, error);
         throw error; // Re-throw to let BullMQ handle (marks job as failed)
+      } finally {
+        clearInterval(cancelPollInterval);
+        signal?.removeEventListener('abort', abortHandler);
+        // Best-effort cleanup of the cancel flag
+        await connection.del(`cancel:${job.id}`).catch(() => {});
       }
     },
     {
@@ -281,11 +308,12 @@ export const cancelSpecificJob = async (jobId: string) => {
 
     // Case 1: Job is currently being processed by worker
     if (state === 'active') {
-      ensureWorkerRunning(); // Wake worker to send signal
-
-      // Send AbortSignal to worker processor
-      // Worker will catch this and throw cancellation error
-      await workerInstance?.cancelJob(jobId, 'Proses dibatalkan oleh user');
+      // Standalone worker runs in a separate process, so workerInstance is
+      // null in this (Next.js) process. Use a Redis flag instead: the worker
+      // polls this key every 500ms and aborts the job when it appears.
+      const cancelKey = `cancel:${jobId}`;
+      await connection.set(cancelKey, '1', 'EX', 300); // expires in 5 min
+      console.log(`🏴 Cancel flag set for job ${jobId}`);
 
       return {
         success: true,
