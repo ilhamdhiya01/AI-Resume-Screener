@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import '@/lib/dommatrix-polyfill';
 
 import { connection } from '@/lib/queue/resume-queue';
 import { ensureWorkerRunning } from '@/lib/queue/resume-worker';
