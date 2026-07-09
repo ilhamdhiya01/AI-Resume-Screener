@@ -219,6 +219,11 @@ const aiAnalyze = async (
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
+  // If external signal aborts (user clicks cancel), propagate to internal
+  // controller immediately so the in-flight LLM request is cancelled.
+  const onExternalAbort = () => controller.abort();
+  signal?.addEventListener('abort', onExternalAbort);
+
   try {
     console.time(`⏱️  ${model} Analysis`);
     console.log(`🤖 Starting ${model} analysis (timeout: ${timeoutMs}ms)...`);
@@ -235,7 +240,7 @@ const aiAnalyze = async (
         temperature: 0.2,
       },
       {
-        signal,
+        signal: controller.signal,
         timeout: timeoutMs,
       }
     );
@@ -255,10 +260,22 @@ const aiAnalyze = async (
     clearTimeout(timeout);
     console.timeEnd(`⏱️  ${model} Analysis`);
 
+    // Re-throw cancellation errors immediately so analyzeResume can handle them
+    if (
+      signal?.aborted ||
+      controller.signal.aborted ||
+      (error as Error)?.name === 'AbortError' ||
+      (error as Error)?.message?.includes('cancel')
+    ) {
+      throw error;
+    }
+
     // Fallback for uncaught errors
     throw new Error(
       'Terjadi kesalahan pada saat analisis AI. Coba lagi atau upload resume lain.'
     );
+  } finally {
+    signal?.removeEventListener('abort', onExternalAbort);
   }
 };
 
@@ -410,6 +427,12 @@ export const analyzeResume = async (
 
       // Convert blob to buffer and extract text (PDF or DOCX)
       const fileBuffer = Buffer.from(await fileData.arrayBuffer());
+
+      // Check for cancellation before expensive text extraction
+      if (signal?.aborted) {
+        throw new Error('Proses dibatalkan oleh user');
+      }
+
       resumeText = await extractTextFromFile(fileBuffer, fileData.type);
 
       // Track duration and save checkpoint (enables retry from Stage 2)
@@ -475,7 +498,7 @@ export const analyzeResume = async (
       // Includes: extraction data, original resume text, and job description (if provided)
       scoring = await aiAnalyze(
         SCORING_SYSTEM_PROMPT,
-        'deepseek-v4-pro', // Same model for consistency
+        'deepseek-v4-flash', // Same model for consistency
         `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
           jobDescription || '(tidak ada job description)'
         }`,
@@ -512,7 +535,7 @@ export const analyzeResume = async (
       // Kimi excels at narrative synthesis and holistic evaluation
       synthesis = await aiAnalyze(
         SYNTHESIS_SYSTEM_PROMPT,
-        'deepseek-v4-pro', // Kimi for deep reasoning and narrative generation
+        'deepseek-v4-flash', // Kimi for deep reasoning and narrative generation
         `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
         60000, // 60s timeout
         signal

@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: web
     ports:
       - '3000:3000'
     environment:
@@ -36,3 +37,43 @@ services:
       - SMTP_SECURE=${SMTP_SECURE}
 
     restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: worker
+    environment:
+      - NODE_ENV=production
+      # NextAuth
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      # Google OAuth
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      # Supabase
+      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL_POOLER=${DATABASE_URL_POOLER}
+      - SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      # Upstash Redis
+      - REDIS_URL=${REDIS_URL}
+      # OpenAI
+      - AI_API_KEY=${AI_API_KEY}
+      - AI_BASE_URL=${AI_BASE_URL}
+      # Turnstile
+      - NEXT_PUBLIC_CLOUDFLARE_SITE_KEY=${NEXT_PUBLIC_CLOUDFLARE_SITE_KEY}
+      - CLOUDFLARE_SECRET_KEY=${CLOUDFLARE_SECRET_KEY}
+      # SMTP
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_SECURE=${SMTP_SECURE}
+      # Worker idle timeout (1 hour for standalone container)
+      - WORKER_IDLE_TIMEOUT_MS=3600000
+    restart: unless-stopped
+    deploy:
+      replicas: 5

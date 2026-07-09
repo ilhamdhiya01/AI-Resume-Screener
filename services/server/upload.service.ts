@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import prisma from '../../lib/db';
-import { ensureWorkerRunning, resumeQueue } from '../../lib/queue';
+import { resumeQueue } from '../../lib/queue';
 import { supabaseAdmin } from '../../lib/supabase-admin';
 
 /**
@@ -111,9 +111,10 @@ export const uploadResumeToSupabaseStorage = async (
     }
   );
 
-  // Step 6: Wake up lazy worker (auto-closes after 10s idle)
-  // Worker will pick up job from Redis and start processing
-  ensureWorkerRunning();
+  // Step 6: Standalone worker (pnpm worker) will pick up the job from Redis.
+  // Do NOT call ensureWorkerRunning() here; lazy worker is not reliable in
+  // serverless/Next.js because module-level singleton does not persist across
+  // API invocations. The worker must run as a separate long-lived process.
 
   return {
     signedUrl: signedUrlData.signedUrl,
