@@ -77,20 +77,28 @@ RUN find /app/node_modules -path '*/@prisma/client/runtime/*' -type f \( \
     -name '*.debian*' -o \
     -name '*.rhel*' -o \
     -name '*.arm*' ! -name '*musl*' -o \
-    -name '*.x64*' -o \
-    -name '*.wasm*' \
+    -name '*.x64*' \
   \) -delete 2>/dev/null || true
+# Prisma 7 needs the WASM query compiler at runtime, but only for the
+# database engine that is actually used (PostgreSQL).
+RUN find /app/node_modules -path '*/@prisma/client/runtime/*' -type f \
+    -name '*.wasm-base64.*' ! -name '*.postgresql.*' -delete 2>/dev/null || true
 RUN rm -rf /app/node_modules/.pnpm/@prisma+studio-core@* \
   /app/node_modules/.pnpm/chart.js@* \
   /app/node_modules/.pnpm/react-dom@* \
   /app/node_modules/.pnpm/react@* \
   /app/node_modules/.pnpm/pdfjs-dist@* \
   /app/node_modules/.pnpm/@napi-rs+canvas@* \
+  /app/node_modules/.pnpm/@napi-rs+canvas-linux-arm64-musl@* \
   /app/node_modules/.pnpm/@electric-sql+pglite@* \
   /app/node_modules/.pnpm/@prisma+query-plan-executor@* \
   /app/node_modules/.pnpm/@prisma+dev@* \
   /app/node_modules/.pnpm/effect@* \
-  /app/node_modules/.pnpm/@img+sharp-libvips-linuxmusl-arm64@* 2>/dev/null || true
+  /app/node_modules/.pnpm/@img+sharp-libvips-linuxmusl-arm64@* \
+  /app/node_modules/.pnpm/@types+node@* \
+  /app/node_modules/.pnpm/@types+ws@* 2>/dev/null || true
+# Strip type declarations and source maps that are not needed at runtime.
+RUN find /app/node_modules -type f \( -name '*.d.ts' -o -name '*.d.ts.map' -o -name '*.js.map' -o -name '*.mjs.map' \) -delete 2>/dev/null || true
 
 # Stage 5: Worker (small production image)
 FROM node:20-alpine AS worker
