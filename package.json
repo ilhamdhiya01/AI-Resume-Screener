@@ -15,11 +15,7 @@
     "workers:5": "concurrently \"pnpm worker\" \"pnpm worker\" \"pnpm worker\" \"pnpm worker\" \"pnpm worker\"",
     "dev:all": "concurrently \"pnpm dev\" \"pnpm worker\"",
     "dev:scale": "concurrently \"pnpm dev\" \"pnpm workers:3\"",
-    "dev:scale5": "concurrently \"pnpm dev\" \"pnpm workers:5\"",
-    "pm2:start": "pm2 start ecosystem.config.js",
-    "pm2:stop": "pm2 stop ecosystem.config.js",
-    "pm2:restart": "pm2 restart ecosystem.config.js",
-    "pm2:logs": "pm2 logs"
+    "dev:scale5": "concurrently \"pnpm dev\" \"pnpm workers:5\""
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
