@@ -45,7 +45,7 @@ jobs:
   deploy:
     name: Deploy to VPS
     needs: lint-and-typecheck
-    if: github.ref == "refs/heads/main"
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to VPS via SSH
