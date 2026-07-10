@@ -8,6 +8,7 @@ import { useHistory } from '@/lib/hooks/history/useHistory';
 import { ANALYSIS_PATH, HISTORY_PATH } from '@/routes';
 
 import DocumentItem from './DocumentItem';
+import HistoryListSkeleton from './HistoryListSkeleton';
 
 interface DocumentListProps {
   page: number;
@@ -41,7 +42,7 @@ const DocumentList = React.memo<DocumentListProps>(
       [router]
     );
 
-    if (isPending) return <div>Loading history...</div>;
+    if (isPending) return <HistoryListSkeleton />;
     if (isError) return <div>Failed to load history</div>;
 
     const items = data?.data?.items ?? [];
