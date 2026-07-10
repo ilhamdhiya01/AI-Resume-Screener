@@ -24,6 +24,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
+            mkdir -p ~/.ssh
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
             cd ${{ secrets.VPS_DEPLOY_PATH }}
             git pull origin main
             docker compose down
