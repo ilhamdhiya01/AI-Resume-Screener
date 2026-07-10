@@ -72,8 +72,6 @@ services:
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
       - SMTP_SECURE=${SMTP_SECURE}
-      # Worker idle timeout (1 hour for standalone container)
-      - WORKER_IDLE_TIMEOUT_MS=3600000
     restart: unless-stopped
     deploy:
       replicas: 5

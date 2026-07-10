@@ -1,2 +1,2 @@
-export { resumeQueue } from './resume-queue';
+export { publishWorkerWake, resumeQueue } from './resume-queue';
 export { ensureWorkerRunning } from './resume-worker';

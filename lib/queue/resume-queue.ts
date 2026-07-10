@@ -68,4 +68,19 @@ export const resumeQueue = new Queue('resume-analysis', {
   },
 });
 
+/**
+ * @description Redis Pub/Sub channel used to wake sleeping worker containers.
+ */
+export const WORKER_WAKE_CHANNEL = 'resume-analysis:wake';
+
+/**
+ * @description Publish a wake signal to Redis Pub/Sub so sleeping worker
+ * containers start their BullMQ worker and process the newly enqueued job.
+ *
+ * @returns {Promise<number>} Number of subscribers that received the message.
+ */
+export const publishWorkerWake = () => {
+  return connection.publish(WORKER_WAKE_CHANNEL, 'wake');
+};
+
 export { connection };

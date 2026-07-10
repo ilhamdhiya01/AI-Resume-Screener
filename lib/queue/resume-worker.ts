@@ -8,14 +8,24 @@ let workerInstance: Worker | null = null;
 let idleTimeout: NodeJS.Timeout | null = null;
 
 /**
+ * @description Redis Pub/Sub channel used to wake sleeping worker containers.
+ * The web app publishes a message here after enqueueing a job, so workers do
+ * not need to keep BullMQ blocking connections alive while idle.
+ */
+export const WORKER_WAKE_CHANNEL = 'resume-analysis:wake';
+
+/**
  * @description Get idle timeout from env at runtime. This allows standalone
  * startup scripts (e.g. scripts/start-worker.ts) to override the value before
  * the worker starts processing jobs.
  */
-const getIdleTimeoutMs = () =>
-  process.env.WORKER_IDLE_TIMEOUT_MS
-    ? parseInt(process.env.WORKER_IDLE_TIMEOUT_MS, 10)
-    : 10000; // Default 10s for lazy worker mode
+const getIdleTimeoutMs = () => {
+  const value = process.env.WORKER_IDLE_TIMEOUT_MS;
+  if (value === 'never') {
+    return null; // Always-on mode (no idle shutdown)
+  }
+  return value ? parseInt(value, 10) : 10000; // Default 10s lazy timeout
+};
 
 /**
  * @description **[WORKER - LAZY STARTUP]** Creates and starts the BullMQ worker
@@ -178,6 +188,51 @@ export const ensureWorkerRunning = () => {
 };
 
 /**
+ * @description **[WORKER - PUB/SUB WAKE]** Subscribes to a Redis Pub/Sub channel
+ * so the worker container can sleep while idle and only wake up when the web app
+ * publishes a signal after enqueueing a job. This avoids the continuous blocking
+ * Redis commands that an always-on BullMQ worker would issue.
+ *
+ * **Side Effects:**
+ * - Opens a dedicated Redis subscriber connection.
+ * - Calls `ensureWorkerRunning()` whenever a wake message is received.
+ * - Keeps the Node.js process alive while listening.
+ *
+ * @returns The Redis subscriber instance.
+ */
+export const subscribeToWakeChannel = () => {
+  const subscriber = connection.duplicate();
+
+  subscriber.on('error', (err) => {
+    console.error('❌ Wake subscriber error:', err.message);
+  });
+
+  subscriber.on('connect', () => {
+    console.log('📡 Wake subscriber connected');
+  });
+
+  subscriber.subscribe(WORKER_WAKE_CHANNEL, (err) => {
+    if (err) {
+      console.error(
+        `❌ Failed to subscribe to ${WORKER_WAKE_CHANNEL}:`,
+        err.message
+      );
+      process.exit(1);
+    }
+    console.log(`📡 Subscribed to ${WORKER_WAKE_CHANNEL}`);
+  });
+
+  subscriber.on('message', (channel) => {
+    if (channel === WORKER_WAKE_CHANNEL) {
+      console.log('🔔 Wake signal received, starting worker...');
+      ensureWorkerRunning();
+    }
+  });
+
+  return subscriber;
+};
+
+/**
  * @description **[WORKER - IDLE MANAGEMENT]** Resets the idle timeout timer.
  * Worker auto-closes after `WORKER_IDLE_TIMEOUT_MS` of inactivity to save Redis
  * commands and connections. Defaults to 10s when not configured.
@@ -197,8 +252,13 @@ export const ensureWorkerRunning = () => {
 const resetIdleTimeout = () => {
   clearIdleTimer(); // Clear existing timer if any
 
-  // Start new countdown to auto-close
   const idleTimeoutMs = getIdleTimeoutMs();
+  if (idleTimeoutMs === null) {
+    // Always-on mode: do not schedule auto-close
+    return;
+  }
+
+  // Start new countdown to auto-close
   idleTimeout = setTimeout(async () => {
     if (workerInstance) {
       console.log(
