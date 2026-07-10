@@ -2,12 +2,7 @@ import 'dotenv/config';
 import '@/lib/dommatrix-polyfill';
 
 import { connection } from '@/lib/queue/resume-queue';
-import { ensureWorkerRunning } from '@/lib/queue/resume-worker';
-
-// Standalone worker should stay alive forever. Docker handles restarts if the
-// process exits, so we disable the lazy-worker auto-shutdown logic.
-process.env.WORKER_IDLE_TIMEOUT_MS =
-  process.env.WORKER_IDLE_TIMEOUT_MS || 'never';
+import { subscribeToWakeChannel } from '@/lib/queue/resume-worker';
 
 connection.ping((err, result) => {
   if (err) {
@@ -17,6 +12,8 @@ connection.ping((err, result) => {
   console.log('✅ Redis connected:', result);
 });
 
-// Start worker immediately for standalone mode
-ensureWorkerRunning();
-console.log('Worker is running... Press Ctrl+C to stop');
+// Subscribe to the wake channel. Workers sleep while idle and are woken up
+// by the web app via Redis Pub/Sub after a job is enqueued. This avoids the
+// continuous Redis blocking commands required by an always-on BullMQ worker.
+subscribeToWakeChannel();
+console.log('💤 Worker is listening for wake signals... Press Ctrl+C to stop');

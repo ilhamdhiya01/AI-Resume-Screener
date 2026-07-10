@@ -72,8 +72,6 @@ services:
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
       - SMTP_SECURE=${SMTP_SECURE}
-      # Worker idle timeout: 'never' keeps workers always-on in Docker
-      - WORKER_IDLE_TIMEOUT_MS=never
     restart: unless-stopped
     deploy:
       replicas: 5

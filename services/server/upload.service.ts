@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import prisma from '../../lib/db';
-import { resumeQueue } from '../../lib/queue';
+import { publishWorkerWake, resumeQueue } from '../../lib/queue';
 import { supabaseAdmin } from '../../lib/supabase-admin';
 
 /**
@@ -111,10 +111,9 @@ export const uploadResumeToSupabaseStorage = async (
     }
   );
 
-  // Step 6: Standalone worker (pnpm worker) will pick up the job from Redis.
-  // Do NOT call ensureWorkerRunning() here; lazy worker is not reliable in
-  // serverless/Next.js because module-level singleton does not persist across
-  // API invocations. The worker must run as a separate long-lived process.
+  // Step 6: Notify sleeping worker containers via Redis Pub/Sub.
+  // Workers subscribe to this channel and start their BullMQ worker on demand.
+  await publishWorkerWake();
 
   return {
     signedUrl: signedUrlData.signedUrl,
