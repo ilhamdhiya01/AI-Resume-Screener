@@ -8,6 +8,9 @@ import { useHistory } from '@/lib/hooks/history/useHistory';
 import { ANALYSIS_PATH, HISTORY_PATH } from '@/routes';
 
 import DocumentItem from './DocumentItem';
+import EmptyHistory from './EmptyHistory';
+import ErrorHistory from './ErrorHistory';
+import HistoryListSkeleton from './HistoryListSkeleton';
 
 interface DocumentListProps {
   page: number;
@@ -19,7 +22,7 @@ interface DocumentListProps {
 
 const DocumentList = React.memo<DocumentListProps>(
   ({ page, status, search, dateFrom, dateTo }) => {
-    const { data, isPending, isError } = useHistory(
+    const { data, isPending, isError, refetch } = useHistory(
       page,
       status,
       search,
@@ -41,8 +44,8 @@ const DocumentList = React.memo<DocumentListProps>(
       [router]
     );
 
-    if (isPending) return <div>Loading history...</div>;
-    if (isError) return <div>Failed to load history</div>;
+    if (isPending) return <HistoryListSkeleton />;
+    if (isError) return <ErrorHistory onRetry={refetch} />;
 
     const items = data?.data?.items ?? [];
     const totalPages = data?.data?.totalPages ?? 1;
@@ -50,11 +53,7 @@ const DocumentList = React.memo<DocumentListProps>(
     const limit = data?.data?.limit ?? 10;
 
     if (items.length === 0) {
-      return (
-        <div className="mt-6 rounded-xl border border-dashed border-slate-300 bg-slate-50 py-12 text-center text-slate-500">
-          No resume history found.
-        </div>
-      );
+      return <EmptyHistory />;
     }
 
     return (
