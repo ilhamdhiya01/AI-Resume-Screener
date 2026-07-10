@@ -12,10 +12,13 @@ let idleTimeout: NodeJS.Timeout | null = null;
  * startup scripts (e.g. scripts/start-worker.ts) to override the value before
  * the worker starts processing jobs.
  */
-const getIdleTimeoutMs = () =>
-  process.env.WORKER_IDLE_TIMEOUT_MS
-    ? parseInt(process.env.WORKER_IDLE_TIMEOUT_MS, 10)
-    : 10000; // Default 10s for lazy worker mode
+const getIdleTimeoutMs = () => {
+  const value = process.env.WORKER_IDLE_TIMEOUT_MS;
+  if (!value || value === 'never') {
+    return null; // Always-on mode (no idle shutdown)
+  }
+  return parseInt(value, 10);
+};
 
 /**
  * @description **[WORKER - LAZY STARTUP]** Creates and starts the BullMQ worker
@@ -197,8 +200,13 @@ export const ensureWorkerRunning = () => {
 const resetIdleTimeout = () => {
   clearIdleTimer(); // Clear existing timer if any
 
-  // Start new countdown to auto-close
   const idleTimeoutMs = getIdleTimeoutMs();
+  if (idleTimeoutMs === null) {
+    // Always-on mode: do not schedule auto-close
+    return;
+  }
+
+  // Start new countdown to auto-close
   idleTimeout = setTimeout(async () => {
     if (workerInstance) {
       console.log(
