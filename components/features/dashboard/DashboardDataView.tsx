@@ -8,6 +8,7 @@ import DashboardSkeleton from './DashboardSkeleton';
 import RecentAnalyses from './RecentAnalyses';
 import ScoreDistribution from './ScoreDistribution';
 import StatsGrid from './StatsGrid';
+import UpgradeBanner from './UpgradeBanner';
 
 const DashboardDataView = () => {
   const { data, isPending, isError } = useDashboard();
@@ -25,10 +26,18 @@ const DashboardDataView = () => {
   }
 
   const dashboardData = data.data;
+  const { creditInfo } = dashboardData;
+  const isFree = creditInfo.role === 'FREE';
 
   return (
     <div className="flex flex-col gap-6">
-      <StatsGrid stats={dashboardData.stats} />
+      {isFree && <UpgradeBanner />}
+
+      <StatsGrid
+        stats={dashboardData.stats}
+        role={creditInfo.role}
+        creditInfo={creditInfo}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">

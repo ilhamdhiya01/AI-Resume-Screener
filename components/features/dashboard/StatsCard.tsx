@@ -8,6 +8,7 @@ interface StatsCardProps {
   label: string;
   value: string;
   icon: IconName;
+  iconClassName?: string;
   trend: StatTrend;
 }
 
@@ -23,14 +24,25 @@ const TREND_STYLES: Record<StatTrend['direction'], string> = {
   stable: 'bg-slate-100 text-slate-600',
 };
 
-const StatsCard = ({ label, value, icon, trend }: StatsCardProps) => (
+const StatsCard = ({
+  label,
+  value,
+  icon,
+  iconClassName,
+  trend,
+}: StatsCardProps) => (
   <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-sm font-medium text-slate-500">{label}</p>
         <p className="mt-2 text-3xl font-bold text-slate-800">{value}</p>
       </div>
-      <div className="rounded-lg bg-slate-100 p-2 text-slate-500">
+      <div
+        className={classNames(
+          'rounded-lg p-2',
+          iconClassName || 'bg-slate-100 text-slate-500'
+        )}
+      >
         <Icon icon={icon} size={24} />
       </div>
     </div>

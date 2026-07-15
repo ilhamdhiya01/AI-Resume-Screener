@@ -57,10 +57,17 @@ export type ScoreDistribution = {
 /**
  * Complete dashboard payload returned by the service.
  */
+export type CreditInfo = {
+  used: number;
+  limit: number | null;
+  role: Role;
+};
+
 export type DashboardData = {
   stats: DashboardStats;
   recentAnalyses: RecentAnalysisItem[];
   scoreDistribution: ScoreDistribution;
+  creditInfo: CreditInfo;
 };
 
 /**

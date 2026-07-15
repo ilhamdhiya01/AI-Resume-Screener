@@ -11,6 +11,8 @@ import {
   StatTrend,
 } from '@/lib/types/dashboard.types';
 
+import { getCreditStatus } from './credit.service';
+
 /**
  * Computes a percentage trend between current and previous values.
  */
@@ -186,6 +188,7 @@ export const getDashboardData = async (
     registeredUsersPrevious,
     recentAnalyses,
     scoreDistribution,
+    creditInfo,
   ] = await Promise.all([
     prisma.resume.count({ where: resumeWhere }),
     prisma.resume.count({
@@ -215,6 +218,7 @@ export const getDashboardData = async (
     }),
     getRecentAnalyses(resumeWhere),
     getScoreDistribution(resumeWhere),
+    getCreditStatus(userId, role),
   ]);
 
   const averageScore = Math.round(averageScoreResult._avg?.score ?? 0);
@@ -255,5 +259,6 @@ export const getDashboardData = async (
     },
     recentAnalyses,
     scoreDistribution,
+    creditInfo,
   };
 };
