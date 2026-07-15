@@ -1,5 +1,5 @@
-const Dashboard = () => {
-  return <div>Dashboard</div>;
-};
+import { Dashboard } from '@/components/features/dashboard';
 
-export default Dashboard;
+const DashboardPage = () => <Dashboard.Layout />;
+
+export default DashboardPage;

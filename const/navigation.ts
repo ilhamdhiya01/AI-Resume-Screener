@@ -10,7 +10,7 @@ export const SIDEBAR_NAVIGATION: (Omit<NavigationItem, 'icon'> & {
     path: '/',
     order: 0,
     isActive: true,
-    role: ['ADMIN'],
+    role: ['ADMIN', 'PRO', 'FREE'],
   },
   {
     name: 'Analysis',
