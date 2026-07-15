@@ -40,6 +40,7 @@ export type ProfileMinAggregateOutputType = {
   id: string | null;
   userId: string | null;
   phoneNumber: string | null;
+  jobTitle: string | null;
   bio: string | null;
   totalScanned: number | null;
   credits: number | null;
@@ -51,6 +52,7 @@ export type ProfileMaxAggregateOutputType = {
   id: string | null;
   userId: string | null;
   phoneNumber: string | null;
+  jobTitle: string | null;
   bio: string | null;
   totalScanned: number | null;
   credits: number | null;
@@ -62,6 +64,7 @@ export type ProfileCountAggregateOutputType = {
   id: number;
   userId: number;
   phoneNumber: number;
+  jobTitle: number;
   bio: number;
   totalScanned: number;
   credits: number;
@@ -84,6 +87,7 @@ export type ProfileMinAggregateInputType = {
   id?: true;
   userId?: true;
   phoneNumber?: true;
+  jobTitle?: true;
   bio?: true;
   totalScanned?: true;
   credits?: true;
@@ -95,6 +99,7 @@ export type ProfileMaxAggregateInputType = {
   id?: true;
   userId?: true;
   phoneNumber?: true;
+  jobTitle?: true;
   bio?: true;
   totalScanned?: true;
   credits?: true;
@@ -106,6 +111,7 @@ export type ProfileCountAggregateInputType = {
   id?: true;
   userId?: true;
   phoneNumber?: true;
+  jobTitle?: true;
   bio?: true;
   totalScanned?: true;
   credits?: true;
@@ -211,6 +217,7 @@ export type ProfileGroupByOutputType = {
   id: string;
   userId: string;
   phoneNumber: string | null;
+  jobTitle: string | null;
   bio: string | null;
   totalScanned: number;
   credits: number;
@@ -243,6 +250,7 @@ export type ProfileWhereInput = {
   id?: Prisma.StringFilter<'Profile'> | string;
   userId?: Prisma.StringFilter<'Profile'> | string;
   phoneNumber?: Prisma.StringNullableFilter<'Profile'> | string | null;
+  jobTitle?: Prisma.StringNullableFilter<'Profile'> | string | null;
   bio?: Prisma.StringNullableFilter<'Profile'> | string | null;
   totalScanned?: Prisma.IntFilter<'Profile'> | number;
   credits?: Prisma.IntFilter<'Profile'> | number;
@@ -255,6 +263,7 @@ export type ProfileOrderByWithRelationInput = {
   id?: Prisma.SortOrder;
   userId?: Prisma.SortOrder;
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder;
+  jobTitle?: Prisma.SortOrderInput | Prisma.SortOrder;
   bio?: Prisma.SortOrderInput | Prisma.SortOrder;
   totalScanned?: Prisma.SortOrder;
   credits?: Prisma.SortOrder;
@@ -271,6 +280,7 @@ export type ProfileWhereUniqueInput = Prisma.AtLeast<
     OR?: Prisma.ProfileWhereInput[];
     NOT?: Prisma.ProfileWhereInput | Prisma.ProfileWhereInput[];
     phoneNumber?: Prisma.StringNullableFilter<'Profile'> | string | null;
+    jobTitle?: Prisma.StringNullableFilter<'Profile'> | string | null;
     bio?: Prisma.StringNullableFilter<'Profile'> | string | null;
     totalScanned?: Prisma.IntFilter<'Profile'> | number;
     credits?: Prisma.IntFilter<'Profile'> | number;
@@ -285,6 +295,7 @@ export type ProfileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder;
   userId?: Prisma.SortOrder;
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder;
+  jobTitle?: Prisma.SortOrderInput | Prisma.SortOrder;
   bio?: Prisma.SortOrderInput | Prisma.SortOrder;
   totalScanned?: Prisma.SortOrder;
   credits?: Prisma.SortOrder;
@@ -311,6 +322,10 @@ export type ProfileScalarWhereWithAggregatesInput = {
     | Prisma.StringNullableWithAggregatesFilter<'Profile'>
     | string
     | null;
+  jobTitle?:
+    | Prisma.StringNullableWithAggregatesFilter<'Profile'>
+    | string
+    | null;
   bio?: Prisma.StringNullableWithAggregatesFilter<'Profile'> | string | null;
   totalScanned?: Prisma.IntWithAggregatesFilter<'Profile'> | number;
   credits?: Prisma.IntWithAggregatesFilter<'Profile'> | number;
@@ -321,6 +336,7 @@ export type ProfileScalarWhereWithAggregatesInput = {
 export type ProfileCreateInput = {
   id?: string;
   phoneNumber?: string | null;
+  jobTitle?: string | null;
   bio?: string | null;
   totalScanned?: number;
   credits?: number;
@@ -333,6 +349,7 @@ export type ProfileUncheckedCreateInput = {
   id?: string;
   userId: string;
   phoneNumber?: string | null;
+  jobTitle?: string | null;
   bio?: string | null;
   totalScanned?: number;
   credits?: number;
@@ -343,6 +360,7 @@ export type ProfileUncheckedCreateInput = {
 export type ProfileUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   totalScanned?: Prisma.IntFieldUpdateOperationsInput | number;
   credits?: Prisma.IntFieldUpdateOperationsInput | number;
@@ -355,6 +373,7 @@ export type ProfileUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   userId?: Prisma.StringFieldUpdateOperationsInput | string;
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   totalScanned?: Prisma.IntFieldUpdateOperationsInput | number;
   credits?: Prisma.IntFieldUpdateOperationsInput | number;
@@ -366,6 +385,7 @@ export type ProfileCreateManyInput = {
   id?: string;
   userId: string;
   phoneNumber?: string | null;
+  jobTitle?: string | null;
   bio?: string | null;
   totalScanned?: number;
   credits?: number;
@@ -376,6 +396,7 @@ export type ProfileCreateManyInput = {
 export type ProfileUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   totalScanned?: Prisma.IntFieldUpdateOperationsInput | number;
   credits?: Prisma.IntFieldUpdateOperationsInput | number;
@@ -387,6 +408,7 @@ export type ProfileUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   userId?: Prisma.StringFieldUpdateOperationsInput | string;
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   totalScanned?: Prisma.IntFieldUpdateOperationsInput | number;
   credits?: Prisma.IntFieldUpdateOperationsInput | number;
@@ -403,6 +425,7 @@ export type ProfileCountOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   userId?: Prisma.SortOrder;
   phoneNumber?: Prisma.SortOrder;
+  jobTitle?: Prisma.SortOrder;
   bio?: Prisma.SortOrder;
   totalScanned?: Prisma.SortOrder;
   credits?: Prisma.SortOrder;
@@ -419,6 +442,7 @@ export type ProfileMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   userId?: Prisma.SortOrder;
   phoneNumber?: Prisma.SortOrder;
+  jobTitle?: Prisma.SortOrder;
   bio?: Prisma.SortOrder;
   totalScanned?: Prisma.SortOrder;
   credits?: Prisma.SortOrder;
@@ -430,6 +454,7 @@ export type ProfileMinOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   userId?: Prisma.SortOrder;
   phoneNumber?: Prisma.SortOrder;
+  jobTitle?: Prisma.SortOrder;
   bio?: Prisma.SortOrder;
   totalScanned?: Prisma.SortOrder;
   credits?: Prisma.SortOrder;
@@ -509,6 +534,7 @@ export type IntFieldUpdateOperationsInput = {
 export type ProfileCreateWithoutUserInput = {
   id?: string;
   phoneNumber?: string | null;
+  jobTitle?: string | null;
   bio?: string | null;
   totalScanned?: number;
   credits?: number;
@@ -519,6 +545,7 @@ export type ProfileCreateWithoutUserInput = {
 export type ProfileUncheckedCreateWithoutUserInput = {
   id?: string;
   phoneNumber?: string | null;
+  jobTitle?: string | null;
   bio?: string | null;
   totalScanned?: number;
   credits?: number;
@@ -557,6 +584,7 @@ export type ProfileUpdateToOneWithWhereWithoutUserInput = {
 export type ProfileUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   totalScanned?: Prisma.IntFieldUpdateOperationsInput | number;
   credits?: Prisma.IntFieldUpdateOperationsInput | number;
@@ -567,6 +595,7 @@ export type ProfileUpdateWithoutUserInput = {
 export type ProfileUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  jobTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   totalScanned?: Prisma.IntFieldUpdateOperationsInput | number;
   credits?: Prisma.IntFieldUpdateOperationsInput | number;
@@ -582,6 +611,7 @@ export type ProfileSelect<
     id?: boolean;
     userId?: boolean;
     phoneNumber?: boolean;
+    jobTitle?: boolean;
     bio?: boolean;
     totalScanned?: boolean;
     credits?: boolean;
@@ -600,6 +630,7 @@ export type ProfileSelectCreateManyAndReturn<
     id?: boolean;
     userId?: boolean;
     phoneNumber?: boolean;
+    jobTitle?: boolean;
     bio?: boolean;
     totalScanned?: boolean;
     credits?: boolean;
@@ -618,6 +649,7 @@ export type ProfileSelectUpdateManyAndReturn<
     id?: boolean;
     userId?: boolean;
     phoneNumber?: boolean;
+    jobTitle?: boolean;
     bio?: boolean;
     totalScanned?: boolean;
     credits?: boolean;
@@ -632,6 +664,7 @@ export type ProfileSelectScalar = {
   id?: boolean;
   userId?: boolean;
   phoneNumber?: boolean;
+  jobTitle?: boolean;
   bio?: boolean;
   totalScanned?: boolean;
   credits?: boolean;
@@ -646,6 +679,7 @@ export type ProfileOmit<
   | 'id'
   | 'userId'
   | 'phoneNumber'
+  | 'jobTitle'
   | 'bio'
   | 'totalScanned'
   | 'credits'
@@ -685,6 +719,7 @@ export type $ProfilePayload<
       id: string;
       userId: string;
       phoneNumber: string | null;
+      jobTitle: string | null;
       bio: string | null;
       totalScanned: number;
       credits: number;
@@ -1299,6 +1334,7 @@ export interface ProfileFieldRefs {
   readonly id: Prisma.FieldRef<'Profile', 'String'>;
   readonly userId: Prisma.FieldRef<'Profile', 'String'>;
   readonly phoneNumber: Prisma.FieldRef<'Profile', 'String'>;
+  readonly jobTitle: Prisma.FieldRef<'Profile', 'String'>;
   readonly bio: Prisma.FieldRef<'Profile', 'String'>;
   readonly totalScanned: Prisma.FieldRef<'Profile', 'Int'>;
   readonly credits: Prisma.FieldRef<'Profile', 'Int'>;

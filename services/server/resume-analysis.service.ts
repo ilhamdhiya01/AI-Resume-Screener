@@ -7,16 +7,112 @@ import {
   SCORING_SYSTEM_PROMPT,
   SYNTHESIS_SYSTEM_PROMPT,
 } from '@/const/prompt-system';
+import {
+  EXTRACTION_SYSTEM_PROMPT_EN,
+  SCORING_SYSTEM_PROMPT_EN,
+  SYNTHESIS_SYSTEM_PROMPT_EN,
+} from '@/const/prompt-system-en';
+import { UserPreferences } from '@/lib/types/settings.types';
+import { getUserPreferences } from '@/services/server/preferences.service';
 
 import prisma from '../../lib/db';
 import { openai } from '../../lib/open-ai';
 import { supabaseAdmin } from '../../lib/supabase-admin';
+
+/**
+ * @description Select the base system prompt for the requested analysis stage and output language.
+ * @param {'extraction' | 'scoring' | 'synthesis'} stage - Analysis stage.
+ * @param {UserPreferences['language']} language - Selected output language.
+ * @returns {string} Base system prompt in the target language.
+ */
+const getStagePrompt = (
+  stage: 'extraction' | 'scoring' | 'synthesis',
+  language: UserPreferences['language']
+): string => {
+  const isEnglish = language === 'en';
+
+  if (stage === 'extraction') {
+    return isEnglish ? EXTRACTION_SYSTEM_PROMPT_EN : EXTRACTION_SYSTEM_PROMPT;
+  }
+
+  if (stage === 'scoring') {
+    return isEnglish ? SCORING_SYSTEM_PROMPT_EN : SCORING_SYSTEM_PROMPT;
+  }
+
+  return isEnglish ? SYNTHESIS_SYSTEM_PROMPT_EN : SYNTHESIS_SYSTEM_PROMPT;
+};
 
 const updateResumeStatus = async (resumeId: string, status: UploadStatus) => {
   await prisma.resume.update({
     where: { id: resumeId },
     data: { status },
   });
+};
+
+const LANGUAGE_INSTRUCTION: Record<UserPreferences['language'], string> = {
+  id: 'PENTING: Seluruh output — termasuk summary, strengths, suggestions, criticals, matchedSkills, missingSkills, role, education, dan matchSummary — HARUS dalam Bahasa Indonesia. Jangan gunakan bahasa lain. Resume bisa saja berbahasa Inggris, tapi analisis output harus dalam Bahasa Indonesia. JSON keys tetap dalam bahasa Inggris.',
+  en: 'CRITICAL: All output — including summary, strengths, suggestions, criticals, matchedSkills, missingSkills, role, education, and matchSummary — MUST be in English. The resume text may be in Indonesian, but your analysis output must be entirely in English. Do not use Indonesian or any other language. JSON keys remain in English.',
+};
+
+/**
+ * @description Prefix user content with an explicit output language marker.
+ * @param {string} content - Original user content.
+ * @param {UserPreferences['language']} language - Target output language.
+ * @returns {string} Content with language marker.
+ */
+const withLanguageMarker = (
+  content: string,
+  language: UserPreferences['language']
+): string =>
+  `### OUTPUT LANGUAGE: ${language === 'id' ? 'Bahasa Indonesia' : 'English'} ###\n\n${content}`;
+
+const MATCH_SUMMARY_LEVELS: Record<UserPreferences['language'], string> = {
+  id: 'Gunakan label level kecocokan berikut untuk matchSummary: "Sangat Cocok" (85-100), "Cocok" (70-84), "Cukup Cocok" (50-69), "Kurang Cocok" (<50).',
+  en: 'Use the following fit level labels for matchSummary: "Excellent Fit" (85-100), "Good Fit" (70-84), "Fair Fit" (50-69), "Poor Fit" (<50).',
+};
+
+const HIGH_SENSITIVITY_INSTRUCTION =
+  'Mode sensitivitas tinggi: perhatikan juga soft skill, nuansa budaya kerja, potensi transfer skill, dan sinyal lemah pada resume yang mungkin tidak terlihat jelas.';
+
+const SCORING_STANDARD_INSTRUCTION: Record<
+  UserPreferences['scoringStandard'],
+  string
+> = {
+  ats: 'Gunakan standar ATS klasik: fokus pada keyword matching, struktur standar, dan kejelasan section.',
+  creative:
+    'Gunakan standar Creative Roles: nilai portofolio, format non-tradisional, storytelling, dan keunikan skill.',
+  executive:
+    'Gunakan standar Executive: fokus pada leadership metrics, business impact, tenure, strategic influence, dan governance.',
+};
+
+/**
+ * @description Append user preference instructions to the base system prompt.
+ * @param {string} prompt - Base system prompt.
+ * @param {UserPreferences} preferences - User AI preferences.
+ * @param {'extraction' | 'scoring' | 'synthesis'} stage - Analysis stage.
+ * @returns {string} Personalized prompt.
+ */
+const personalizePrompt = (
+  prompt: string,
+  preferences: UserPreferences,
+  stage: 'extraction' | 'scoring' | 'synthesis'
+): string => {
+  const languageInstruction = LANGUAGE_INSTRUCTION[preferences.language];
+  const parts = [languageInstruction, prompt];
+
+  if (stage === 'extraction' && preferences.highSensitivityMode) {
+    parts.push(HIGH_SENSITIVITY_INSTRUCTION);
+    console.log('Personalized prompt:', parts.join('\n\n'));
+  }
+
+  if (stage === 'scoring') {
+    parts.push(SCORING_STANDARD_INSTRUCTION[preferences.scoringStandard]);
+    parts.push(MATCH_SUMMARY_LEVELS[preferences.language]);
+  }
+
+  parts.push(`FINAL REMINDER: ${languageInstruction}`);
+
+  return parts.join('\n\n');
 };
 
 // Loose type for each AI stage result (dynamic JSON from model).
@@ -211,7 +307,7 @@ const extractTextFromFile = async (
  */
 const aiAnalyze = async (
   prompt: string,
-  model: 'deepseek-v4-flash' | 'kimi-k2.7' | 'deepseek-v4-pro',
+  model: 'deepseek-v4-flash' | 'kimi-k2.6' | 'deepseek-v4-pro',
   content: string,
   timeoutMs: number = 60000,
   signal?: AbortSignal
@@ -389,15 +485,18 @@ export const analyzeResume = async (
     // If provided, LLM will compare candidate skills against job requirements
     const resume = await prisma.resume.findUnique({
       where: { id: resumeId },
-      select: { jobDescription: true },
+      include: { user: { select: { id: true } } },
     });
     const jobDescription = resume?.jobDescription || '';
 
-    // const existingExtractedText = await prisma.extractedText.findUnique({
-    //   where: {
-    //     resumeId,
-    //   },
-    // });
+    // Load user AI preferences to personalize the analysis pipeline.
+    const preferences = resume?.user?.id
+      ? await getUserPreferences(resume.user.id)
+      : ({
+          language: 'id',
+          scoringStandard: 'ats',
+          highSensitivityMode: false,
+        } as UserPreferences);
 
     // === STAGE 1: TEXT EXTRACTION (0 → 25%) ===
     await report(0, 'extracting_text_metadata');
@@ -409,7 +508,7 @@ export const analyzeResume = async (
 
     let resumeText: string;
     // Optimization: Skip extraction if checkpoint exists (retry scenario)
-    if (checkpoint?.text) {
+    if (checkpoint && checkpoint.text) {
       console.log('⏭️  Skip STAGE 1 (extraction) - using checkpoint');
       resumeText = checkpoint.text;
     } else {
@@ -462,9 +561,16 @@ export const analyzeResume = async (
 
       // Call DeepSeek API for fact extraction (60s timeout)
       extraction = await aiAnalyze(
-        EXTRACTION_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Fast model for structured extraction
-        `## Resume Text:\n${resumeText}`,
+        personalizePrompt(
+          getStagePrompt('extraction', preferences.language),
+          preferences,
+          'extraction'
+        ),
+        'kimi-k2.6', // Fast model for structured extraction
+        withLanguageMarker(
+          `## Resume Text:\n${resumeText}`,
+          preferences.language
+        ),
         60000, // 60s timeout
         signal
       );
@@ -497,11 +603,18 @@ export const analyzeResume = async (
       // Call DeepSeek API for timeline mapping and scoring (60s timeout)
       // Includes: extraction data, original resume text, and job description (if provided)
       scoring = await aiAnalyze(
-        SCORING_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Same model for consistency
-        `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
-          jobDescription || '(tidak ada job description)'
-        }`,
+        personalizePrompt(
+          getStagePrompt('scoring', preferences.language),
+          preferences,
+          'scoring'
+        ),
+        'kimi-k2.6', // Same model for consistency
+        withLanguageMarker(
+          `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
+            jobDescription || '(tidak ada job description)'
+          }`,
+          preferences.language
+        ),
         60000, // 60s timeout
         signal
       );
@@ -534,9 +647,16 @@ export const analyzeResume = async (
       // Call Kimi API for deep analysis and final scoring (60s timeout)
       // Kimi excels at narrative synthesis and holistic evaluation
       synthesis = await aiAnalyze(
-        SYNTHESIS_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Kimi for deep reasoning and narrative generation
-        `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
+        personalizePrompt(
+          getStagePrompt('synthesis', preferences.language),
+          preferences,
+          'synthesis'
+        ),
+        'kimi-k2.6', // Kimi for deep reasoning and narrative generation
+        withLanguageMarker(
+          `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
+          preferences.language
+        ),
         60000, // 60s timeout
         signal
       );
