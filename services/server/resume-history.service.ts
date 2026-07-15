@@ -15,8 +15,15 @@ const toEndOfDay = (dateStr: string): Date => {
   return new Date(y, (m || 1) - 1, d || 1, 23, 59, 59, 999);
 };
 
-const buildWhere = (userId: string, filters: ResumeHistoryFilters) => {
-  const where: Record<string, unknown> = { userId };
+const buildWhere = (
+  userId: string | undefined,
+  filters: ResumeHistoryFilters
+) => {
+  const where: Record<string, unknown> = {};
+
+  if (userId) {
+    where.userId = userId;
+  }
 
   if (filters.status) {
     where.status = filters.status;
@@ -47,7 +54,7 @@ const buildWhere = (userId: string, filters: ResumeHistoryFilters) => {
 };
 
 export const getUserResumeHistory = async (
-  userId: string,
+  userId: string | undefined,
   filters: ResumeHistoryFilters
 ): Promise<PaginatedResponse<ResumeHistoryItem>> => {
   const requestedPage = Math.max(1, filters.page ?? 1);
@@ -115,7 +122,7 @@ export const deleteResumeById = async (
 };
 
 export const exportResumeHistoryCSV = async (
-  userId: string,
+  userId: string | undefined,
   filters: ResumeHistoryFilters
 ): Promise<Record<string, unknown>[]> => {
   const where = buildWhere(userId, filters);

@@ -67,6 +67,11 @@ export type User = Prisma.UserModel;
  */
 export type Profile = Prisma.ProfileModel;
 /**
+ * Model UserPreference
+ *
+ */
+export type UserPreference = Prisma.UserPreferenceModel;
+/**
  * Model VerificationRequest
  *
  */

@@ -1,7 +1,6 @@
 import React from 'react';
 
 import Button from '@/components/ui/button';
-import { IconProps } from '@/components/ui/icon';
 
 interface PaginationProps {
   currentPage: number;
@@ -93,9 +92,10 @@ const Pagination = React.memo<PaginationProps>(
                 key={page}
                 size="sm"
                 variant={currentPage === page ? 'contained' : 'ghost'}
-                iconButton={`TbNumber${page}` as IconProps['icon']}
+                label={String(page)}
                 type="button"
                 onClick={() => onPageChange(page)}
+                className="aspect-square h-10 w-10 min-w-0! p-2! md:h-11 md:w-11 md:p-2.5!"
               />
             )
           )}

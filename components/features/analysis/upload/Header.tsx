@@ -1,19 +1,26 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React, { useMemo } from 'react';
 import { ErrorCode } from 'react-dropzone';
 import { useShallow } from 'zustand/shallow';
 
+import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useAnalysisLimit } from '@/lib/hooks/analysis/useAnalysisLimit';
+import { SETTINGS_PATH } from '@/routes';
 import { useAnalysisStore } from '@/stores';
 
 const Header = React.memo(() => {
+  const router = useRouter();
   const { fileRejections, file } = useAnalysisStore(
     useShallow((state) => ({
       fileRejections: state.fileRejections,
       file: state.file,
     }))
   );
+  const { credit, isPending: isCreditPending, canAnalyze } = useAnalysisLimit();
+  const isLimitReached = !isCreditPending && !canAnalyze;
 
   const headerMessage: Record<string, string> = useMemo(() => {
     if (fileRejections.length === 0 && file) {
@@ -68,7 +75,7 @@ const Header = React.memo(() => {
           message: allErrors[0]?.message || 'Something went wrong',
         };
     }
-  }, [fileRejections]);
+  }, [file, fileRejections]);
 
   return (
     <div className="flex flex-col gap-4 text-center">
@@ -81,6 +88,34 @@ const Header = React.memo(() => {
       </div>
       <h1 className="text-4xl font-extrabold">{headerMessage?.title}</h1>
       <p className="max-w-xl text-neutral-700">{headerMessage?.message}</p>
+
+      {isLimitReached && credit && (
+        <div className="mx-auto mt-2 flex w-full max-w-2xl flex-col items-start justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-100 p-5 shadow-md sm:flex-row sm:items-center">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-indigo-200 p-2 text-indigo-700">
+              <Icon icon="TbLock" size={22} />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-indigo-800">
+                Usage Limit Reached
+              </p>
+              <p className="text-xs text-indigo-700">
+                You&apos;ve used {credit.used} of {credit.limit} free analysis
+                credits. Upgrade to Pro to continue.
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="contained"
+            label="Upgrade to Pro"
+            suffixIcon="TbArrowRight"
+            onClick={() => router.push(SETTINGS_PATH)}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          />
+        </div>
+      )}
     </div>
   );
 });

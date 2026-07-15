@@ -72,6 +72,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   profile       Profile?
+  preferences   UserPreference?
   resumes       Resume[]
 }
 
@@ -79,12 +80,25 @@ model Profile {
   id            String @id @default(cuid())
   userId        String @unique
   phoneNumber   String?
+  jobTitle      String?
   bio           String?
   totalScanned  Int    @default(0)
   credits       Int    @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserPreference {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  language            String   @default("id")
+  scoringStandard     String   @default("ats")
+  highSensitivityMode Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

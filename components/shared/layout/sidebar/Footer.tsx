@@ -7,10 +7,12 @@ import { signOut, useSession } from 'next-auth/react';
 import React, { useCallback } from 'react';
 
 import Button from '@/components/ui/button';
-import { ANALYSIS_PATH, LOGIN_PATH } from '@/routes';
+import { LOGIN_PATH } from '@/routes';
+import { useAnalysisStore } from '@/stores';
 
 const Footer = React.memo(() => {
   const router = useRouter();
+  const openFileDialog = useAnalysisStore((state) => state.open);
 
   const session = useSession();
 
@@ -21,9 +23,9 @@ const Footer = React.memo(() => {
     router.replace(LOGIN_PATH);
   }, [router]);
 
-  const handleNavigateToAnalysis = useCallback(() => {
-    router.replace(ANALYSIS_PATH);
-  }, [router]);
+  const handleUploadClick = useCallback(() => {
+    openFileDialog?.();
+  }, [openFileDialog]);
 
   return (
     <div className="shrink-0 space-y-3 border-t border-slate-300 p-4">
@@ -31,7 +33,7 @@ const Footer = React.memo(() => {
         preffixIcon="TbFileUpload"
         label="Upload Resume"
         fullWidth
-        onClick={handleNavigateToAnalysis}
+        onClick={handleUploadClick}
       />
       <div className="space-y-2 rounded-md border border-slate-300 bg-white p-4">
         <div className="flex items-center gap-2">

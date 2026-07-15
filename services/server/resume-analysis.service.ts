@@ -3,14 +3,84 @@ import { PDFParse, VerbosityLevel } from 'pdf-parse';
 
 import { Prisma, UploadStatus } from '@/app/generated/prisma/client';
 import {
-  EXTRACTION_SYSTEM_PROMPT,
-  SCORING_SYSTEM_PROMPT,
-  SYNTHESIS_SYSTEM_PROMPT,
-} from '@/const/prompt-system';
+  getAtsExtractionPrompt,
+  getAtsScoringPrompt,
+  getAtsSynthesisPrompt,
+} from '@/const/prompt-system-ats';
+import {
+  getCreativeExtractionPrompt,
+  getCreativeScoringPrompt,
+  getCreativeSynthesisPrompt,
+} from '@/const/prompt-system-creative';
+import {
+  getExecutiveExtractionPrompt,
+  getExecutiveScoringPrompt,
+  getExecutiveSynthesisPrompt,
+} from '@/const/prompt-system-executive';
+import { UserPreferences } from '@/lib/types/settings.types';
+import { getUserPreferences } from '@/services/server/preferences.service';
 
 import prisma from '../../lib/db';
 import { openai } from '../../lib/open-ai';
 import { supabaseAdmin } from '../../lib/supabase-admin';
+
+/**
+ * @description Select the base system prompt for the requested analysis stage and output language.
+ * @param {'extraction' | 'scoring' | 'synthesis'} stage - Analysis stage.
+ * @param {UserPreferences['language']} language - Selected output language.
+ * @returns {string} Base system prompt in the target language.
+ */
+const getStagePrompt = (
+  stage: 'extraction' | 'scoring' | 'synthesis',
+  language: UserPreferences['language'],
+  scoringStandard: UserPreferences['scoringStandard'],
+  highSensitivity: UserPreferences['highSensitivityMode'] = false
+): string => {
+  const promptSet = getPromptSet(scoringStandard);
+
+  if (stage === 'extraction') {
+    return promptSet.getExtractionPrompt(language, highSensitivity);
+  }
+
+  if (stage === 'scoring') {
+    return promptSet.getScoringPrompt(language);
+  }
+
+  return promptSet.getSynthesisPrompt(language);
+};
+
+const getPromptSet = (
+  scoringStandard: UserPreferences['scoringStandard']
+): {
+  getExtractionPrompt: (
+    lang: UserPreferences['language'],
+    highSensitivity?: boolean
+  ) => string;
+  getScoringPrompt: (lang: UserPreferences['language']) => string;
+  getSynthesisPrompt: (lang: UserPreferences['language']) => string;
+} => {
+  if (scoringStandard === 'creative') {
+    return {
+      getExtractionPrompt: getCreativeExtractionPrompt,
+      getScoringPrompt: getCreativeScoringPrompt,
+      getSynthesisPrompt: getCreativeSynthesisPrompt,
+    };
+  }
+
+  if (scoringStandard === 'executive') {
+    return {
+      getExtractionPrompt: getExecutiveExtractionPrompt,
+      getScoringPrompt: getExecutiveScoringPrompt,
+      getSynthesisPrompt: getExecutiveSynthesisPrompt,
+    };
+  }
+
+  return {
+    getExtractionPrompt: getAtsExtractionPrompt,
+    getScoringPrompt: getAtsScoringPrompt,
+    getSynthesisPrompt: getAtsSynthesisPrompt,
+  };
+};
 
 const updateResumeStatus = async (resumeId: string, status: UploadStatus) => {
   await prisma.resume.update({
@@ -211,7 +281,7 @@ const extractTextFromFile = async (
  */
 const aiAnalyze = async (
   prompt: string,
-  model: 'deepseek-v4-flash' | 'kimi-k2.7' | 'deepseek-v4-pro',
+  model: 'deepseek-v4-flash' | 'kimi-k2.6' | 'deepseek-v4-pro',
   content: string,
   timeoutMs: number = 60000,
   signal?: AbortSignal
@@ -389,15 +459,18 @@ export const analyzeResume = async (
     // If provided, LLM will compare candidate skills against job requirements
     const resume = await prisma.resume.findUnique({
       where: { id: resumeId },
-      select: { jobDescription: true },
+      include: { user: { select: { id: true } } },
     });
     const jobDescription = resume?.jobDescription || '';
 
-    // const existingExtractedText = await prisma.extractedText.findUnique({
-    //   where: {
-    //     resumeId,
-    //   },
-    // });
+    // Load user AI preferences to personalize the analysis pipeline.
+    const preferences = resume?.user?.id
+      ? await getUserPreferences(resume.user.id)
+      : ({
+          language: 'id',
+          scoringStandard: 'ats',
+          highSensitivityMode: false,
+        } as UserPreferences);
 
     // === STAGE 1: TEXT EXTRACTION (0 → 25%) ===
     await report(0, 'extracting_text_metadata');
@@ -409,7 +482,7 @@ export const analyzeResume = async (
 
     let resumeText: string;
     // Optimization: Skip extraction if checkpoint exists (retry scenario)
-    if (checkpoint?.text) {
+    if (checkpoint && checkpoint.text) {
       console.log('⏭️  Skip STAGE 1 (extraction) - using checkpoint');
       resumeText = checkpoint.text;
     } else {
@@ -455,14 +528,18 @@ export const analyzeResume = async (
     let extraction: StageResult;
     // Optimization: Skip extraction if checkpoint exists (retry scenario)
     if (checkpoint?.extractionResult) {
-      console.log('⏭️  Skip STAGE 2 (extraction) - using checkpoint');
       extraction = checkpoint.extractionResult as StageResult;
     } else {
       const extractStart = Date.now();
 
       // Call DeepSeek API for fact extraction (60s timeout)
       extraction = await aiAnalyze(
-        EXTRACTION_SYSTEM_PROMPT,
+        getStagePrompt(
+          'extraction',
+          preferences.language,
+          preferences.scoringStandard,
+          preferences.highSensitivityMode
+        ),
         'deepseek-v4-flash', // Fast model for structured extraction
         `## Resume Text:\n${resumeText}`,
         60000, // 60s timeout
@@ -489,7 +566,6 @@ export const analyzeResume = async (
     let scoring: StageResult;
     // Optimization: Skip scoring if checkpoint exists (retry scenario)
     if (checkpoint?.scoringResult) {
-      console.log('⏭️  Skip STAGE 3 (scoring) - using checkpoint');
       scoring = checkpoint.scoringResult as StageResult;
     } else {
       const scoringStart = Date.now();
@@ -497,8 +573,12 @@ export const analyzeResume = async (
       // Call DeepSeek API for timeline mapping and scoring (60s timeout)
       // Includes: extraction data, original resume text, and job description (if provided)
       scoring = await aiAnalyze(
-        SCORING_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Same model for consistency
+        getStagePrompt(
+          'scoring',
+          preferences.language,
+          preferences.scoringStandard
+        ),
+        'kimi-k2.6', // Same model for consistency
         `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
           jobDescription || '(tidak ada job description)'
         }`,
@@ -526,7 +606,6 @@ export const analyzeResume = async (
     let synthesis: StageResult;
     // Optimization: Skip synthesis if checkpoint exists (retry scenario)
     if (checkpoint?.synthesisResult) {
-      console.log('⏭️  Skip STAGE 4 (synthesis) - using checkpoint');
       synthesis = checkpoint.synthesisResult as StageResult;
     } else {
       const synthesisStart = Date.now();
@@ -534,8 +613,12 @@ export const analyzeResume = async (
       // Call Kimi API for deep analysis and final scoring (60s timeout)
       // Kimi excels at narrative synthesis and holistic evaluation
       synthesis = await aiAnalyze(
-        SYNTHESIS_SYSTEM_PROMPT,
-        'deepseek-v4-flash', // Kimi for deep reasoning and narrative generation
+        getStagePrompt(
+          'synthesis',
+          preferences.language,
+          preferences.scoringStandard
+        ),
+        'kimi-k2.6', // Kimi for deep reasoning and narrative generation
         `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
         60000, // 60s timeout
         signal
@@ -585,11 +668,8 @@ export const analyzeResume = async (
 
     await report(100, 'completed');
 
-    console.log('💾 Analysis saved successfully');
-
     // Update to COMPLETED
     await updateResumeStatus(resumeId, 'COMPLETED');
-    console.log(`✅ Resume ${resumeId} analyzed successfully`);
   } catch (error) {
     // Log error details for debugging
     if (error instanceof Error) {

@@ -2,8 +2,10 @@
 
 import { format, parse } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { RoleGuard } from '@/components/shared/role-guard';
 import { Tab } from '@/components/shared/tab';
 import Button from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -42,6 +44,7 @@ const Layout = ({
   const debouncedSearch = useDebounce(searchInput, 500);
   const router = useRouter();
   const { handleExport, isExporting } = useExportCSV();
+  const session = useSession();
 
   const [rangeDate, setRangeDate] = useState<{
     from: Date | null;
@@ -141,13 +144,15 @@ const Layout = ({
             placeholder="Pick a range..."
           />
         </div>
-        <Button
-          label="Export Report (CSV)"
-          preffixIcon="TbDownload"
-          variant="outlined"
-          isLoading={isExporting}
-          onClick={handleExportClick}
-        />
+        <RoleGuard role={session.data?.user?.role || 'FREE'} allow="ADMIN">
+          <Button
+            label="Export Report (CSV)"
+            preffixIcon="TbDownload"
+            variant="outlined"
+            isLoading={isExporting}
+            onClick={handleExportClick}
+          />
+        </RoleGuard>
       </div>
 
       {children}

@@ -2,14 +2,27 @@ import { NextRequest } from 'next/server';
 
 import { auth } from '@/auth';
 import { errorResponse, successResponse } from '@/lib/utils/api-response';
+import { getCreditStatus } from '@/services/server/credit.service';
 import { uploadResumeToSupabaseStorage } from '@/services/server/upload.service';
 
 export const POST = async (request: NextRequest) => {
   try {
     const session = await auth();
 
-    if (!session?.user.id) {
+    if (!session?.user.id || !session?.user.role) {
       return errorResponse('Unauthorized', 401);
+    }
+
+    const { canAnalyze } = await getCreditStatus(
+      session.user.id,
+      session.user.role
+    );
+
+    if (!canAnalyze) {
+      return errorResponse(
+        'Free analysis limit reached. Upgrade to Pro to continue.',
+        403
+      );
     }
 
     const formData = await request.formData();

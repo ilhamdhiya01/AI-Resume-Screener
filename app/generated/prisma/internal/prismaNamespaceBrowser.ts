@@ -58,6 +58,7 @@ export const ModelName = {
   Session: 'Session',
   User: 'User',
   Profile: 'Profile',
+  UserPreference: 'UserPreference',
   VerificationRequest: 'VerificationRequest',
   Resume: 'Resume',
   AnalysisResult: 'AnalysisResult',
@@ -131,6 +132,7 @@ export const ProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   phoneNumber: 'phoneNumber',
+  jobTitle: 'jobTitle',
   bio: 'bio',
   totalScanned: 'totalScanned',
   credits: 'credits',
@@ -140,6 +142,19 @@ export const ProfileScalarFieldEnum = {
 
 export type ProfileScalarFieldEnum =
   (typeof ProfileScalarFieldEnum)[keyof typeof ProfileScalarFieldEnum];
+
+export const UserPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  language: 'language',
+  scoringStandard: 'scoringStandard',
+  highSensitivityMode: 'highSensitivityMode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type UserPreferenceScalarFieldEnum =
+  (typeof UserPreferenceScalarFieldEnum)[keyof typeof UserPreferenceScalarFieldEnum];
 
 export const VerificationRequestScalarFieldEnum = {
   id: 'id',

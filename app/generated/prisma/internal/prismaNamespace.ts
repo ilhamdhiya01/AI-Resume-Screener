@@ -416,6 +416,7 @@ export const ModelName = {
   Session: 'Session',
   User: 'User',
   Profile: 'Profile',
+  UserPreference: 'UserPreference',
   VerificationRequest: 'VerificationRequest',
   Resume: 'Resume',
   AnalysisResult: 'AnalysisResult',
@@ -446,6 +447,7 @@ export type TypeMap<
       | 'session'
       | 'user'
       | 'profile'
+      | 'userPreference'
       | 'verificationRequest'
       | 'resume'
       | 'analysisResult'
@@ -753,6 +755,82 @@ export type TypeMap<
           args: Prisma.ProfileCountArgs<ExtArgs>;
           result:
             | runtime.Types.Utils.Optional<Prisma.ProfileCountAggregateOutputType>
+            | number;
+        };
+      };
+    };
+    UserPreference: {
+      payload: Prisma.$UserPreferencePayload<ExtArgs>;
+      fields: Prisma.UserPreferenceFieldRefs;
+      operations: {
+        findUnique: {
+          args: Prisma.UserPreferenceFindUniqueArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload> | null;
+        };
+        findUniqueOrThrow: {
+          args: Prisma.UserPreferenceFindUniqueOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>;
+        };
+        findFirst: {
+          args: Prisma.UserPreferenceFindFirstArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload> | null;
+        };
+        findFirstOrThrow: {
+          args: Prisma.UserPreferenceFindFirstOrThrowArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>;
+        };
+        findMany: {
+          args: Prisma.UserPreferenceFindManyArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>[];
+        };
+        create: {
+          args: Prisma.UserPreferenceCreateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>;
+        };
+        createMany: {
+          args: Prisma.UserPreferenceCreateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        createManyAndReturn: {
+          args: Prisma.UserPreferenceCreateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>[];
+        };
+        delete: {
+          args: Prisma.UserPreferenceDeleteArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>;
+        };
+        update: {
+          args: Prisma.UserPreferenceUpdateArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>;
+        };
+        deleteMany: {
+          args: Prisma.UserPreferenceDeleteManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateMany: {
+          args: Prisma.UserPreferenceUpdateManyArgs<ExtArgs>;
+          result: BatchPayload;
+        };
+        updateManyAndReturn: {
+          args: Prisma.UserPreferenceUpdateManyAndReturnArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>[];
+        };
+        upsert: {
+          args: Prisma.UserPreferenceUpsertArgs<ExtArgs>;
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPreferencePayload>;
+        };
+        aggregate: {
+          args: Prisma.UserPreferenceAggregateArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserPreference>;
+        };
+        groupBy: {
+          args: Prisma.UserPreferenceGroupByArgs<ExtArgs>;
+          result: runtime.Types.Utils.Optional<Prisma.UserPreferenceGroupByOutputType>[];
+        };
+        count: {
+          args: Prisma.UserPreferenceCountArgs<ExtArgs>;
+          result:
+            | runtime.Types.Utils.Optional<Prisma.UserPreferenceCountAggregateOutputType>
             | number;
         };
       };
@@ -1151,6 +1229,7 @@ export const ProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   phoneNumber: 'phoneNumber',
+  jobTitle: 'jobTitle',
   bio: 'bio',
   totalScanned: 'totalScanned',
   credits: 'credits',
@@ -1160,6 +1239,19 @@ export const ProfileScalarFieldEnum = {
 
 export type ProfileScalarFieldEnum =
   (typeof ProfileScalarFieldEnum)[keyof typeof ProfileScalarFieldEnum];
+
+export const UserPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  language: 'language',
+  scoringStandard: 'scoringStandard',
+  highSensitivityMode: 'highSensitivityMode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+} as const;
+
+export type UserPreferenceScalarFieldEnum =
+  (typeof UserPreferenceScalarFieldEnum)[keyof typeof UserPreferenceScalarFieldEnum];
 
 export const VerificationRequestScalarFieldEnum = {
   id: 'id',
@@ -1347,6 +1439,14 @@ export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<
 >;
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  'Boolean'
+>;
+
+/**
  * Reference to a field of type 'UploadStatus'
  */
 export type EnumUploadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
@@ -1376,14 +1476,6 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<
   $PrismaModel,
   'QueryMode'
->;
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<
-  $PrismaModel,
-  'Boolean'
 >;
 
 /**
@@ -1524,6 +1616,7 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit;
   user?: Prisma.UserOmit;
   profile?: Prisma.ProfileOmit;
+  userPreference?: Prisma.UserPreferenceOmit;
   verificationRequest?: Prisma.VerificationRequestOmit;
   resume?: Prisma.ResumeOmit;
   analysisResult?: Prisma.AnalysisResultOmit;

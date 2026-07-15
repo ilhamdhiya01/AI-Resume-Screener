@@ -824,10 +824,6 @@ export type AnalysisResultUncheckedUpdateOneWithoutResumeNestedInput = {
   >;
 };
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean;
-};
-
 export type AnalysisResultCreateWithoutResumeInput = {
   id?: string;
   score: number;

@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { useJobProgressStore } from '@/stores/analyzing/useJobProgressStore';
 
-import { AnalysisResult } from './analysis-result';
+import { AnalysisResultV2 } from './analysis-result-v2';
 import { Step } from './step';
 
 interface SideContentProps {
@@ -27,9 +27,9 @@ const SideContent = React.memo<SideContentProps>(
     );
 
     return (
-      <aside className="flex w-full max-w-[35%] flex-col border-l border-slate-300 bg-[#f7fafc]">
+      <aside className="flex w-full max-w-[42%] flex-col border-l border-slate-200 bg-white">
         {progress === 100 && status === 'completed' ? (
-          <AnalysisResult
+          <AnalysisResultV2
             score={score}
             items={items}
             matchSummary={matchSummary}

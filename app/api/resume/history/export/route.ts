@@ -39,12 +39,15 @@ export const GET = async (request: NextRequest) => {
 
     const session = await auth();
     const userId = session?.user?.id;
+    const role = session?.user?.role;
 
     if (!userId) {
       return errorResponse('Unauthorized', 401);
     }
 
-    const data = await exportResumeHistoryCSV(userId, {
+    const targetUserId = role === 'ADMIN' ? undefined : userId;
+
+    const data = await exportResumeHistoryCSV(targetUserId, {
       search: searchParam || undefined,
       status: statusParam?.toUpperCase() as
         | 'PENDING'

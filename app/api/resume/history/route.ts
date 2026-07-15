@@ -34,14 +34,16 @@ export const GET = async (request: NextRequest) => {
     const session = await auth();
 
     const userId = session?.user?.id;
+    const role = session?.user?.role;
 
     if (!userId) {
       return errorResponse('Unauthorized', 401);
     }
 
+    const targetUserId = role === 'ADMIN' ? undefined : userId;
     const parsedStatus = parseStatusParam(statusParam);
 
-    const resumes = await getUserResumeHistory(userId, {
+    const resumes = await getUserResumeHistory(targetUserId, {
       status: parsedStatus,
       page: pageParam,
       search: searchParam || undefined,

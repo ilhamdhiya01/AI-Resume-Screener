@@ -11,6 +11,11 @@ export const API_RESUME = `/resume`;
 export const API_RESUME_STATUS = `${API_RESUME}/status`;
 export const API_RESUME_HISTORY = `${API_RESUME}/history`;
 
+export const API_DASHBOARD = `/dashboard`;
+export const API_USER_CREDITS = `/user/credits`;
+export const API_USER_PROFILE = `/user/profile`;
+export const API_USER_PREFERENCES = `/user/preferences`;
+
 export const ROOT_PATH = '/';
 export const ROOT_AUTH_PATH = '/auth';
 

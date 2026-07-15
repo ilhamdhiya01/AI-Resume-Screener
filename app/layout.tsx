@@ -3,6 +3,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 
 import { QueryProvider } from '@/components/providers';
+import GlobalFileUpload from '@/components/shared/global-file-upload/GlobalFileUpload';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -21,7 +22,10 @@ const RootLayout = ({
       <body
         className={`${inter.className} flex min-h-full flex-col bg-[#f0f5ff]`}
       >
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <GlobalFileUpload />
+        </QueryProvider>
       </body>
     </html>
   );
