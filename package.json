@@ -10,7 +10,7 @@
     "lint": "eslint",
     "prepare": "husky",
     "format": "prettier --write .",
-    "worker": "tsx scripts/start-worker.ts",
+    "worker": "tsx watch scripts/start-worker.ts",
     "workers:3": "concurrently \"pnpm worker\" \"pnpm worker\" \"pnpm worker\"",
     "workers:5": "concurrently \"pnpm worker\" \"pnpm worker\" \"pnpm worker\" \"pnpm worker\" \"pnpm worker\"",
     "dev:all": "concurrently \"pnpm dev\" \"pnpm worker\"",
