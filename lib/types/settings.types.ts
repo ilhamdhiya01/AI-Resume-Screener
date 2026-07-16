@@ -2,6 +2,8 @@
  * @description Domain types for the Settings page (Profile & AI Preferences).
  */
 
+import { Role } from '@/app/generated/prisma/enums';
+
 export interface UserProfile {
   id: string;
   email: string | null;
@@ -10,6 +12,7 @@ export interface UserProfile {
   lastName: string;
   phoneNumber: string;
   jobTitle: string;
+  role: Role;
 }
 
 export interface UserProfileInput {

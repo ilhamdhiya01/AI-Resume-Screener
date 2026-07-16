@@ -1,5 +1,3 @@
-import React from 'react';
-
 import DashboardDataView from './DashboardDataView';
 import Header from './Header';
 

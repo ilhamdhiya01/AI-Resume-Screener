@@ -1,10 +1,11 @@
 import { PrismaAdapter } from '@auth/prisma-adapter';
+import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
 
 import { Role } from './app/generated/prisma/enums';
 import authConfig from './auth.config';
 import prisma from './lib/db';
-import { authRoutes } from './routes';
+import { authRoutes, LOGIN_PATH } from './routes';
 import { getUserById } from './services/server/auth.service';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -34,12 +35,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         return true;
       }
 
-      return !!auth?.user;
+      if (!auth?.user) {
+        const from = path + request.nextUrl.search;
+        return NextResponse.redirect(
+          new URL(`${LOGIN_PATH}?from=${encodeURIComponent(from)}`, request.url)
+        );
+      }
+
+      return true;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        const dbUser = await getUserById(user.id);
+        token.id = dbUser?.id ?? user.id;
+        token.role = dbUser?.role ?? Role.FREE;
       }
       return token;
     },

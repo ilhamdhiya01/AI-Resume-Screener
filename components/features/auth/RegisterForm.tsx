@@ -12,6 +12,8 @@ import useRegisterMutation from '@/lib/hooks/auth/useRegisterMutation';
 import { RegisterInput } from '@/lib/types/auth.types';
 import { registerSchema } from '@/schemas/auth.schemas';
 
+import { useTurnstile } from './TurnstileContext';
+
 const RegisterForm = React.memo(() => {
   const { handleRegister, isLoading } = useRegisterMutation();
 
@@ -23,7 +25,7 @@ const RegisterForm = React.memo(() => {
     type: 'password',
   });
 
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const { turnstileToken, setTurnstileToken } = useTurnstile();
 
   const handleShowPassword = () => {
     setHide((prev) => ({

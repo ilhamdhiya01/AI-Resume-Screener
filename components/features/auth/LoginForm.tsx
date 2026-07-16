@@ -12,6 +12,8 @@ import useLoginMutation from '@/lib/hooks/auth/useLoginMutation';
 import { LoginInput } from '@/lib/types/auth.types';
 import { loginSchema } from '@/schemas/auth.schemas';
 
+import { useTurnstile } from './TurnstileContext';
+
 const LoginForm = React.memo(() => {
   const [hide, setHide] = useState<{
     icon: IconProps['icon'];
@@ -21,7 +23,7 @@ const LoginForm = React.memo(() => {
     type: 'password',
   });
 
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const { turnstileToken, setTurnstileToken } = useTurnstile();
 
   const handleShowPassword = () => {
     setHide((prev) => ({

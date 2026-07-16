@@ -9,12 +9,14 @@ import Button from '@/components/ui/button';
 import { LOGIN_PATH, REGISTER_PATH, ROOT_PATH } from '@/routes';
 
 import Header from './Header';
+import { TurnstileProvider, useTurnstile } from './TurnstileContext';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
 }
 
-const Layout = ({ children }: AuthLayoutProps) => {
+const LayoutContent = ({ children }: AuthLayoutProps) => {
+  const { turnstileToken } = useTurnstile();
   const pathName = usePathname();
 
   const isLogin = pathName === LOGIN_PATH;
@@ -41,6 +43,7 @@ const Layout = ({ children }: AuthLayoutProps) => {
           color="neutral"
           label="Continue with Google"
           fullWidth
+          disabled={!turnstileToken}
           onClick={() =>
             signIn('google', {
               callbackUrl: ROOT_PATH,
@@ -62,5 +65,11 @@ const Layout = ({ children }: AuthLayoutProps) => {
     </div>
   );
 };
+
+const Layout = ({ children }: AuthLayoutProps) => (
+  <TurnstileProvider>
+    <LayoutContent>{children}</LayoutContent>
+  </TurnstileProvider>
+);
 
 export default Layout;

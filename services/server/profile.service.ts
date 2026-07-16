@@ -42,6 +42,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile> => {
     lastName,
     phoneNumber: user.profile?.phoneNumber ?? '',
     jobTitle: user.profile?.jobTitle ?? '',
+    role: user.role,
   };
 };
 
