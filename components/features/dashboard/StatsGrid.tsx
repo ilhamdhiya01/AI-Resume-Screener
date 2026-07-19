@@ -29,33 +29,35 @@ type StatItem = {
 const formatNumber = (value: number): string =>
   new Intl.NumberFormat('en-US').format(value);
 
+const createStatItems = (stats: DashboardStats): StatItem[] => [
+  {
+    label: 'Total Resumes Analyzed',
+    value: formatNumber(stats.totalResumes.value),
+    icon: 'TbFileText',
+    iconClassName: 'bg-blue-100 text-blue-600',
+    trend: stats.totalResumes.trend,
+  },
+  {
+    label: 'Avg. Match Score',
+    value: `${stats.averageScore.value}%`,
+    icon: 'TbChartBar',
+    iconClassName: 'bg-emerald-100 text-emerald-600',
+    trend: stats.averageScore.trend,
+  },
+  {
+    label: 'Analyses This Week',
+    value: formatNumber(stats.analysesThisWeek.value),
+    icon: 'TbCalendarWeek',
+    iconClassName: 'bg-amber-100 text-amber-600',
+    trend: stats.analysesThisWeek.trend,
+  },
+];
+
 const StatsGrid = ({ stats, role, creditInfo }: StatsGridProps) => {
-  const items: StatItem[] = [
-    {
-      label: 'Total Resumes Analyzed',
-      value: formatNumber(stats.totalResumes.value),
-      icon: 'TbFileText',
-      iconClassName: 'bg-blue-100 text-blue-600',
-      trend: stats.totalResumes.trend,
-    },
-    {
-      label: 'Avg. Match Score',
-      value: `${stats.averageScore.value}%`,
-      icon: 'TbChartBar',
-      iconClassName: 'bg-emerald-100 text-emerald-600',
-      trend: stats.averageScore.trend,
-    },
-    {
-      label: 'Analyses This Week',
-      value: formatNumber(stats.analysesThisWeek.value),
-      icon: 'TbCalendarWeek',
-      iconClassName: 'bg-amber-100 text-amber-600',
-      trend: stats.analysesThisWeek.trend,
-    },
-  ];
+  const items = createStatItems(stats);
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {items.map((item) => (
         <StatsCard key={item.label} {...item} />
       ))}

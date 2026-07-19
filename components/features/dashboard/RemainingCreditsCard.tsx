@@ -5,6 +5,8 @@ import React from 'react';
 import Icon from '@/components/ui/icon';
 import { CreditInfo } from '@/lib/types/dashboard.types';
 
+import DashboardCard from './DashboardCard';
+
 interface RemainingCreditsCardProps {
   creditInfo: CreditInfo;
 }
@@ -15,17 +17,17 @@ const RemainingCreditsCard = ({ creditInfo }: RemainingCreditsCardProps) => {
   const progress = limit ? Math.min(100, (used / limit) * 100) : 0;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-primary-600 text-sm font-medium">
+    <DashboardCard>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-primary-600 text-xs font-medium sm:text-sm">
             Remaining Credits
           </p>
-          <p className="mt-2 text-3xl font-bold text-slate-800">
+          <p className="mt-1 text-2xl font-bold text-slate-800 sm:text-3xl">
             {limit !== null ? (
               <>
                 {remaining}{' '}
-                <span className="text-xl font-medium text-slate-400">
+                <span className="text-lg font-medium text-slate-400 sm:text-xl">
                   / {limit}
                 </span>
               </>
@@ -34,10 +36,11 @@ const RemainingCreditsCard = ({ creditInfo }: RemainingCreditsCardProps) => {
             )}
           </p>
         </div>
-        <div className="bg-primary-100 text-primary-600 rounded-lg p-2">
-          <Icon icon="TbBox" size={24} />
+        <div className="bg-primary-100 text-primary-600 shrink-0 rounded-lg p-2">
+          <Icon icon="TbBox" size={22} className="sm:size-6" />
         </div>
       </div>
+
       <div className="mt-4">
         <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
           <div
@@ -51,7 +54,7 @@ const RemainingCreditsCard = ({ creditInfo }: RemainingCreditsCardProps) => {
             : 'Unlimited analyses'}
         </p>
       </div>
-    </div>
+    </DashboardCard>
   );
 };
 

@@ -1,19 +1,23 @@
 'use client';
 
 import React from 'react';
-import { Cell, Pie, PieChart } from 'recharts';
+import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 
 import { ScoreDistribution as ScoreDistributionType } from '@/lib/types/dashboard.types';
+
+import DashboardCard from './DashboardCard';
 
 interface ScoreDistributionProps {
   distribution: ScoreDistributionType;
 }
 
-const SEGMENTS = [
+export const SEGMENTS = [
   { key: 'high', label: 'High Match', color: '#22c55e' },
   { key: 'medium', label: 'Medium Match', color: '#facc15' },
   { key: 'low', label: 'Low Match', color: '#fca5a5' },
 ] as const;
+
+const CHART_COLORS = SEGMENTS.map((segment) => segment.color);
 
 const formatCompact = (value: number): string => {
   if (value >= 1000) {
@@ -27,50 +31,52 @@ const ScoreDistribution = ({ distribution }: ScoreDistributionProps) => {
   const { high, medium, low, total } = distribution;
 
   const data = [
-    { name: 'High Match', value: high, color: '#22c55e' },
-    { name: 'Medium Match', value: medium, color: '#facc15' },
-    { name: 'Low Match', value: low, color: '#fca5a5' },
+    { name: 'High Match', value: high },
+    { name: 'Medium Match', value: medium },
+    { name: 'Low Match', value: low },
   ];
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-6 text-lg font-semibold text-slate-800">
+    <DashboardCard className="flex h-full flex-col">
+      <h2 className="mb-4 text-base font-semibold text-slate-800 sm:mb-6 sm:text-lg">
         Score Distribution
       </h2>
 
-      <div className="flex flex-col items-center gap-6">
-        <div className="relative">
-          <PieChart width={165} height={165}>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="name"
-              cx={80}
-              cy={80}
-              innerRadius={55}
-              outerRadius={80}
-              paddingAngle={3}
-              startAngle={90}
-              endAngle={-270}
-              stroke="none"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-          </PieChart>
+      <div className="flex flex-1 flex-col items-center gap-4 sm:gap-6">
+        <div className="relative h-36 w-36 sm:h-40 sm:w-40 lg:h-44 lg:w-44">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius="60%"
+                outerRadius="90%"
+                paddingAngle={3}
+                startAngle={90}
+                endAngle={-270}
+                stroke="none"
+              >
+                {data.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={CHART_COLORS[index]} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold text-slate-800">
+            <span className="text-xl font-bold text-slate-800 sm:text-2xl">
               {formatCompact(total)}
             </span>
-            <span className="text-xs font-medium tracking-wide text-slate-500 uppercase">
+            <span className="text-[10px] font-medium tracking-wide text-slate-500 uppercase sm:text-xs">
               Total
             </span>
           </div>
         </div>
 
-        <div className="w-full space-y-3">
+        <div className="w-full space-y-2 sm:space-y-3">
           {SEGMENTS.map((segment) => {
             const value = distribution[segment.key];
             const percentage =
@@ -91,7 +97,7 @@ const ScoreDistribution = ({ distribution }: ScoreDistributionProps) => {
           })}
         </div>
       </div>
-    </div>
+    </DashboardCard>
   );
 };
 
