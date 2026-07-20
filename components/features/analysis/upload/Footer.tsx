@@ -38,7 +38,7 @@ const Footer = React.memo(() => {
         onClick={handleClick}
         disabled={isButtonDisabled}
         className={classNames(
-          'group relative overflow-hidden rounded-xl px-8 py-4 text-white shadow-lg transition-all duration-300',
+          'group relative w-full overflow-hidden rounded-xl px-8 py-4 text-white shadow-lg transition-all duration-300 sm:w-auto',
           {
             'bg-primary-600 hover:bg-primary-700 cursor-pointer':
               !isButtonDisabled,
@@ -67,13 +67,13 @@ const Footer = React.memo(() => {
         </div>
       </button>
 
-      <div className="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2">
+      <div className="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-2 text-center">
         <Icon
           icon="LuShieldCheck"
           className="text-primary-700 shrink-0 stroke-3"
           size={18}
         />
-        <span className="text-neutral-600">
+        <span className="text-xs text-neutral-600 sm:text-sm">
           Secure, end-to-end encrypted document processing
         </span>
       </div>

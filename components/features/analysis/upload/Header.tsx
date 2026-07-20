@@ -86,16 +86,20 @@ const Header = React.memo(() => {
           size={33}
         />
       </div>
-      <h1 className="text-4xl font-extrabold">{headerMessage?.title}</h1>
-      <p className="max-w-xl text-neutral-700">{headerMessage?.message}</p>
+      <h1 className="text-2xl font-extrabold md:text-3xl lg:text-4xl">
+        {headerMessage?.title}
+      </h1>
+      <p className="max-w-xl px-4 text-sm text-neutral-700 md:text-base lg:px-0">
+        {headerMessage?.message}
+      </p>
 
       {isLimitReached && credit && (
-        <div className="mx-auto mt-2 flex w-full max-w-2xl flex-col items-start justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-100 p-5 shadow-md sm:flex-row sm:items-center">
+        <div className="mx-auto mt-2 flex w-full max-w-2xl flex-col items-start justify-between gap-4 rounded-2xl border border-indigo-200 bg-indigo-100 p-4 shadow-md sm:flex-row sm:items-center sm:p-5">
           <div className="flex items-center gap-3">
             <div className="rounded-full bg-indigo-200 p-2 text-indigo-700">
               <Icon icon="TbLock" size={22} />
             </div>
-            <div className="text-left">
+            <div className="min-w-0 text-left">
               <p className="text-sm font-semibold text-indigo-800">
                 Usage Limit Reached
               </p>
@@ -112,7 +116,7 @@ const Header = React.memo(() => {
             label="Upgrade to Pro"
             suffixIcon="TbArrowRight"
             onClick={() => router.push(SETTINGS_PATH)}
-            className="bg-indigo-600 hover:bg-indigo-700"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 sm:w-auto"
           />
         </div>
       )}

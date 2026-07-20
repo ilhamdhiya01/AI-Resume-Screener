@@ -26,10 +26,10 @@ const LayoutContent = ({ children }: AuthLayoutProps) => {
     : 'Start analyzing resumes with AI precision.';
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="before:bg-primary-800 relative w-[448px] overflow-hidden rounded-xl bg-white p-6 drop-shadow before:absolute before:inset-0 before:top-0 before:h-1.5 before:w-full">
+    <div className="flex min-h-screen items-center justify-center px-4 py-6 sm:px-6">
+      <div className="before:bg-primary-800 relative w-full max-w-md overflow-hidden rounded-xl bg-white p-5 drop-shadow before:absolute before:inset-0 before:top-0 before:h-1.5 before:w-full sm:p-6">
         <Header title={title} subtitle={subtitle} />
-        <div className="mt-8">{children}</div>
+        <div className="mt-6 sm:mt-8">{children}</div>
         <div className="relative flex items-center py-2">
           <div className="grow border-t border-gray-300" />
           <span className="mx-4 shrink text-sm font-medium text-gray-500">
@@ -51,7 +51,7 @@ const LayoutContent = ({ children }: AuthLayoutProps) => {
           }
         />
         <div className="mt-4 text-center">
-          <p className="text-neutral-700">
+          <p className="text-sm text-neutral-700 sm:text-base">
             {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
             <Link
               className="text-primary-700 font-semibold"

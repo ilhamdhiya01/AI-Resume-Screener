@@ -42,7 +42,7 @@ const PreviewRoot = ({
     .endsWith('.docx');
 
   return (
-    <div className="relative flex w-full max-w-[65%] flex-col">
+    <div className="relative flex h-full w-full flex-col lg:h-auto lg:max-w-[65%] lg:flex-1">
       {fileUrl && (
         <Preview.Header
           fileName={fileName}

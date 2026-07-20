@@ -95,11 +95,11 @@ const FilePreview = ({ open }: FilePreviewProps) => {
             )}
           </div>
 
-          <div className="min-w-0 space-y-2 text-center">
-            <h2 className="max-w-lg truncate text-2xl font-semibold">
+          <div className="w-full min-w-0 space-y-2 px-2 text-center">
+            <h2 className="w-full truncate text-lg font-semibold sm:text-xl md:text-2xl">
               {file?.name}
             </h2>
-            <div className="flex justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               <span className="bg-secondary-100 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm">
                 <Image
                   src="/icons/SizeIcon.svg"
@@ -116,7 +116,7 @@ const FilePreview = ({ open }: FilePreviewProps) => {
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             <Button
               size="sm"
               color="danger"
@@ -179,9 +179,11 @@ const FilePreview = ({ open }: FilePreviewProps) => {
             </div>
           </div>
 
-          <div className="space-y-2 text-center">
-            <h2 className="text-3xl font-bold">Drag & Drop Resume</h2>
-            <p className="text-neutral-700">
+          <div className="space-y-2 px-2 text-center">
+            <h2 className="text-xl font-bold sm:text-2xl md:text-3xl">
+              Drag & Drop Resume
+            </h2>
+            <p className="text-sm text-neutral-700 sm:text-base">
               or{' '}
               <span
                 onClick={(e) => {
@@ -194,7 +196,9 @@ const FilePreview = ({ open }: FilePreviewProps) => {
               </span>{' '}
               from your computer
             </p>
-            <p className="text-neutral-500">Supported : PDF, DOCX (Max 10MB)</p>
+            <p className="text-xs text-neutral-500 sm:text-sm">
+              Supported : PDF, DOCX (Max 10MB)
+            </p>
           </div>
         </>
       )}

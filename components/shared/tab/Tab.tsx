@@ -37,7 +37,7 @@ const Tab = React.memo<TabProps>(({ searchParams, items }) => {
   );
 
   return (
-    <div className="my-6 flex w-full gap-8 border-b border-b-slate-300">
+    <div className="scrollbar-none my-6 flex w-full gap-4 overflow-x-auto border-b border-b-slate-300 whitespace-nowrap sm:gap-8">
       {items.map((item) => (
         <TabItem
           key={item.slug}

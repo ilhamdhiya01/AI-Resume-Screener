@@ -69,7 +69,7 @@ const RecentAnalyses = ({ items }: RecentAnalysesProps) => {
           return (
             <div
               key={item.id}
-              className="flex flex-col gap-3 rounded-xl border border-slate-100 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+              className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                 <div
@@ -91,7 +91,7 @@ const RecentAnalyses = ({ items }: RecentAnalysesProps) => {
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end">
+              <div className="flex shrink-0 items-center gap-3 sm:justify-end">
                 <span
                   className={classNames(
                     'rounded-full px-2.5 py-1 text-xs font-medium',

@@ -4,7 +4,6 @@ import React from 'react';
 import { UploadStatus } from '@/app/generated/prisma/enums';
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import Input from '@/components/ui/input';
 import useDeleteResume from '@/lib/hooks/history/useDeleteResume';
 import useDownloadResume from '@/lib/hooks/history/useDownload';
 import useItemJobProgress from '@/lib/hooks/history/useItemJobProgress';
@@ -36,12 +35,7 @@ const DocumentItem = React.memo<DocumentItemProps>(
     const isFailed = status === 'FAILED';
     const showProgress = !isCompleted && !isFailed;
     return (
-      <div className="relative flex items-center gap-6 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-        {/* <Input
-          type="checkbox"
-          className="size-4 shrink-0 cursor-pointer rounded border-slate-300 accent-blue-600"
-        /> */}
-
+      <div className="relative flex flex-col gap-4 overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:gap-4">
         <div className="flex flex-1 items-center gap-4">
           <div
             className={classNames(
@@ -65,7 +59,7 @@ const DocumentItem = React.memo<DocumentItemProps>(
             <p className="truncate text-base font-bold text-slate-700">
               {fileName}
             </p>
-            <div className="flex items-center gap-2 text-sm text-slate-400">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
               <span className="inline-flex items-center gap-1">
                 <Icon icon="TbCalendar" size={16} />
                 {date}
@@ -76,40 +70,38 @@ const DocumentItem = React.memo<DocumentItemProps>(
           </div>
         </div>
 
-        <div className="flex w-20 shrink-0 items-center justify-center">
-          <Score score={score} />
-        </div>
+        <div className="flex items-center justify-between gap-4 sm:w-auto sm:shrink-0 sm:justify-end">
+          <div className="flex w-20 shrink-0 items-center justify-center">
+            <Score score={score} />
+          </div>
 
-        <div className="h-10 w-px shrink-0 bg-slate-200" />
-
-        <div className="flex w-32 shrink-0 items-center justify-center">
-          <span
-            className={classNames(
-              'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold tracking-wide uppercase',
-              {
-                'border-secondary-200 bg-secondary-50 text-secondary-600':
-                  status === 'COMPLETED',
-                'border-tertiary-200 bg-tertiary-50 text-tertiary-600':
-                  status === 'PROCESSING' || status === 'PENDING',
-                'border-red-200 bg-red-50 text-red-600': status === 'FAILED',
-              }
-            )}
-          >
+          <div className="flex w-32 shrink-0 items-center justify-center">
             <span
-              className={classNames('size-2 rounded-full', {
-                'bg-secondary-600': status === 'COMPLETED',
-                'bg-tertiary-600':
-                  status === 'PROCESSING' || status === 'PENDING',
-                'bg-red-600': status === 'FAILED',
-              })}
-            />
-            {status}
-          </span>
+              className={classNames(
+                'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold tracking-wide uppercase',
+                {
+                  'border-secondary-200 bg-secondary-50 text-secondary-600':
+                    status === 'COMPLETED',
+                  'border-tertiary-200 bg-tertiary-50 text-tertiary-600':
+                    status === 'PROCESSING' || status === 'PENDING',
+                  'border-red-200 bg-red-50 text-red-600': status === 'FAILED',
+                }
+              )}
+            >
+              <span
+                className={classNames('size-2 rounded-full', {
+                  'bg-secondary-600': status === 'COMPLETED',
+                  'bg-tertiary-600':
+                    status === 'PROCESSING' || status === 'PENDING',
+                  'bg-red-600': status === 'FAILED',
+                })}
+              />
+              {status}
+            </span>
+          </div>
         </div>
 
-        <div className="h-10 w-px shrink-0 bg-slate-200" />
-
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 sm:ml-auto">
           <Button
             type="button"
             label={status === 'COMPLETED' ? 'View Result' : 'View Details'}

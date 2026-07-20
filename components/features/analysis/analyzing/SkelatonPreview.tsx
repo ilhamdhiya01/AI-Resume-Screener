@@ -5,10 +5,10 @@ import Skelaton from './preview/Skelaton';
 const SkelatonPreview = React.memo(() => {
   return (
     <div className="flex h-[calc(100vh-64px)] w-full animate-pulse overflow-hidden">
-      <div className="relative flex w-full max-w-[65%] flex-col">
+      <div className="relative flex h-full w-full flex-col lg:max-w-[65%]">
         {/* Header skeleton */}
         <header className="flex h-16 shrink-0 items-center border-b border-slate-300 bg-[#f7fafc]">
-          <nav className="flex w-full items-center justify-between px-6">
+          <nav className="flex w-full items-center justify-between px-4 sm:px-6">
             <div className="flex items-center gap-4">
               <div className="size-8 rounded bg-gray-200" />
               <div className="flex flex-col gap-1.5">
@@ -24,11 +24,11 @@ const SkelatonPreview = React.memo(() => {
           </nav>
         </header>
 
-        <div className="relative m-8 flex min-h-[calc(100%-2rem)] flex-col items-center justify-center gap-10 overflow-hidden rounded-xl bg-white drop-shadow-xl">
+        <div className="relative m-4 flex min-h-[calc(100%-2rem)] flex-col items-center justify-center gap-10 overflow-hidden rounded-xl bg-white drop-shadow-xl sm:m-8">
           <Skelaton />
         </div>
       </div>
-      <aside className="flex w-full max-w-[35%] flex-col border-l border-slate-300 bg-[#f7fafc]">
+      <aside className="hidden lg:flex lg:w-full lg:max-w-[35%] lg:flex-col lg:border-l lg:border-slate-300 lg:bg-[#f7fafc]">
         <div className="overflow-auto p-10">
           <div className="space-y-5">
             <div className="relative mx-auto flex size-56 items-center justify-center rounded-full bg-gray-200">
