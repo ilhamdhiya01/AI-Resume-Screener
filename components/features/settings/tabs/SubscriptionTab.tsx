@@ -38,13 +38,13 @@ const SubscriptionTab = React.memo(() => {
   const progress = limit ? Math.min((used / limit) * 100, 100) : 0;
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-6 text-lg font-semibold text-slate-800">
+    <div className="space-y-4 md:space-y-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+        <h2 className="mb-4 text-lg font-semibold text-slate-800 md:mb-6">
           Subscription
         </h2>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-5">
               <div className="flex items-center justify-between">

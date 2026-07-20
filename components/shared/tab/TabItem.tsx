@@ -14,7 +14,7 @@ const TabItem = React.memo<TabItemProps>(
       <label
         htmlFor={slug}
         className={classNames(
-          'border-b-primary-700 text-primary-700 cursor-pointer border-b-2 px-0 py-2 font-semibold transition-colors',
+          'border-b-primary-700 text-primary-700 shrink-0 cursor-pointer border-b-2 px-0 py-2 font-semibold transition-colors',
           {
             'border-b-primary-700 text-primary-700 pointer-events-none':
               isActive,

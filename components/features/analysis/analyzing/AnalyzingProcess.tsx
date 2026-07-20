@@ -106,7 +106,7 @@ const AnalyzingProcess = ({ resumeId }: AnalyzingProcessProps) => {
       {showSkeleton ? (
         <SkelatonPreview />
       ) : (
-        <div className="flex h-[calc(100vh-64px)] w-full">
+        <div className="flex h-[calc(100vh-64px)] w-full flex-col lg:flex-row">
           <Preview
             progress={progress}
             fileName={data?.resume.fileName}

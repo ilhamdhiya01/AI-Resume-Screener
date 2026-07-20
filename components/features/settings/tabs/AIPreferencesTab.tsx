@@ -92,14 +92,14 @@ const AIPreferencesTab = React.memo(() => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-6 text-lg font-semibold text-slate-800">
+    <div className="space-y-4 md:space-y-6">
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+        <h2 className="mb-4 text-lg font-semibold text-slate-800 md:mb-6">
           AI Analysis Preferences
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium text-slate-800">
                 High Sensitivity Mode

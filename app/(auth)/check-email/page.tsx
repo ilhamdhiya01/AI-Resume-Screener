@@ -4,17 +4,17 @@ import { LOGIN_PATH } from '@/routes';
 
 const CheckEmailPage = () => {
   return (
-    <div className="bg-primary-50 flex min-h-screen items-center justify-center">
-      <div className="relative w-[448px] overflow-hidden rounded-xl bg-white p-6 text-center drop-shadow">
-        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100">
-          <Icon icon="TbMail" size={40} className="text-blue-600" />
+    <div className="bg-primary-50 flex min-h-screen items-center justify-center px-4 py-6 sm:px-6">
+      <div className="relative w-full max-w-md overflow-hidden rounded-xl bg-white p-5 text-center drop-shadow sm:p-6">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 sm:h-20 sm:w-20">
+          <Icon icon="TbMail" size={32} className="text-blue-600" />
         </div>
 
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">
+        <h1 className="mb-2 text-xl font-bold text-gray-900 sm:text-2xl">
           Check Your Email
         </h1>
 
-        <p className="mb-6 text-gray-600">
+        <p className="mb-6 text-sm text-gray-600 sm:text-base">
           We sent you a verification link to your email address. Click the link
           to verify your account and get started.
         </p>

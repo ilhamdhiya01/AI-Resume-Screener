@@ -119,7 +119,7 @@ const Layout = ({
   }, [handleExport, params.tab, debouncedSearch, rangeDate.from, rangeDate.to]);
 
   return (
-    <section className="flex flex-col p-8">
+    <section className="flex flex-col gap-4">
       <Header />
       <Tab
         searchParams={params}
@@ -129,20 +129,23 @@ const Layout = ({
         }))}
       />
 
-      <div className="mb-4 flex justify-between">
-        <div className="flex w-full gap-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="flex w-full flex-col gap-3 sm:flex-row">
           <Input
             placeholder="Search..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="min-w-[300px]"
+            className="w-full sm:max-w-xs"
           />
-          <DatePicker
-            mode="range"
-            value={rangeDate}
-            onChange={setRangeDate}
-            placeholder="Pick a range..."
-          />
+          <div className="w-full sm:w-auto">
+            <DatePicker
+              mode="range"
+              value={rangeDate}
+              onChange={setRangeDate}
+              placeholder="Pick a range..."
+              fullWidth
+            />
+          </div>
         </div>
         <RoleGuard role={session.data?.user?.role || 'FREE'} allow="ADMIN">
           <Button
@@ -151,6 +154,7 @@ const Layout = ({
             variant="outlined"
             isLoading={isExporting}
             onClick={handleExportClick}
+            className="w-full md:w-auto"
           />
         </RoleGuard>
       </div>

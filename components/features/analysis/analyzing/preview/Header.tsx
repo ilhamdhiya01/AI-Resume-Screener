@@ -14,9 +14,9 @@ interface HeaderProps {
 const Header = React.memo<HeaderProps>(
   ({ fileName, zoomIn, zoomOut, resetZoom, isDocx }) => {
     return (
-      <header className="flex h-16 items-center border-b border-slate-300 bg-[#f7fafc]">
-        <nav className="flex w-full items-center justify-between px-6">
-          <div className="flex items-center gap-4">
+      <header className="flex h-auto min-h-16 items-center border-b border-slate-300 bg-[#f7fafc]">
+        <nav className="flex w-full flex-col gap-2 px-4 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-0">
+          <div className="flex min-w-0 items-center gap-4">
             <span
               className={classNames('flex size-8 rounded', {
                 'bg-red-200': !isDocx,
@@ -32,14 +32,16 @@ const Header = React.memo<HeaderProps>(
                 size={18}
               />
             </span>
-            <div className="flex flex-col">
-              <span className="truncate font-bold">{fileName}</span>
-              <span className="text-sm leading-none text-slate-500">
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate text-sm font-bold sm:text-base">
+                {fileName}
+              </span>
+              <span className="text-xs leading-none text-slate-500 sm:text-sm">
                 Parsed successfully
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <Icon
               icon="TbZoomIn"
               className="cursor-pointer"

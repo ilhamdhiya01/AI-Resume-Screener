@@ -63,13 +63,13 @@ const Pagination = React.memo<PaginationProps>(
     const to = from + currentCount - 1;
 
     return (
-      <div className="flex items-center justify-between py-4">
-        <p className="text-sm text-gray-600">
+      <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-center text-sm text-gray-600 sm:text-left">
           Showing <span className="font-semibold">{from}</span> to{' '}
           <span className="font-semibold">{to}</span> of{' '}
           <span className="font-semibold">{totalItems}</span> entries
         </p>
-        <div className="inline-flex gap-2">
+        <div className="inline-flex flex-wrap justify-center gap-2 sm:justify-start">
           <Button
             type="button"
             size="sm"

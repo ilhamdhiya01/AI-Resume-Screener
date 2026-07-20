@@ -36,15 +36,17 @@ const SettingsLayout = ({ activeTab, children }: SettingsLayoutProps) => {
   );
 
   return (
-    <section className="flex flex-col gap-6 p-8">
+    <section className="flex flex-col gap-4 md:gap-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">Settings</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-bold text-slate-800 md:text-3xl">
+          Settings
+        </h1>
+        <p className="mt-1 text-sm text-slate-500 md:text-base">
           Manage your account preferences and analysis configurations.
         </p>
       </div>
 
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
         <nav className="flex shrink-0 flex-col gap-1 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:w-64">
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;

@@ -66,20 +66,20 @@ const ProfileTab = React.memo(() => {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-6 text-lg font-semibold text-slate-800">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+      <h2 className="mb-4 text-lg font-semibold text-slate-800 md:mb-6">
         Profile Information
       </h2>
 
       <div className="mb-6 flex items-center gap-4">
-        <div className="flex size-16 items-center justify-center rounded-full bg-indigo-100 text-xl font-semibold text-indigo-600">
+        <div className="flex size-14 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-600 md:size-16 md:text-xl">
           {initials}
         </div>
-        <div>
-          <p className="text-sm font-medium text-slate-700">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-slate-700">
             {profile?.name || 'User'}
           </p>
-          <p className="text-xs text-slate-500">{profile?.email}</p>
+          <p className="truncate text-xs text-slate-500">{profile?.email}</p>
         </div>
       </div>
 

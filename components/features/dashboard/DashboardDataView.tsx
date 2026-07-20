@@ -19,7 +19,7 @@ const DashboardDataView = () => {
 
   if (isError || !data?.data) {
     return (
-      <section className="p-8 text-sm text-slate-600">
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:p-6 lg:p-8">
         Unable to load dashboard. Please try again later.
       </section>
     );
@@ -30,7 +30,7 @@ const DashboardDataView = () => {
   const isFree = creditInfo.role === 'FREE';
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-5 lg:gap-6">
       {isFree && <UpgradeBanner />}
 
       <StatsGrid
@@ -39,7 +39,7 @@ const DashboardDataView = () => {
         creditInfo={creditInfo}
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-3 lg:gap-6">
         <div className="lg:col-span-2">
           <RecentAnalyses items={dashboardData.recentAnalyses} />
         </div>

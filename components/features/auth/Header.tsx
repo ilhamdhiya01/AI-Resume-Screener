@@ -16,11 +16,13 @@ const Header = ({ title, subtitle }: HeaderProps) => {
           height={27}
           unoptimized
         />
-        <h1 className="text-primary-700 text-2xl font-bold">Indigo Insight</h1>
+        <h1 className="text-primary-700 text-xl font-bold sm:text-2xl">
+          Indigo Insight
+        </h1>
       </div>
       <div className="flex flex-col gap-1">
-        <h2 className="text-center text-3xl font-bold">{title}</h2>
-        <p className="text-neutral-700">{subtitle}</p>
+        <h2 className="text-center text-2xl font-bold sm:text-3xl">{title}</h2>
+        <p className="text-sm text-neutral-700 sm:text-base">{subtitle}</p>
       </div>
     </div>
   );
