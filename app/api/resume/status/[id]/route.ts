@@ -67,6 +67,55 @@ export const GET = async (
     const job = await Job.fromId(resumeQueue, id);
 
     if (!job) {
+      // Job expired dari Redis queue — fallback ke DB jika sudah completed.
+      // BullMQ membersihkan completed jobs setelah TTL/restart, tapi
+      // analysisResult tetap tersimpan permanen di Prisma.
+      if (resume.status === 'COMPLETED') {
+        const analysisData = await prisma.analysisResult.findUnique({
+          where: { resumeId: id },
+          select: {
+            atsIssues: true,
+            typoCount: true,
+            hasTypos: true,
+            typoDetails: true,
+            atsRecommendations: true,
+            summary: true,
+            strengths: true,
+            criticals: true,
+            criticalHighlights: true,
+            suggestions: true,
+            score: true,
+            matchSummary: true,
+          },
+        });
+
+        const fileUrl = await getSignedUrl(resume.filePath);
+
+        return successResponse('Job status retrieved', {
+          status: 'completed',
+          progress: 100,
+          step: 'completed',
+          durations: {},
+          completedSteps: [
+            'extracting_text_metadata',
+            'analyzing_competencies',
+            'mapping_timeline',
+            'calculating_score',
+          ],
+          failedReason: null,
+          isCancelled: false,
+          data: analysisData
+            ? {
+                resume: {
+                  fileName: resume.fileName,
+                  filePath: fileUrl,
+                },
+                ...analysisData,
+              }
+            : null,
+        });
+      }
+
       return successResponse('Job not found', {
         status: 'NOT_FOUND',
         progress: 0,

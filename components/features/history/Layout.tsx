@@ -135,9 +135,9 @@ const Layout = ({
             placeholder="Search..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full sm:max-w-xs"
+            className="w-full sm:max-w-xs sm:min-w-xs"
           />
-          <div className="w-full sm:w-auto">
+          <div className="w-full sm:w-auto sm:min-w-xs">
             <DatePicker
               mode="range"
               value={rangeDate}
