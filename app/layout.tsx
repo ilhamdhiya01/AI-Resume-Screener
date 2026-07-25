@@ -1,6 +1,6 @@
-import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
 import { QueryProvider } from '@/components/providers';
