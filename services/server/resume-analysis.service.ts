@@ -262,7 +262,7 @@ const extractTextFromFile = async (
  * - Timeout: Configurable per call (extraction: 60s, scoring: 60s, synthesis: 60s)
  *
  * @param {string} prompt - System prompt (EXTRACTION_SYSTEM_PROMPT, etc.)
- * @param {'deepseek-v4-flash' | 'kimi-k2.6'} model - LLM model identifier
+ * @param {'deepseek-v4-flash' | 'deepseek-v4-pro' | 'kimi-k2.6'} model - LLM model identifier
  * @param {string} content - User content (resume text or JSON from previous stage)
  * @param {number} [timeoutMs=60000] - Request timeout in milliseconds
  * @param {AbortSignal} [signal] - Cancellation signal from worker
@@ -377,7 +377,7 @@ const aiAnalyze = async (
  * - **Checkpointing:** Saves partial results after each stage (enables retry on failure)
  * - **Cancellation:** Checks AbortSignal after each stage (graceful cancellation)
  * - **Progress Reporting:** Streams real-time progress with durations (0% → 100%)
- * - **Model Selection:** DeepSeek for extraction/scoring (fast), Kimi for synthesis (deep reasoning)
+ * - **Model Selection:** DeepSeek Flash for extraction (fast), DeepSeek Pro for scoring + synthesis (deep reasoning)
  * - **Error Handling:** Updates status to FAILED and propagates error to worker
  * - **Job Description:** Optionally includes job description for context-aware scoring
  *
@@ -578,7 +578,7 @@ export const analyzeResume = async (
           preferences.language,
           preferences.scoringStandard
         ),
-        'kimi-k2.6', // Same model for consistency
+        'deepseek-v4-pro', // DeepSeek Pro for consistent scoring & red flag detection
         `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
           jobDescription || '(tidak ada job description)'
         }`,
@@ -618,7 +618,7 @@ export const analyzeResume = async (
           preferences.language,
           preferences.scoringStandard
         ),
-        'kimi-k2.6', // Kimi for deep reasoning and narrative generation
+        'deepseek-v4-pro', // DeepSeek Pro for deep reasoning and narrative generation
         `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
         60000, // 60s timeout
         signal
