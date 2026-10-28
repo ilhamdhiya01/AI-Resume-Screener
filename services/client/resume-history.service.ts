@@ -44,12 +44,3 @@ export const exportResumeHistoryCSV = async (
   });
   return response.data;
 };
-
-export const downloadResume = async (
-  filePath: string
-): Promise<ApiResponse<{ signedUrl: string }>> => {
-  const response = await axiosInstance.post(`${API_RESUME}/signed-url`, {
-    filePath,
-  });
-  return response.data;
-};

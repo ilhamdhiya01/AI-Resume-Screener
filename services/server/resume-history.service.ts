@@ -1,5 +1,5 @@
 import prisma from '@/lib/db';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { deleteResumeFile } from '@/lib/storage/resume-storage';
 import { PaginatedResponse } from '@/lib/types/api.types';
 import { ResumeHistoryFilters } from '@/lib/types/resume-history.types';
 import { ResumeHistoryItem } from '@/lib/types/resume-history.types';
@@ -71,7 +71,6 @@ export const getUserResumeHistory = async (
     select: {
       id: true,
       fileName: true,
-      filePath: true,
       status: true,
       createdAt: true,
       analysis: {
@@ -109,16 +108,17 @@ export const deleteResumeById = async (
     throw new Error('Forbidden');
   }
 
-  if (resume.filePath) {
-    const { error } = await supabaseAdmin.storage
-      .from('resumes')
-      .remove([resume.filePath]);
-    if (error) console.warn('Failed to delete storage file:', error.message);
-  }
-
+  // The row goes first: a leftover file is harmless, a row pointing at a
+  // deleted file is not.
   await prisma.resume.delete({
     where: { id: resumeId },
   });
+
+  try {
+    await deleteResumeFile(resume.filePath);
+  } catch (error) {
+    console.warn('Failed to delete resume file:', (error as Error).message);
+  }
 };
 
 export const exportResumeHistoryCSV = async (

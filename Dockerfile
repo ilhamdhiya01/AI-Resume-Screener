@@ -2,7 +2,7 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10
 
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
@@ -13,13 +13,16 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN pnpm prisma generate
-RUN pnpm build
+# `.env` is in the build context so NEXT_PUBLIC_* values are inlined, but
+# Next copies it into the standalone output: drop it there so no secret ends
+# up in the runtime image (runtime config comes from compose `env_file`).
+RUN pnpm build && rm -f .next/standalone/.env*
 
 # Stage 3: Web (small standalone image)
 FROM node:20-alpine AS web
@@ -37,6 +40,12 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/app/generated/prisma ./app/generated/prisma
 COPY --from=builder /app/prisma ./prisma
 
+# Resume files live on a volume mounted here; created owned by `node` so a
+# new named volume inherits that ownership.
+ENV RESUME_STORAGE_DIR=/data/resumes
+RUN mkdir -p /data/resumes && chown node:node /data/resumes
+USER node
+
 EXPOSE 3000
 
 ENV PORT=3000
@@ -44,11 +53,22 @@ ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
 
+# Migrations: one-off job (`prisma migrate deploy`) run before app/worker.
+# Kept out of the runtime images — the prisma CLI is a dev dependency.
+FROM deps AS migrator
+WORKDIR /app
+# deps installs with --ignore-scripts, so the schema engine is not there yet.
+# Any prisma command fetches it; do it at build time (as root), not on every
+# deploy as the non-root user, which cannot write to node_modules.
+RUN node_modules/.bin/prisma version
+USER node
+CMD ["node_modules/.bin/prisma", "migrate", "deploy"]
+
 # Stage 4: Production dependencies (for worker only)
 FROM deps AS prod-deps
 WORKDIR /app
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10
 
 # Copy lockfile and a stripped package.json that only lists dependencies the
 # worker actually imports. This avoids installing UI-only packages.
@@ -117,4 +137,8 @@ COPY services ./services
 COPY const ./const
 COPY tsconfig.json ./tsconfig.json
 
-CMD ["npx", "tsx", "scripts/start-worker.ts"]
+ENV RESUME_STORAGE_DIR=/data/resumes
+RUN mkdir -p /data/resumes && chown node:node /data/resumes
+USER node
+
+CMD ["node_modules/.bin/tsx", "scripts/start-worker.ts"]

@@ -6,7 +6,7 @@
 
 - **📄 Multi-format Resume Parsing** — Upload PDF and DOCX with `pdf-parse` + `mammoth`
 - **🤖 AI-powered Analysis** — Multi-stage pipeline using OpenAI SDK for resume scoring, ATS optimization, and skill gap detection
-- **📊 Job Progress Tracking** — Real-time checkpoint-based progress with `BullMQ` + Upstash Redis
+- **📊 Job Progress Tracking** — Real-time checkpoint-based progress with `BullMQ` + Redis
 - **💼 Career Coaching** — AI-driven suggestions for professional development
 - **🔐 Secure Auth** — NextAuth v5 + Prisma adapter + Cloudflare Turnstile bot protection
 - **📧 Email Notifications** — Nodemailer + Resend for transactional emails
@@ -21,13 +21,14 @@
 | Language  | TypeScript 5                                               |
 | Styling   | Tailwind CSS v4 + tailwind-variants + tailwind-merge       |
 | Auth      | NextAuth v5 (beta) + Prisma adapter + Cloudflare Turnstile |
-| Database  | PostgreSQL via Prisma 7 + Supabase                         |
-| Queue     | BullMQ + Upstash Redis + ioredis                           |
+| Database  | PostgreSQL 16 (self-hosted, Docker) via Prisma 7           |
+| Queue     | BullMQ + Redis 7 (self-hosted, Docker) + ioredis           |
 | AI        | OpenAI SDK v6                                              |
 | Email     | Nodemailer + Resend                                        |
 | State     | Zustand + TanStack Query                                   |
 | Forms     | react-hook-form + Zod validation                           |
 | PDF/DOCX  | react-pdf + mammoth + pdf-parse                            |
+| Storage   | Local filesystem / Docker volume (resume files)            |
 | Container | Docker (multi-stage build) + docker-compose                |
 
 ## 📁 Project Structure
@@ -50,13 +51,13 @@
 │   ├── helpers/                  # Utility helpers
 │   ├── hooks/                    # Shared React hooks
 │   ├── queue/                    # BullMQ queue setup
+│   ├── storage/                  # Resume file storage + file-type detection
 │   ├── types/                    # Shared TypeScript types
 │   ├── utils/                    # Utility functions
 │   ├── axios.ts                  # Axios instance config
 │   ├── db.ts                     # Prisma client singleton
 │   ├── open-ai.ts                # OpenAI client
 │   ├── smpt.ts                   # Nodemailer SMTP config
-│   ├── supabase-admin.ts         # Supabase admin client
 │   └── tanstack-query.ts         # TanStack Query config
 ├── prisma/
 │   ├── migrations/               # Database migrations
@@ -79,8 +80,9 @@
 ├── eslint.config.mjs             # ESLint config
 ├── prettier.config.json          # Prettier config
 ├── commitlint.config.js          # Commitlint (conventional commits)
-├── Dockerfile                    # Multi-stage Docker build
-└── docker-compose.yaml           # Docker compose for local dev
+├── Dockerfile                    # Multi-stage Docker build (web, worker, migrator)
+├── docker-compose.yaml           # Production stack: db, redis, migrate, app, worker
+└── docker-compose.dev.yml        # Local dev: db + redis only
 ```
 
 ## 🚀 Getting Started
@@ -89,8 +91,7 @@
 
 - Node.js 20+
 - pnpm 9+
-- PostgreSQL database (or Supabase project)
-- Upstash Redis account
+- Docker (runs PostgreSQL and Redis)
 - OpenAI API key
 - Cloudflare Turnstile site/secret keys
 - Resend API key (or SMTP credentials)
@@ -106,13 +107,15 @@ cd AI-Resume-Screener
 pnpm install
 
 # Set up environment variables
-cp .env.example .env
-# Fill in DATABASE_URL, REDIS_URL, OPENAI_API_KEY, etc.
+cp .env.example .env   # read by next dev, the worker and Prisma
+# The defaults point DATABASE_URL / REDIS_URL at the dev containers below;
+# fill in auth, AI, Turnstile and SMTP keys.
 
-# Run database migrations
-pnpm prisma migrate dev
+# Start PostgreSQL + Redis (loopback ports 5444 / 6379)
+docker compose -f docker-compose.dev.yml up -d
 
-# Generate Prisma client
+# Apply migrations and generate the Prisma client
+pnpm prisma migrate deploy
 pnpm prisma generate
 ```
 
@@ -147,15 +150,24 @@ pnpm format        # Prettier
 
 ## 🐳 Docker
 
-```bash
-# Build and run with docker-compose
-docker-compose up --build
+Production runs the whole stack from `docker-compose.yaml`, configured by a `.env` file next to it (see `.env.example`):
 
-# Or build standalone image
-docker build -t ai-resume-screener .
+| Service   | Role                                                                      |
+| --------- | ------------------------------------------------------------------------- |
+| `db`      | PostgreSQL 16, volume `db_data`, no host port                             |
+| `redis`   | Redis 7 with AOF and `noeviction`, volume `redis_data`                    |
+| `migrate` | One-off `prisma migrate deploy`; app and worker start after it succeeds   |
+| `app`     | Next.js standalone server on `127.0.0.1:${APP_PORT:-3000}` (behind nginx) |
+| `worker`  | BullMQ worker, `${WORKER_REPLICAS:-1}` replicas                           |
+
+Uploaded resumes are stored in the `resume_files` volume, shared by `app` and `worker`, and served only through `GET /api/resume/[id]/file` to their owner.
+
+```bash
+docker compose up -d --build     # build and start everything
+docker compose logs -f app worker
 ```
 
-The Dockerfile uses multi-stage build for optimized production image size.
+Back up the `db_data` and `resume_files` volumes together: they are the only copy of user data.
 
 ## 📝 Scripts
 

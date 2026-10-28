@@ -14,7 +14,6 @@ interface DocumentItemProps {
   status: UploadStatus;
   score: number;
   fileName: string;
-  filePath: string;
   date: string;
   time: string;
   id: string;
@@ -22,8 +21,8 @@ interface DocumentItemProps {
 }
 
 const DocumentItem = React.memo<DocumentItemProps>(
-  ({ status, score, fileName, filePath, date, time, id, onViewResult }) => {
-    const { handleDownload, isDownloading } = useDownloadResume();
+  ({ status, score, fileName, date, time, id, onViewResult }) => {
+    const { handleDownload } = useDownloadResume();
     const { handleDelete, isDeleting } = useDeleteResume();
     const { progress } = useItemJobProgress(id, status);
     const isDocx = (fileName || '')
@@ -114,8 +113,7 @@ const DocumentItem = React.memo<DocumentItemProps>(
             variant="ghost"
             color="neutral"
             disabled={!isCompleted}
-            isLoading={isDownloading}
-            onClick={() => handleDownload({ filePath, fileName })}
+            onClick={() => handleDownload(id)}
           />
           <Button
             type="button"

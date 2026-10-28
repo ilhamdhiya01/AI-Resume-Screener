@@ -2,3 +2,5 @@ node_modules
 .next
 .git
 .gitignore
+# Local development uploads (user resumes): never part of an image.
+/storage
