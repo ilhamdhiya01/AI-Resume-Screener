@@ -61,5 +61,10 @@ export const proxy = auth(async (req) => {
 });
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // Static files from `public/` (by extension) skip the proxy: they are
+  // public anyway, and the `authorized` callback would otherwise redirect a
+  // logged-out request for e.g. /icons/Logo.svg to /login.
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|webmanifest)$).*)',
+  ],
 };
