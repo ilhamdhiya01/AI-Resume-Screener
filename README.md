@@ -107,11 +107,11 @@ cd AI-Resume-Screener
 pnpm install
 
 # Set up environment variables
-cp .env.example .env.local
+cp .env.example .env   # read by next dev, the worker and Prisma
 # The defaults point DATABASE_URL / REDIS_URL at the dev containers below;
 # fill in auth, AI, Turnstile and SMTP keys.
 
-# Start PostgreSQL + Redis (loopback ports 5432 / 6379)
+# Start PostgreSQL + Redis (loopback ports 5444 / 6379)
 docker compose -f docker-compose.dev.yml up -d
 
 # Apply migrations and generate the Prisma client

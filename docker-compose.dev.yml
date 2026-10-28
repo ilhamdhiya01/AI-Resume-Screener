@@ -19,7 +19,8 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: resume_screener
     ports:
-      - '127.0.0.1:${DEV_DB_PORT:-5432}:5432'
+      # 5444, not 5432: a native Postgres often already owns 5432 on dev machines.
+      - '127.0.0.1:${DEV_DB_PORT:-5444}:5432'
     volumes:
       - dev_db_data:/var/lib/postgresql/data
     healthcheck:
