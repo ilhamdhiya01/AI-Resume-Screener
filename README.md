@@ -162,9 +162,20 @@ Production runs the whole stack from `docker-compose.yaml`, configured by a `.en
 
 Uploaded resumes are stored in the `resume_files` volume, shared by `app` and `worker`, and served only through `GET /api/resume/[id]/file` to their owner.
 
+Images are built by CI (`.github/workflows/ci-cd.yml`), not on the server:
+
+- every push to `main` / `development` builds `web`, `worker` and `migrator` and pushes them to `ghcr.io/<owner>/ai-resume-screener` as `latest` (+ `sha-<commit>`) / `dev`, with `-worker` and `-migrator` tag suffixes;
+- a push to `main` then copies `docker-compose.yaml` to the VPS and runs `docker compose pull` + `up -d`. The server only needs `docker-compose.yaml` and `.env`.
+
+Repo settings used by CI: secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_DEPLOY_PATH`; variable `NEXT_PUBLIC_CLOUDFLARE_SITE_KEY` (inlined into the client bundle at build time).
+
 ```bash
-docker compose up -d --build     # build and start everything
-docker compose logs -f app worker
+# On the server
+docker compose pull && docker compose up -d     # update to the latest images
+IMAGE_TAG=sha-<commit> docker compose up -d     # roll back to a given commit
+
+# Locally, building from source instead of pulling
+docker compose up -d --build
 ```
 
 Back up the `db_data` and `resume_files` volumes together: they are the only copy of user data.

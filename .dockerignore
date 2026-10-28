@@ -4,3 +4,6 @@ node_modules
 .gitignore
 # Local development uploads (user resumes): never part of an image.
 /storage
+# Secrets never enter the build context; NEXT_PUBLIC_* come in as build args.
+.env*
+!.env.example

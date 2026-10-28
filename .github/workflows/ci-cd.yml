@@ -12,7 +12,12 @@ permissions:
 
 concurrency:
   group: ci-cd-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push supersedes an older run, except on main: never cut a
+  # production deploy off halfway.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/ai-resume-screener
 
 jobs:
   lint-and-typecheck:
@@ -41,27 +46,103 @@ jobs:
       - name: Typecheck
         run: pnpm tsc --noEmit
 
+  # Images are built here, not on the VPS: a Next.js build there competes for
+  # RAM with every other app on the server. main -> latest (+ sha-<sha> for
+  # rollback), development -> dev. Each image has its own tag suffix:
+  # `<tag>` (web), `<tag>-worker`, `<tag>-migrator`.
+  build-and-push:
+    name: Build and push images
+    needs: lint-and-typecheck
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - target: web
+            suffix: ''
+          - target: worker
+            suffix: '-worker'
+          - target: migrator
+            suffix: '-migrator'
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          flavor: |
+            latest=false
+            suffix=${{ matrix.suffix }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=sha,format=long,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=dev,enable=${{ github.ref_name != 'main' }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      # amd64 only: that is the VPS. Next.js under QEMU for arm64 would add
+      # tens of minutes, and these images are not run on dev machines.
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: ${{ matrix.target }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_CLOUDFLARE_SITE_KEY=${{ vars.NEXT_PUBLIC_CLOUDFLARE_SITE_KEY }}
+          cache-from: type=gha,scope=${{ matrix.target }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.target }}
+
+  # The VPS only pulls: docker-compose.yaml is copied over so it always
+  # matches this commit, then the images are pulled and the stack updated.
+  # No `down`: db and redis keep running; `up -d` replaces only containers
+  # whose image changed, after `migrate` succeeds.
   deploy:
     name: Deploy to VPS
-    needs: lint-and-typecheck
-    if: github.ref == 'refs/heads/main'
+    needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.2.2
+      - uses: actions/checkout@v5
+
+      - name: Copy docker-compose.yaml
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          source: docker-compose.yaml
+          target: ${{ secrets.VPS_DEPLOY_PATH }}
+
+      - name: Pull and restart
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          IMAGE_TAG: latest
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: IMAGE_TAG
           script: |
             set -e
             cd ${{ secrets.VPS_DEPLOY_PATH }}
-            git reset --hard
-            git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
-            # Build first while the current version keeps serving. No
-            # `down`: db and redis keep running; `up -d` replaces only the
-            # containers whose image changed, after `migrate` succeeds.
-            docker compose build migrate app worker
+            export IMAGE_TAG="${IMAGE_TAG}"
+            docker compose pull migrate app worker
             docker compose up -d --remove-orphans
             docker image prune -f
             docker compose ps

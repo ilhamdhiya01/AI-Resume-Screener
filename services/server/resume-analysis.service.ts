@@ -21,7 +21,7 @@ import { UserPreferences } from '@/lib/types/settings.types';
 import { getUserPreferences } from '@/services/server/preferences.service';
 
 import prisma from '../../lib/db';
-import { openai } from '../../lib/open-ai';
+import { getOpenAI } from '../../lib/open-ai';
 import { readResumeFile } from '../../lib/storage/resume-storage';
 
 /**
@@ -298,7 +298,7 @@ const aiAnalyze = async (
     console.time(`⏱️  ${model} Analysis`);
     console.log(`🤖 Starting ${model} analysis (timeout: ${timeoutMs}ms)...`);
 
-    const response = await openai.chat.completions.create(
+    const response = await getOpenAI().chat.completions.create(
       {
         model,
         messages: [
