@@ -7,8 +7,7 @@ export type UploadResumeRequest = {
 
 export type UploadResumeResponse = {
   resumeId: string;
-  signedUrl: string;
-  path: string;
+  fileUrl: string;
   fileName: string;
   fileSize: number;
   status: UploadStatus;

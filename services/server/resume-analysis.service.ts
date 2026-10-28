@@ -22,7 +22,7 @@ import { getUserPreferences } from '@/services/server/preferences.service';
 
 import prisma from '../../lib/db';
 import { openai } from '../../lib/open-ai';
-import { supabaseAdmin } from '../../lib/supabase-admin';
+import { readResumeFile } from '../../lib/storage/resume-storage';
 
 /**
  * @description Select the base system prompt for the requested analysis stage and output language.
@@ -188,7 +188,7 @@ const extractFromDocx = async (buffer: Buffer): Promise<string> => {
  * - **Error Handling:** Throws on unsupported format or parsing failure
  * - **Text Cleaning:** Removes extra whitespace for better LLM processing
  *
- * @param {Buffer} buffer - File buffer from Supabase Storage
+ * @param {Buffer} buffer - File buffer from resume storage
  * @param {string} mimetype - MIME type (e.g., "application/pdf")
  * @returns {Promise<string>} Extracted plain text
  * @throws {Error} If mimetype unsupported or extraction fails
@@ -281,7 +281,7 @@ const extractTextFromFile = async (
  */
 const aiAnalyze = async (
   prompt: string,
-  model: 'deepseek-v4-flash' | 'kimi-k2.6' | 'deepseek-v4-pro',
+  model: 'deepseek-v4-flash',
   content: string,
   timeoutMs: number = 60000,
   signal?: AbortSignal
@@ -357,7 +357,7 @@ const aiAnalyze = async (
  * **Data Flow:**
  * 1. Update resume status to PROCESSING in database
  * 2. Load checkpoint (if retry) to resume from last successful stage
- * 3. **Stage 1 (0→25%):** Download file from Supabase & extract text (PDF/DOCX)
+ * 3. **Stage 1 (0→25%):** Read file from resume storage & extract text (PDF/DOCX)
  * 4. **Stage 2 (25→50%):** DeepSeek extraction (competencies, experiences, education)
  * 5. Save checkpoint after Stage 2
  * 6. **Stage 3 (50→85%):** DeepSeek scoring (timeline mapping, red flags, gaps)
@@ -370,7 +370,7 @@ const aiAnalyze = async (
  * **Side Effects:**
  * - **Database Writes:** Multiple updates to `resumes`, `analysisCheckpoint`, `analysisResult` tables
  * - **External API Calls:** 3 LLM API calls (DeepSeek x2, Kimi x1)
- * - **Storage Download:** Fetches file from Supabase Storage (signed URL)
+ * - **Storage Read:** Reads the file from local resume storage
  * - **Redis Updates:** Streams progress via `onProgress` callback (polled by frontend)
  *
  * **Business Logic:**
@@ -394,7 +394,7 @@ const aiAnalyze = async (
  * - Cleared after successful completion (cleanup)
  *
  * @param {string} resumeId - Resume ID (also BullMQ job ID)
- * @param {string} filePath - Supabase Storage path (e.g., "user-123/file.pdf")
+ * @param {string} filePath - Resume storage key (e.g., "user-123/<uuid>.pdf")
  * @param {AbortSignal} signal - Cancellation signal from worker
  * @param {Function} [onProgress] - Callback for streaming progress to Redis
  * @returns {Promise<void>}
@@ -486,27 +486,24 @@ export const analyzeResume = async (
       console.log('⏭️  Skip STAGE 1 (extraction) - using checkpoint');
       resumeText = checkpoint.text;
     } else {
-      // Download file from Supabase Storage and extract text
+      // Read the file from resume storage and extract text
       const extractStart = Date.now();
 
-      // Download file from Supabase Storage (private bucket)
-      const { data: fileData } = await supabaseAdmin.storage
-        .from('resumes')
-        .download(filePath);
-
-      if (!fileData) {
-        throw new Error('Gagal mengunduh file dari storage.');
+      if (!resume) {
+        throw new Error('Resume tidak ditemukan.');
       }
 
-      // Convert blob to buffer and extract text (PDF or DOCX)
-      const fileBuffer = Buffer.from(await fileData.arrayBuffer());
+      const fileBuffer = await readResumeFile(filePath).catch(() => {
+        throw new Error('Gagal membaca file dari storage.');
+      });
 
       // Check for cancellation before expensive text extraction
       if (signal?.aborted) {
         throw new Error('Proses dibatalkan oleh user');
       }
 
-      resumeText = await extractTextFromFile(fileBuffer, fileData.type);
+      // MIME type verified from the file content at upload time.
+      resumeText = await extractTextFromFile(fileBuffer, resume.fileType);
 
       // Track duration and save checkpoint (enables retry from Stage 2)
       durations.extracting_text_metadata = Date.now() - extractStart;
@@ -578,7 +575,7 @@ export const analyzeResume = async (
           preferences.language,
           preferences.scoringStandard
         ),
-        'deepseek-v4-pro', // DeepSeek Pro for consistent scoring & red flag detection
+        'deepseek-v4-flash', // Same model for consistency
         `## Data Ekstraksi:\n${JSON.stringify(extraction)}\n\n## Resume Text:\n${resumeText}\n\n## Job Description:\n${
           jobDescription || '(tidak ada job description)'
         }`,
@@ -618,7 +615,7 @@ export const analyzeResume = async (
           preferences.language,
           preferences.scoringStandard
         ),
-        'deepseek-v4-pro', // DeepSeek Pro for deep reasoning and narrative generation
+        'deepseek-v4-flash', // Same model for consistency
         `## Data Kandidat:\n${JSON.stringify({ ...extraction, ...scoring })}`,
         60000, // 60s timeout
         signal

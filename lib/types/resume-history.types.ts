@@ -14,7 +14,6 @@ export type ResumeHistoryFilters = Partial<{
 export type ResumeHistoryItem = {
   id: string;
   fileName: string;
-  filePath: string;
   status: UploadStatus;
   createdAt: Date;
   analysis?: ResumeAnalysisResult | null;

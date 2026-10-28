@@ -66,7 +66,6 @@ const DocumentList = React.memo<DocumentListProps>(
               status={item.status}
               score={item.analysis?.score ?? 0}
               fileName={item.fileName}
-              filePath={item.filePath}
               date={new Date(item.createdAt).toLocaleDateString()}
               time={new Date(item.createdAt).toLocaleTimeString()}
               onViewResult={handleViewResult}

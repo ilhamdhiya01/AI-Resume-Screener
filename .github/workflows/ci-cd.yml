@@ -58,7 +58,11 @@ jobs:
             cd ${{ secrets.VPS_DEPLOY_PATH }}
             git reset --hard
             git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
-            docker compose down
-            docker compose build --no-cache app worker
-            docker compose up -d
-            docker compose logs --tail=20 app worker
+            # Build first while the current version keeps serving. No
+            # `down`: db and redis keep running; `up -d` replaces only the
+            # containers whose image changed, after `migrate` succeeds.
+            docker compose build migrate app worker
+            docker compose up -d --remove-orphans
+            docker image prune -f
+            docker compose ps
+            docker compose logs --tail=20 migrate app worker

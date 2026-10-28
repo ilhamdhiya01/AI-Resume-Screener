@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import '@/lib/load-env';
 import '@/lib/dommatrix-polyfill';
 
 import { connection } from '@/lib/queue/resume-queue';
