@@ -1,0 +1,42 @@
+# Local development: only Postgres and Redis, published on loopback so
+# `pnpm dev` / `pnpm worker` on the host can reach them.
+#
+#   docker compose -f docker-compose.dev.yml up -d
+#
+# Deliberately not named docker-compose.override.yml: that name is reserved
+# for untracked, server-local overrides (CI's `git pull` would refuse to
+# overwrite one).
+
+# Own project name, so it never mixes with the production stack's containers.
+name: ai-resume-screener-dev
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: resume_screener
+    ports:
+      - '127.0.0.1:${DEV_DB_PORT:-5432}:5432'
+    volumes:
+      - dev_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d resume_screener']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '127.0.0.1:${DEV_REDIS_PORT:-6379}:6379'
+    volumes:
+      - dev_redis_data:/data
+
+volumes:
+  dev_db_data:
+  dev_redis_data:

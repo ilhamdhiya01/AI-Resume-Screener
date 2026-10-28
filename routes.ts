@@ -11,6 +11,10 @@ export const API_RESUME = `/resume`;
 export const API_RESUME_STATUS = `${API_RESUME}/status`;
 export const API_RESUME_HISTORY = `${API_RESUME}/history`;
 
+/** Absolute URL of a resume's file (served only to its owner). */
+export const resumeFileUrl = (resumeId: string, download = false) =>
+  `${API_NEXT}${API_RESUME}/${resumeId}/file${download ? '?download=1' : ''}`;
+
 export const API_DASHBOARD = `/dashboard`;
 export const API_USER_CREDITS = `/user/credits`;
 export const API_USER_PROFILE = `/user/profile`;

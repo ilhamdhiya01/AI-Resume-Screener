@@ -1,77 +1,114 @@
+# Production stack: app + worker with their own Postgres and Redis.
+# Configuration comes from `.env` next to this file (see `.env.example`).
+# For local development, `docker-compose.dev.yml` runs only db + redis.
+
 services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: resume_screener
+    # No host port: only migrate/app/worker reach Postgres, over the Compose
+    # network.
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d resume_screener']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # AOF so queued jobs survive a restart; noeviction so Redis never drops
+    # queue keys silently when memory is full.
+    command:
+      [
+        'redis-server',
+        '--appendonly',
+        'yes',
+        '--maxmemory',
+        '256mb',
+        '--maxmemory-policy',
+        'noeviction',
+      ]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # One-off job: applies pending Prisma migrations, then exits.
+  migrate:
+    build:
+      context: .
+      target: migrator
+    restart: 'no'
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+
   app:
     build:
       context: .
-      dockerfile: Dockerfile
       target: web
-    ports:
-      - '3000:3000'
-    environment:
-      - NODE_ENV=production
-      # NextAuth
-      - NEXTAUTH_URL=${NEXTAUTH_URL}
-      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      # Google OAuth
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      # Supabase
-      - DATABASE_URL=${DATABASE_URL}
-      - DATABASE_URL_POOLER=${DATABASE_URL_POOLER}
-      - SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
-      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      # Upstash Redis
-      - REDIS_URL=${REDIS_URL}
-      # OpenAI
-      - AI_API_KEY=${AI_API_KEY}
-      - AI_BASE_URL=${AI_BASE_URL}
-      # Turnstile
-      - NEXT_PUBLIC_CLOUDFLARE_SITE_KEY=${NEXT_PUBLIC_CLOUDFLARE_SITE_KEY}
-      - CLOUDFLARE_SECRET_KEY=${CLOUDFLARE_SECRET_KEY}
-      # SMTP
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - SMTP_SECURE=${SMTP_SECURE}
-
     restart: unless-stopped
+    env_file: .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    # Loopback only: nginx (behind Cloudflare) is the sole public entrypoint.
+    # Docker-published ports bypass ufw, so binding 0.0.0.0 would expose it.
+    ports:
+      - '127.0.0.1:${APP_PORT:-3000}:3000'
+    environment:
+      # Fixed here so an empty value in .env cannot move files off the volume.
+      RESUME_STORAGE_DIR: /data/resumes
+    volumes:
+      - resume_files:/data/resumes
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://127.0.0.1:3000/login', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
   worker:
     build:
       context: .
-      dockerfile: Dockerfile
       target: worker
-    environment:
-      - NODE_ENV=production
-      # NextAuth
-      - NEXTAUTH_URL=${NEXTAUTH_URL}
-      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      # Google OAuth
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      # Supabase
-      - DATABASE_URL=${DATABASE_URL}
-      - DATABASE_URL_POOLER=${DATABASE_URL_POOLER}
-      - SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
-      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      # Upstash Redis
-      - REDIS_URL=${REDIS_URL}
-      # OpenAI
-      - AI_API_KEY=${AI_API_KEY}
-      - AI_BASE_URL=${AI_BASE_URL}
-      # Turnstile
-      - NEXT_PUBLIC_CLOUDFLARE_SITE_KEY=${NEXT_PUBLIC_CLOUDFLARE_SITE_KEY}
-      - CLOUDFLARE_SECRET_KEY=${CLOUDFLARE_SECRET_KEY}
-      # SMTP
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - SMTP_SECURE=${SMTP_SECURE}
     restart: unless-stopped
+    env_file: .env
+    environment:
+      # Local Redis has no command quota, so keep the BullMQ worker running
+      # instead of the lazy start/idle-close mode built for Upstash.
+      WORKER_IDLE_TIMEOUT_MS: ${WORKER_IDLE_TIMEOUT_MS:-never}
+      RESUME_STORAGE_DIR: /data/resumes
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    volumes:
+      - resume_files:/data/resumes
     deploy:
-      replicas: 5
+      replicas: ${WORKER_REPLICAS:-1}
+
+volumes:
+  db_data:
+  redis_data:
+  resume_files:

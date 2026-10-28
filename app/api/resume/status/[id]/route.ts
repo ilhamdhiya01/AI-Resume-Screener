@@ -1,17 +1,25 @@
 import { Job } from 'bullmq';
 import { NextRequest } from 'next/server';
 
+import { auth } from '@/auth';
 import prisma from '@/lib/db';
 import { resumeQueue } from '@/lib/queue';
 import { cancelSpecificJob, retrySpecificJob } from '@/lib/queue/resume-worker';
 import { errorResponse, successResponse } from '@/lib/utils/api-response';
-import { getSignedUrl } from '@/services/server/upload.service';
+import { resumeFileUrl } from '@/routes';
 
 export const GET = async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return errorResponse('Unauthorized', 401);
+    }
+
     const { id } = await params;
     const { searchParams } = request.nextUrl;
 
@@ -21,6 +29,24 @@ export const GET = async (
     if (!id) {
       return errorResponse('ID is required', 400);
     }
+
+    // Ownership is checked before any action or read: the job ID is the
+    // resume ID, so without this anyone holding an ID could read the
+    // analysis or retry/cancel another user's job.
+    const resume = await prisma.resume.findUnique({
+      where: { id },
+      select: {
+        userId: true,
+        fileName: true,
+        status: true,
+      },
+    });
+
+    if (!resume || resume.userId !== userId) {
+      return errorResponse('Resume not found', 404);
+    }
+
+    const fileUrl = resumeFileUrl(id);
 
     // Handle action dulu jika ada
     if (isRetry) {
@@ -45,22 +71,6 @@ export const GET = async (
           400
         );
       }
-    }
-
-    //  Query Resume first (always exists)
-    const resume = await prisma.resume.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        fileName: true,
-        filePath: true,
-        status: true,
-      },
-    });
-
-    if (!resume) {
-      return errorResponse('Resume not found', 404);
     }
 
     // Direct lookup by ID (1 HGETALL) instead of getJobs() (N commands)
@@ -88,8 +98,6 @@ export const GET = async (
             matchSummary: true,
           },
         });
-
-        const fileUrl = await getSignedUrl(resume.filePath);
 
         return successResponse('Job status retrieved', {
           status: 'completed',
@@ -175,7 +183,6 @@ export const GET = async (
     const mergedDurations = { ...checkpointDurations, ...durations };
 
     let analysisData = null;
-    let fileUrl = '';
 
     if (state === 'completed' && progressValue === 100) {
       analysisData = await prisma.analysisResult.findUnique({
@@ -197,8 +204,6 @@ export const GET = async (
           matchSummary: true,
         },
       });
-
-      fileUrl = await getSignedUrl(resume.filePath);
     }
 
     return successResponse('Job status retrieved', {
