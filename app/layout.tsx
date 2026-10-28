@@ -1,9 +1,26 @@
 import './globals.css';
 
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
 import { QueryProvider } from '@/components/providers';
 import GlobalFileUpload from '@/components/shared/global-file-upload/GlobalFileUpload';
+
+export const metadata: Metadata = {
+  title: 'Indigo Insight - AI Resume Screener',
+  description: 'AI-powered resume screening and analysis platform.',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#3525CD',
+};
 
 const inter = Inter({
   variable: '--font-inter',

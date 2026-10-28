@@ -34,6 +34,6 @@ export const SIDEBAR_NAVIGATION: (Omit<NavigationItem, 'icon'> & {
     path: '/settings',
     order: 3,
     isActive: true,
-    role: ['ADMIN'],
+    role: ['ADMIN', 'PRO'],
   },
 ] as const;
