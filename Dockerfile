@@ -18,10 +18,14 @@ RUN npm install -g pnpm@10
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# NEXT_PUBLIC_* values are inlined into the client bundle at build time, so
+# they come in as build args (CI: repo variable). `.env` files are excluded
+# from the build context (.dockerignore); the rm below is a second guard,
+# since Next copies any .env into the standalone output.
+ARG NEXT_PUBLIC_CLOUDFLARE_SITE_KEY
+ENV NEXT_PUBLIC_CLOUDFLARE_SITE_KEY=$NEXT_PUBLIC_CLOUDFLARE_SITE_KEY
+
 RUN pnpm prisma generate
-# `.env` is in the build context so NEXT_PUBLIC_* values are inlined, but
-# Next copies it into the standalone output: drop it there so no secret ends
-# up in the runtime image (runtime config comes from compose `env_file`).
 RUN pnpm build && rm -f .next/standalone/.env*
 
 # Stage 3: Web (small standalone image)
@@ -54,13 +58,21 @@ ENV HOSTNAME="0.0.0.0"
 CMD ["node", "server.js"]
 
 # Migrations: one-off job (`prisma migrate deploy`) run before app/worker.
-# Kept out of the runtime images — the prisma CLI is a dev dependency.
-FROM deps AS migrator
+# Only the prisma CLI and dotenv (for prisma.config.ts), at the versions
+# package.json declares — not the whole dependency tree.
+FROM node:20-alpine AS migrator
 WORKDIR /app
-# deps installs with --ignore-scripts, so the schema engine is not there yet.
-# Any prisma command fetches it; do it at build time (as root), not on every
-# deploy as the non-root user, which cannot write to node_modules.
-RUN node_modules/.bin/prisma version
+# package.json stays out of /app: with it present, `npm install <pkg>` would
+# install every dependency it lists. `prisma version` fetches the schema
+# engine now (as root), not on every deploy as the non-root user.
+COPY package.json /tmp/package.json
+RUN npm install --no-save --no-audit --no-fund \
+      "prisma@$(node -p "require('/tmp/package.json').devDependencies.prisma")" \
+      "dotenv@$(node -p "require('/tmp/package.json').dependencies.dotenv")" \
+  && node_modules/.bin/prisma version \
+  && rm /tmp/package.json
+COPY prisma ./prisma
+COPY prisma.config.ts ./prisma.config.ts
 USER node
 CMD ["node_modules/.bin/prisma", "migrate", "deploy"]
 
